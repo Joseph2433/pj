@@ -2,14 +2,30 @@
 #include "Core/GameState.h"
 #include <SFML/Graphics.hpp>
 #include <vector>
+#include <string>
+
+class StateManager;
+
+struct MenuItem
+{
+    sf::Text text;
+    std::string action;
+    sf::Color normalColor = sf::Color::White;
+    sf::Color selectedColor = sf::Color::Yellow;
+    bool isSelected = false;
+
+    MenuItem(const std::string &str, const std::string &act)
+        : action(act), isSelected(false)
+    {
+        text.setString(str);
+    }
+};
 
 class MenuState : public GameState
 {
 public:
     MenuState(StateManager *stateManager);
-    virtual ~MenuState() = default;
 
-    // 继承的函数
     void init() override;
     void cleanup() override;
     void handleEvents(const sf::Event &event) override;
@@ -17,34 +33,19 @@ public:
     void render(sf::RenderWindow &window) override;
 
 private:
-    struct MenuItem
-    {
-        sf::Text text;
-        std::string action;
-        sf::Color normalColor;
-        sf::Color selectedColor;
-        bool isSelected;
-
-        // 简化构造函数，不需要字体参数
-        MenuItem(const std::string &str, const std::string &act)
-            : action(act), normalColor(sf::Color::White), selectedColor(sf::Color::Yellow), isSelected(false)
-        {
-            text.setString(str);
-            // 不设置字体，使用SFML默认字体
-            text.setCharacterSize(30);
-            text.setFillColor(normalColor);
-        }
-    };
-
-    // 菜单项
-    std::vector<MenuItem> m_menuItems;
-    int m_selectedIndex;
+    // 字体相关
+    sf::Font m_font;              // 自定义字体
+    bool m_useCustomFont = false; // 是否成功加载自定义字体
 
     // UI元素
-    sf::Text m_titleText;
     sf::RectangleShape m_background;
+    sf::Text m_titleText;
+    std::vector<MenuItem> m_menuItems;
 
-    // 方法
+    // 菜单状态
+    int m_selectedIndex;
+
+    // 私有方法
     void setupMenu();
     void updateSelection();
     void executeAction(const std::string &action);

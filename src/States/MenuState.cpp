@@ -4,21 +4,45 @@
 #include <iostream>
 
 MenuState::MenuState(StateManager *stateManager)
-    : GameState(stateManager), m_selectedIndex(0)
+    : GameState(stateManager), m_selectedIndex(0), m_useCustomFont(false)
 {
 }
 
 void MenuState::init()
 {
-    std::cout << "MenuState initialized" << std::endl;
+    // 尝试加载字体
+    bool fontLoaded = false;
+    // 系统字体
+    if (m_font.loadFromFile("C:/Windows/Fonts/arial.ttf"))
+    {
+        fontLoaded = true;
+    }
+    // 备用字体 Windows微软雅黑
+    else if (m_font.loadFromFile("C:/Windows/Fonts/msyh.ttc"))
+    {
+        fontLoaded = true;
+    }
+
+    if (fontLoaded)
+    {
+        m_useCustomFont = true;
+    }
+    else
+    {
+        m_useCustomFont = false;
+    }
 
     // 设置背景
     m_background.setSize(sf::Vector2f(800, 600));
     m_background.setFillColor(sf::Color(30, 30, 50));
 
-    // 不使用自定义字体，直接使用系统默认字体
-    // 设置标题 - 不设置字体，使用SFML默认字体
+    // 设置标题
     m_titleText.setString("Game Menu");
+    if (m_useCustomFont)
+    {
+        m_titleText.setFont(m_font);
+    }
+
     m_titleText.setCharacterSize(48);
     m_titleText.setFillColor(sf::Color::White);
 
@@ -31,7 +55,6 @@ void MenuState::init()
 
 void MenuState::cleanup()
 {
-    std::cout << "MenuState cleaned up" << std::endl;
     m_menuItems.clear();
 }
 
@@ -39,7 +62,7 @@ void MenuState::setupMenu()
 {
     m_menuItems.clear();
 
-    // 创建菜单项 - 不使用字体参数
+    // 创建菜单项
     m_menuItems.emplace_back("Start Game", "start");
     m_menuItems.emplace_back("Options", "options");
     m_menuItems.emplace_back("Exit", "exit");
@@ -50,44 +73,44 @@ void MenuState::setupMenu()
 
     for (size_t i = 0; i < m_menuItems.size(); ++i)
     {
+        // 设置字体
+        if (m_useCustomFont)
+        {
+            m_menuItems[i].text.setFont(m_font);
+        }
+
         // 设置文本属性
         m_menuItems[i].text.setCharacterSize(36);
         m_menuItems[i].text.setFillColor(m_menuItems[i].normalColor);
 
         // 居中对齐
         sf::FloatRect textBounds = m_menuItems[i].text.getLocalBounds();
-        m_menuItems[i].text.setPosition((800 - textBounds.width) / 2, startY + i * spacing);
+        float posX = (800 - textBounds.width) / 2;
+        float posY = startY + i * spacing;
+        m_menuItems[i].text.setPosition(posX, posY);
     }
 
     // 选中第一个菜单项
     m_selectedIndex = 0;
     updateSelection();
-
-    std::cout << "Menu setup completed with " << m_menuItems.size() << " items" << std::endl;
 }
 
 void MenuState::handleEvents(const sf::Event &event)
 {
     if (event.type == sf::Event::KeyPressed)
     {
-        std::cout << "Key pressed: " << event.key.code << std::endl;
-
         switch (event.key.code)
         {
         case sf::Keyboard::Up:
-            std::cout << "Moving up" << std::endl;
             moveUp();
             break;
         case sf::Keyboard::Down:
-            std::cout << "Moving down" << std::endl;
             moveDown();
             break;
         case sf::Keyboard::Enter:
-            std::cout << "Enter pressed" << std::endl;
             select();
             break;
         case sf::Keyboard::Escape:
-            std::cout << "Escape pressed" << std::endl;
             executeAction("exit");
             break;
         default:
@@ -108,19 +131,35 @@ void MenuState::render(sf::RenderWindow &window)
     window.draw(m_background);
 
     // 渲染标题
-    window.draw(m_titleText);
+    if (m_useCustomFont)
+    {
+        window.draw(m_titleText);
+    }
+    else
+    {
+        // 即使没有字体也尝试渲染，看看会发生什么
+        window.draw(m_titleText);
+    }
 
     // 渲染菜单项
-    for (const auto &item : m_menuItems)
+    for (size_t i = 0; i < m_menuItems.size(); ++i)
     {
-        window.draw(item.text);
+        const auto &item = m_menuItems[i];
+
+        if (m_useCustomFont)
+        {
+            window.draw(item.text);
+        }
+        else
+        {
+            // 即使没有字体也尝试渲染
+            window.draw(item.text);
+        }
     }
 }
 
 void MenuState::updateSelection()
 {
-    std::cout << "Updating selection to index: " << m_selectedIndex << std::endl;
-
     for (size_t i = 0; i < m_menuItems.size(); ++i)
     {
         if (static_cast<int>(i) == m_selectedIndex)
@@ -138,23 +177,18 @@ void MenuState::updateSelection()
 
 void MenuState::executeAction(const std::string &action)
 {
-    std::cout << "Executing action: " << action << std::endl;
-
     if (action == "start")
     {
-        std::cout << "Starting game..." << std::endl;
         // TODO: 切换到游戏状态
         // m_stateManager->changeState(std::make_unique<GamePlayState>(m_stateManager));
     }
     else if (action == "options")
     {
-        std::cout << "Opening options..." << std::endl;
         // TODO: 切换到选项状态
         // m_stateManager->pushState(std::make_unique<OptionsState>(m_stateManager));
     }
     else if (action == "exit")
     {
-        std::cout << "Exiting game..." << std::endl;
         m_stateManager->clearStates();
     }
 }
