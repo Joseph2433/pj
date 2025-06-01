@@ -1,130 +1,145 @@
 #include "Grid.h"
-#include "../Entities/Plant.h"
-#include "../Entities/Zombie.h"
+#include "../Utils/Constants.h"
 
-GridCell::GridCell()
-    : m_cellType(GRASS)
+Grid::Grid()
+    : m_rows(GRID_ROWS), m_cols(GRID_COLS), m_cellWidth(GRID_WIDTH), m_cellHeight(GRID_HEIGHT), m_startPosition(GRID_START_X, GRID_START_Y)
 {
-}
 
-void GridCell::addZombie(std::shared_ptr<Zombie> zombie)
-{
-    m_zombies.push_back(zombie);
-}
-
-void GridCell::removeZombie(std::shared_ptr<Zombie> zombie)
-{
-    auto it = std::find(m_zombies.begin(), m_zombies.end(), zombie);
-    if (it != m_zombies.end())
+    // 初始化占用状态数组
+    m_occupiedCells.resize(m_rows);
+    for (int i = 0; i < m_rows; ++i)
     {
-        m_zombies.erase(it);
+        m_occupiedCells[i].resize(m_cols, false);
     }
 }
 
-Grid::Grid() : m_showGrid(false)
+void Grid::initialize()
 {
-    // 初始化网格可视化
-    m_cellOutline.setSize(sf::Vector2f(GRID_CELL_WIDTH - 1, GRID_CELL_HEIGHT - 1));
-    m_cellOutline.setFillColor(sf::Color::Transparent);
-    m_cellOutline.setOutlineColor(sf::Color(100, 100, 100, 100));
-    m_cellOutline.setOutlineThickness(1);
+    createGridLines();
+}
 
-    // 设置特殊格子类型（比如游泳池）
-    // 在经典PVZ中，第3和第4行是游泳池
-    for (int x = 0; x < GRID_COLS; ++x)
+void Grid::createGridLines()
+{
+    // 创建水平线
+    m_horizontalLines.clear();
+    for (int i = 0; i <= m_rows; ++i)
     {
-        m_cells[x][2].setCellType(GridCell::POOL); // 第3行
-        m_cells[x][3].setCellType(GridCell::POOL); // 第4行
+        sf::RectangleShape line;
+        line.setSize(sf::Vector2f(m_cols * m_cellWidth, 1));
+        line.setPosition(m_startPosition.x, m_startPosition.y + i * m_cellHeight);
+        line.setFillColor(sf::Color(GRID_LINE_COLOR_R, GRID_LINE_COLOR_G,
+                                    GRID_LINE_COLOR_B, GRID_LINE_COLOR_A));
+        m_horizontalLines.push_back(line);
+    }
+
+    // 创建垂直线
+    m_verticalLines.clear();
+    for (int i = 0; i <= m_cols; ++i)
+    {
+        sf::RectangleShape line;
+        line.setSize(sf::Vector2f(1, m_rows * m_cellHeight));
+        line.setPosition(m_startPosition.x + i * m_cellWidth, m_startPosition.y);
+        line.setFillColor(sf::Color(GRID_LINE_COLOR_R, GRID_LINE_COLOR_G,
+                                    GRID_LINE_COLOR_B, GRID_LINE_COLOR_A));
+        m_verticalLines.push_back(line);
     }
 }
 
-GridCell &Grid::getCell(int x, int y)
+void Grid::render(sf::RenderWindow &window)
 {
-    return m_cells[x][y];
-}
-
-const GridCell &Grid::getCell(int x, int y) const
-{
-    return m_cells[x][y];
-}
-
-bool Grid::isValidPosition(int x, int y) const
-{
-    return x >= 0 && x < GRID_COLS && y >= 0 && y < GRID_ROWS;
-}
-
-sf::Vector2f Grid::gridToWorldPosition(int gridX, int gridY) const
-{
-    return sf::Vector2f(
-        GRID_OFFSET_X + gridX * GRID_CELL_WIDTH,
-        GRID_OFFSET_Y + gridY * GRID_CELL_HEIGHT);
-}
-
-sf::Vector2i Grid::worldToGridPosition(const sf::Vector2f &worldPos) const
-{
-    int gridX = static_cast<int>((worldPos.x - GRID_OFFSET_X) / GRID_CELL_WIDTH);
-    int gridY = static_cast<int>((worldPos.y - GRID_OFFSET_Y) / GRID_CELL_HEIGHT);
-    return sf::Vector2i(gridX, gridY);
-}
-
-bool Grid::canPlantAt(int x, int y) const
-{
-    if (!isValidPosition(x, y))
-        return false;
-
-    const GridCell &cell = getCell(x, y);
-
-    // 不能在已有植物的地方种植
-    if (cell.hasPlant())
-        return false;
-
-    // 某些植物不能种在游泳池里（这里简化处理）
-    // 实际游戏中需要检查植物类型
-    return true;
-}
-
-bool Grid::plantAt(int x, int y, std::shared_ptr<Plant> plant)
-{
-    if (!canPlantAt(x, y))
-        return false;
-
-    getCell(x, y).setPlant(plant);
-    return true;
-}
-
-void Grid::removePlantAt(int x, int y)
-{
-    if (isValidPosition(x, y))
+    // 渲染水平线
+    for (const auto &line : m_horizontalLines)
     {
-        getCell(x, y).removePlant();
+        window.draw(line);
+    }
+
+    // 渲染垂直线
+    for (const auto &line : m_verticalLines)
+    {
+        window.draw(line);
     }
 }
 
-void Grid::renderGrid(sf::RenderWindow &window) const
+sf::Vector2f Grid::getWorldPosition(int row, int col) const
 {
-    if (!m_showGrid)
-        return;
-
-    // 绘制网格线，用于调试
-    for (int x = 0; x < GRID_COLS; ++x)
+    if (!isValidGridPosition(row, col))
     {
-        for (int y = 0; y < GRID_ROWS; ++y)
-        {
-            sf::Vector2f pos = gridToWorldPosition(x, y);
-            m_cellOutline.setPosition(pos);
-
-            // 根据格子类型设置不同颜色
-            const GridCell &cell = getCell(x, y);
-            if (cell.getCellType() == GridCell::POOL)
-            {
-                m_cellOutline.setOutlineColor(sf::Color(0, 100, 200, 100));
-            }
-            else
-            {
-                m_cellOutline.setOutlineColor(sf::Color(100, 100, 100, 100));
-            }
-
-            window.draw(m_cellOutline);
-        }
+        return sf::Vector2f(-1, -1); // 无效位置
     }
+
+    float x = m_startPosition.x + col * m_cellWidth + m_cellWidth / 2;
+    float y = m_startPosition.y + row * m_cellHeight + m_cellHeight / 2;
+    return sf::Vector2f(x, y);
+}
+
+sf::Vector2i Grid::getGridPosition(float x, float y) const
+{
+    return getGridPosition(sf::Vector2f(x, y));
+}
+
+sf::Vector2i Grid::getGridPosition(const sf::Vector2f &worldPos) const
+{
+    // 检查是否在网格范围内
+    if (worldPos.x < m_startPosition.x || worldPos.y < m_startPosition.y ||
+        worldPos.x > m_startPosition.x + m_cols * m_cellWidth ||
+        worldPos.y > m_startPosition.y + m_rows * m_cellHeight)
+    {
+        return sf::Vector2i(-1, -1); // 无效位置
+    }
+
+    int col = static_cast<int>((worldPos.x - m_startPosition.x) / m_cellWidth);
+    int row = static_cast<int>((worldPos.y - m_startPosition.y) / m_cellHeight);
+
+    // 确保在有效范围内
+    col = std::max(0, std::min(col, m_cols - 1));
+    row = std::max(0, std::min(row, m_rows - 1));
+
+    return sf::Vector2i(row, col);
+}
+
+bool Grid::isValidGridPosition(int row, int col) const
+{
+    return row >= 0 && row < m_rows && col >= 0 && col < m_cols;
+}
+
+bool Grid::isValidGridPosition(const sf::Vector2i &gridPos) const
+{
+    return isValidGridPosition(gridPos.x, gridPos.y);
+}
+
+bool Grid::isCellOccupied(int row, int col) const
+{
+    if (!isValidGridPosition(row, col))
+    {
+        return true; // 无效位置视为被占用
+    }
+    return m_occupiedCells[row][col];
+}
+
+void Grid::setCellOccupied(int row, int col, bool occupied)
+{
+    if (isValidGridPosition(row, col))
+    {
+        m_occupiedCells[row][col] = occupied;
+    }
+}
+
+int Grid::getRows() const
+{
+    return m_rows;
+}
+
+int Grid::getCols() const
+{
+    return m_cols;
+}
+
+sf::Vector2f Grid::getCellSize() const
+{
+    return sf::Vector2f(m_cellWidth, m_cellHeight);
+}
+
+sf::Vector2f Grid::getGridStartPosition() const
+{
+    return m_startPosition;
 }

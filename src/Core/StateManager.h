@@ -1,15 +1,13 @@
 #pragma once
+#include "GameState.h"
 #include <stack>
 #include <memory>
-#include <SFML/Graphics.hpp>
-
-class GameState;
 
 class StateManager
 {
 public:
-    StateManager();
-    ~StateManager();
+    StateManager() = default;
+    ~StateManager() = default;
 
     // 状态管理
     void pushState(std::unique_ptr<GameState> state);
@@ -17,30 +15,15 @@ public:
     void changeState(std::unique_ptr<GameState> state);
     void clearStates();
 
-    // 游戏循环
-    void handleEvents(const sf::Event &event);
+    // 更新和渲染
     void update(float deltaTime);
     void render(sf::RenderWindow &window);
+    void handleEvent(const sf::Event &event);
 
-    // 状态查询
-    bool isEmpty() const;
+    // 获取当前状态
     GameState *getCurrentState() const;
+    bool isEmpty() const;
 
 private:
     std::stack<std::unique_ptr<GameState>> m_states;
-
-    // 延迟操作，避免在更新过程中修改栈
-    enum class StateAction
-    {
-        None,
-        Push,
-        Pop,
-        Change,
-        Clear
-    };
-
-    StateAction m_pendingAction;
-    std::unique_ptr<GameState> m_pendingState;
-
-    void processPendingAction();
 };

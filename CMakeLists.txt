@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.28)
-project(pj_status2 LANGUAGES CXX)
+project(pj_status3 LANGUAGES CXX)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
@@ -9,7 +9,7 @@ FetchContent_Declare(SFML
 )
 FetchContent_MakeAvailable(SFML)
 
-add_executable(status2 
+add_executable(${PROJECT_NAME} 
     src/main.cpp 
     src/Core/Game.h 
     src/Core/Game.cpp
@@ -20,8 +20,22 @@ add_executable(status2
     src/Core/StateManager.cpp
     src/States/MenuState.h
     src/States/MenuState.cpp
+    src/Systems/Grid.h
+    src/Systems/Grid.cpp
+    src/Utils/Constants.h
+    src/Entities/Entity.h
+    src/Entities/Entity.cpp
 )
 
-target_compile_features(status2 PRIVATE cxx_std_17)
-target_include_directories(status2 PRIVATE ${CMAKE_SOURCE_DIR}/src)
-target_link_libraries(status2 PRIVATE sfml-graphics sfml-window sfml-system sfml-audio sfml-network)
+# # 收集所有源文件
+# file(GLOB_RECURSE SOURCES 
+#     "src/*.cpp"
+#     "src/*.h"
+# )
+
+# # 创建可执行文件  
+# add_executable(${PROJECT_NAME} ${SOURCES})
+
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/src)
+target_link_libraries(${PROJECT_NAME} PRIVATE sfml-graphics sfml-window sfml-system sfml-audio sfml-network)
