@@ -215,6 +215,7 @@ void MenuState::moveDown()
 
 void MenuState::select()
 {
+
     if (m_selectedIndex >= 0 && m_selectedIndex < static_cast<int>(m_menuItems.size()))
     {
         executeAction(m_menuItems[m_selectedIndex].action);

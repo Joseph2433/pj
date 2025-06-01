@@ -34,8 +34,9 @@ public:
 
 private:
     // 字体相关
-    sf::Font m_font;              // 自定义字体
+    sf::Font m_font;
     bool m_useCustomFont = false; // 是否成功加载自定义字体
+    // 使用系统字体
 
     // UI元素
     sf::RectangleShape m_background;
