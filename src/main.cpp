@@ -1,3 +1,4 @@
+// src/main.cpp
 #include "Core/Game.h"
 #include <iostream>
 
@@ -10,14 +11,13 @@ int main()
     }
     catch (const std::exception &e)
     {
-        std::cerr << "Game crashed with exception: " << e.what() << std::endl;
-        return -1;
+        std::cerr << "Exception caught in main: " << e.what() << std::endl;
+        return 1;
     }
     catch (...)
     {
-        std::cerr << "Game crashed with unknown exception" << std::endl;
-        return -1;
+        std::cerr << "Unknown exception caught in main." << std::endl;
+        return 1;
     }
-
     return 0;
 }

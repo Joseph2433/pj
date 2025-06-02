@@ -49,7 +49,7 @@ set(STATES_HEADERS
 # 实体基类源文件
 set(ENTITIES_SOURCES
     src/Entities/Entity.cpp
-    # src/Entities/Plant.cpp
+    src/Entities/Plant.cpp
     # src/Entities/Zombie.cpp
     # src/Entities/Projectile.cpp
     # src/Entities/Sun.cpp
@@ -57,7 +57,7 @@ set(ENTITIES_SOURCES
 
 set(ENTITIES_HEADERS
     src/Entities/Entity.h
-    # src/Entities/Plant.h
+    src/Entities/Plant.h
     # src/Entities/Zombie.h
     # src/Entities/Projectile.h
     # src/Entities/Sun.h
@@ -65,15 +65,15 @@ set(ENTITIES_HEADERS
 
 # 植物类源文件
 set(PLANTS_SOURCES
-    # src/Plants/Peashooter.cpp
-    # src/Plants/Sunflower.cpp
+    src/Plants/Peashooter.cpp
+    src/Plants/Sunflower.cpp
     # src/Plants/WallNut.cpp
     # src/Plants/CherryBomb.cpp
 )
 
 set(PLANTS_HEADERS
-    # src/Plants/Peashooter.h
-    # src/Plants/Sunflower.h
+    src/Plants/Peashooter.h
+    src/Plants/Sunflower.h
     # src/Plants/WallNut.h
     # src/Plants/CherryBomb.h
 )
@@ -96,7 +96,7 @@ set(SYSTEMS_SOURCES
     src/Systems/Grid.cpp
     # src/Systems/CollisionSystem.cpp
     # src/Systems/WaveManager.cpp
-    # src/Systems/PlantManager.cpp
+    src/Systems/PlantManager.cpp
     # src/Systems/ZombieManager.cpp
 )
 
@@ -104,7 +104,7 @@ set(SYSTEMS_HEADERS
     src/Systems/Grid.h
     # src/Systems/CollisionSystem.h
     # src/Systems/WaveManager.h
-    # src/Systems/PlantManager.h
+    src/Systems/PlantManager.h
     # src/Systems/ZombieManager.h
 )
 

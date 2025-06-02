@@ -1,42 +1,31 @@
 #pragma once
+
 #include <SFML/Graphics.hpp>
-#include <memory>
-#include "StateManager.h"
-#include "ResourceManager.h"
-#include "../Systems/Grid.h"
+#include "Core/StateManager.h"    // 包含 StateManager
+#include "Core/ResourceManager.h" // 包含 ResourceManager
+// #include "Utils/Constants.h"    // Constants.h 应该被各处需要的地方包含
 
 class Game
 {
 public:
     Game();
-    ~Game();
+    ~Game() = default;
 
-    void run();
+    void run(); // 主游戏循环
 
-    // 获取游戏实例（单例模式）
-    static Game &getInstance();
-
-    // 获取各种管理器
-    StateManager &getStateManager();
     ResourceManager &getResourceManager();
-    Grid &getGrid();
+    StateManager &getStateManager(); // 如果需要外部访问StateManager
     sf::RenderWindow &getWindow();
 
 private:
-    void initialize();
-    void handleEvents();
-    void update(float deltaTime);
+    void processEvents();
+    void update(sf::Time deltaTime);
     void render();
-    void cleanup();
 
     sf::RenderWindow m_window;
-    sf::Clock m_clock;
+    ResourceManager m_resourceManager;
+    StateManager m_stateManager;
 
-    std::unique_ptr<StateManager> m_stateManager;
-    std::unique_ptr<ResourceManager> m_resourceManager;
-    std::unique_ptr<Grid> m_grid;
-
-    bool m_isRunning;
-
-    static Game *s_instance;
+    // 控制游戏循环
+    const sf::Time TimePerFrame = sf::seconds(1.f / 60.f); // 目标帧率
 };

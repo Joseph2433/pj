@@ -2,7 +2,7 @@
 #include "../Utils/Constants.h"
 
 Grid::Grid()
-    : m_rows(GRID_ROWS), m_cols(GRID_COLS), m_cellWidth(GRID_WIDTH), m_cellHeight(GRID_HEIGHT), m_startPosition(GRID_START_X, GRID_START_Y)
+    : m_rows(GRID_ROWS), m_cols(GRID_COLS), m_cellWidth(GRID_CELL_WIDTH), m_cellHeight(GRID_CELL_HEIGHT), m_startPosition(GRID_START_X, GRID_START_Y)
 {
 
     // 初始化占用状态数组

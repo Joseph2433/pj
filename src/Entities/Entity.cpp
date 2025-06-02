@@ -1,96 +1,104 @@
 #include "Entity.h"
-#include "../Utils/Constants.h"
 
-Entity::Entity()
-    : m_position(0.0f, 0.0f), m_gridPosition(-1, -1), m_active(true), m_hasTexture(false)
+// 构造函数
+Entity::Entity(const sf::Texture &texture)
 {
+    m_sprite.setTexture(texture);
+    // 默认情况下，精灵图的原点(origin)是其左上角 (0,0)。
+    // 你可能希望将其设置为纹理的中心，以便旋转和定位更直观。
+    // 例如: centerOrigin(); // 可以在构造后由派生类决定是否调用
 }
 
-Entity::Entity(float x, float y)
-    : m_position(x, y), m_gridPosition(-1, -1), m_active(true), m_hasTexture(false)
+// 虚更新函数 (默认实现为空)
+void Entity::update(float dt)
 {
-    m_sprite.setPosition(m_position);
+    // 基类实体没有特定的更新逻辑
+    // 派生类将重写此方法
+    (void)dt; // 如果函数体为空，用于抑制未使用参数的警告
 }
 
+// 绘制实体的精灵图
+void Entity::draw(sf::RenderWindow &window) const
+{
+    window.draw(m_sprite);
+}
+
+// 位置相关函数
 void Entity::setPosition(float x, float y)
 {
-    m_position.x = x;
-    m_position.y = y;
-    m_sprite.setPosition(m_position);
+    m_sprite.setPosition(x, y);
 }
 
 void Entity::setPosition(const sf::Vector2f &position)
 {
-    m_position = position;
-    m_sprite.setPosition(m_position);
+    m_sprite.setPosition(position);
 }
 
-sf::Vector2f Entity::getPosition() const
+const sf::Vector2f &Entity::getPosition() const
 {
-    return m_position;
+    return m_sprite.getPosition();
 }
 
-void Entity::setGridPosition(int row, int col)
+// 中心点 (Origin) 相关函数
+void Entity::setOrigin(float x, float y)
 {
-    if (row >= 0 && row < GRID_ROWS && col >= 0 && col < GRID_COLS)
-    {
-        m_gridPosition.x = row;
-        m_gridPosition.y = col;
-
-        // 根据网格位置设置世界坐标
-        sf::Vector2f worldPos = getWorldPositionFromGrid(row, col);
-        setPosition(worldPos);
-    }
+    m_sprite.setOrigin(x, y);
 }
 
-sf::Vector2i Entity::getGridPosition() const
+void Entity::setOrigin(const sf::Vector2f &origin)
 {
-    return m_gridPosition;
+    m_sprite.setOrigin(origin);
 }
 
-sf::Vector2f Entity::getWorldPositionFromGrid(int row, int col) const
+const sf::Vector2f &Entity::getOrigin() const
 {
-    float x = GRID_START_X + col * GRID_WIDTH + GRID_WIDTH / 2;
-    float y = GRID_START_Y + row * GRID_HEIGHT + GRID_HEIGHT / 2;
-    return sf::Vector2f(x, y);
+    return m_sprite.getOrigin();
 }
 
-void Entity::setTexture(const sf::Texture &texture)
+void Entity::centerOrigin()
 {
-    m_sprite.setTexture(texture);
-    m_hasTexture = true;
-
-    // 设置精灵的原点为中心
     sf::FloatRect bounds = m_sprite.getLocalBounds();
-    m_sprite.setOrigin(bounds.width / 2, bounds.height / 2);
+    m_sprite.setOrigin(bounds.width / 2.f, bounds.height / 2.f);
 }
 
-sf::Sprite &Entity::getSprite()
+// 缩放相关函数
+void Entity::setScale(float factorX, float factorY)
 {
-    return m_sprite;
+    m_sprite.setScale(factorX, factorY);
 }
 
-const sf::Sprite &Entity::getSprite() const
+void Entity::setScale(const sf::Vector2f &factors)
 {
-    return m_sprite;
+    m_sprite.setScale(factors);
 }
 
-sf::FloatRect Entity::getBounds() const
+const sf::Vector2f &Entity::getScale() const
+{
+    return m_sprite.getScale();
+}
+
+// 旋转相关函数
+void Entity::setRotation(float angle)
+{
+    m_sprite.setRotation(angle);
+}
+
+float Entity::getRotation() const
+{
+    return m_sprite.getRotation();
+}
+
+// 获取全局包围盒
+sf::FloatRect Entity::getGlobalBounds() const
 {
     return m_sprite.getGlobalBounds();
 }
 
-bool Entity::intersects(const Entity &other) const
-{
-    return getBounds().intersects(other.getBounds());
-}
-
-bool Entity::isActive() const
-{
-    return m_active;
-}
-
-void Entity::setActive(bool active)
-{
-    m_active = active;
-}
+// 可选：直接访问精灵图
+// sf::Sprite& Entity::getSprite() {
+//     return m_sprite;
+// }
+//
+// const sf::Sprite& Entity::getSprite() const {
+//     return m_sprite;
+// }
