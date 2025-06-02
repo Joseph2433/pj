@@ -1,10 +1,12 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 
+class StateManager;
+
 class GameState
 {
 public:
-    GameState() = default;
+    GameState(StateManager *stateManager) : m_stateManager(stateManager) {}
     virtual ~GameState() = default;
 
     // 纯虚函数，子类必须实现
@@ -17,4 +19,7 @@ public:
     // 状态控制
     virtual bool isPausable() const { return true; }
     virtual bool isTransparent() const { return false; }
+
+protected:
+    StateManager *m_stateManager;
 };

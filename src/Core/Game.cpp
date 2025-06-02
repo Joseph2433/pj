@@ -1,3 +1,4 @@
+// Game.cpp - 方案二：移除全局Grid系统
 #include "Game.h"
 #include "../Utils/Constants.h"
 #include "../States/MenuState.h"
@@ -7,7 +8,6 @@ Game *Game::s_instance = nullptr;
 Game::Game()
     : m_window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), WINDOW_TITLE), m_isRunning(false)
 {
-
     s_instance = this;
 }
 
@@ -36,7 +36,7 @@ void Game::initialize()
     m_grid->initialize();
 
     // 设置初始状态
-    m_stateManager->pushState(std::make_unique<MenuState>());
+    m_stateManager->pushState(std::make_unique<MenuState>(m_stateManager.get()));
 
     m_isRunning = true;
 }
@@ -90,12 +90,12 @@ void Game::update(float deltaTime)
 
 void Game::render()
 {
-    m_window.clear(sf::Color(50, 120, 50)); // 草绿色背景
+    // 使用黑色背景（让状态自己处理背景）
+    m_window.clear(sf::Color::Black);
 
-    // 先渲染网格
-    m_grid->render(m_window);
+    // 不再渲染全局网格
 
-    // 渲染当前状态
+    // 渲染当前状态（状态自己处理背景和网格）
     if (m_stateManager->getCurrentState())
     {
         m_stateManager->getCurrentState()->render(m_window);

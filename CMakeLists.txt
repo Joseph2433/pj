@@ -18,23 +18,17 @@ add_executable(${PROJECT_NAME}
     src/Core/GameState.h
     src/Core/StateManager.h
     src/Core/StateManager.cpp
-    src/States/MenuState.h
-    src/States/MenuState.cpp
+    src/States/GamePlayState.h
+    src/States/GamePlayState.cpp
     src/Systems/Grid.h
     src/Systems/Grid.cpp
     src/Utils/Constants.h
     src/Entities/Entity.h
     src/Entities/Entity.cpp
+    src/States/MenuState.h
+    src/States/MenuState.cpp
 )
 
-# # 收集所有源文件
-# file(GLOB_RECURSE SOURCES 
-#     "src/*.cpp"
-#     "src/*.h"
-# )
-
-# # 创建可执行文件  
-# add_executable(${PROJECT_NAME} ${SOURCES})
 
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/src)

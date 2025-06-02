@@ -1,118 +1,207 @@
-#include "MenuState.h"
-#include "../Core/Game.h"
-#include "../Utils/Constants.h"
-#include <sstream>
+#include "States/MenuState.h"
+#include "States/GamePlayState.h" // 确保包含这个头文件
+#include "Core/StateManager.h"
+#include <iostream>
 
-MenuState::MenuState()
-    : m_showGridInfo(true), m_mouseGridPos(-1, -1)
+MenuState::MenuState(StateManager *stateManager)
+    : GameState(stateManager), m_selectedIndex(0), m_useCustomFont(false)
 {
 }
 
 void MenuState::enter()
 {
-    // 获取资源管理器
-    ResourceManager &resourceManager = Game::getInstance().getResourceManager();
+    std::cout << "Entering Menu State" << std::endl;
 
-    // 设置标题文本
-    m_titleText.setString("Plants vs Zombies - Grid Test");
-    if (resourceManager.hasFont("default"))
+    // 尝试加载字体
+    bool fontLoaded = false;
+
+#ifdef _WIN32
+    // Windows系统字体
+    if (m_font.loadFromFile("C:/Windows/Fonts/arial.ttf"))
     {
-        m_titleText.setFont(resourceManager.getFont("default"));
+        fontLoaded = true;
     }
-    m_titleText.setCharacterSize(32);
+    else if (m_font.loadFromFile("C:/Windows/Fonts/msyh.ttc"))
+    {
+        fontLoaded = true;
+    }
+#else
+    // Linux/Mac系统字体
+    if (m_font.loadFromFile("/System/Library/Fonts/Arial.ttf") ||
+        m_font.loadFromFile("/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf"))
+    {
+        fontLoaded = true;
+    }
+#endif
+
+    m_useCustomFont = fontLoaded;
+
+    // 设置背景
+    m_background.setSize(sf::Vector2f(800, 600));
+    m_background.setFillColor(sf::Color(30, 30, 50));
+
+    // 设置标题
+    m_titleText.setString("GAME MENU");
+    if (m_useCustomFont)
+    {
+        m_titleText.setFont(m_font);
+    }
+
+    m_titleText.setCharacterSize(48);
     m_titleText.setFillColor(sf::Color::White);
-    m_titleText.setPosition(50, 30);
 
-    // 设置说明文本
-    m_instructionText.setString("Move mouse over grid to see coordinates\nPress ESC to exit");
-    if (resourceManager.hasFont("default"))
-    {
-        m_instructionText.setFont(resourceManager.getFont("default"));
-    }
-    m_instructionText.setCharacterSize(18);
-    m_instructionText.setFillColor(sf::Color::Yellow);
-    m_instructionText.setPosition(50, 80);
+    // 获取文本边界并居中
+    sf::FloatRect titleBounds = m_titleText.getLocalBounds();
+    m_titleText.setPosition((800 - titleBounds.width) / 2, 100);
 
-    // 设置网格信息文本
-    if (resourceManager.hasFont("default"))
-    {
-        m_gridInfoText.setFont(resourceManager.getFont("default"));
-    }
-    m_gridInfoText.setCharacterSize(16);
-    m_gridInfoText.setFillColor(sf::Color::Cyan);
-    m_gridInfoText.setPosition(50, 130);
+    setupMenu();
 }
 
 void MenuState::exit()
 {
-    // 清理资源
+    std::cout << "Exiting Menu State" << std::endl;
+    m_menuItems.clear();
+}
+
+void MenuState::setupMenu()
+{
+    m_menuItems.clear();
+
+    // 创建菜单项
+    m_menuItems.emplace_back("Start Game", "start");
+    m_menuItems.emplace_back("Options", "options");
+    m_menuItems.emplace_back("Exit", "exit");
+
+    // 设置菜单项位置
+    float startY = 300;
+    float spacing = 80;
+
+    for (size_t i = 0; i < m_menuItems.size(); ++i)
+    {
+        // 设置字体
+        if (m_useCustomFont)
+        {
+            m_menuItems[i].text.setFont(m_font);
+        }
+
+        // 设置文本属性
+        m_menuItems[i].text.setCharacterSize(36);
+        m_menuItems[i].text.setFillColor(m_menuItems[i].normalColor);
+
+        // 居中对齐
+        sf::FloatRect textBounds = m_menuItems[i].text.getLocalBounds();
+        float posX = (800 - textBounds.width) / 2;
+        float posY = startY + i * spacing;
+        m_menuItems[i].text.setPosition(posX, posY);
+    }
+
+    // 选中第一个菜单项
+    m_selectedIndex = 0;
+    updateSelection();
 }
 
 void MenuState::handleEvent(const sf::Event &event)
 {
     if (event.type == sf::Event::KeyPressed)
     {
-        if (event.key.code == sf::Keyboard::Escape)
+        switch (event.key.code)
         {
-            Game::getInstance().getStateManager().popState();
+        case sf::Keyboard::Up:
+            moveUp();
+            break;
+        case sf::Keyboard::Down:
+            moveDown();
+            break;
+        case sf::Keyboard::Enter:
+            select();
+            break;
+        case sf::Keyboard::Escape:
+            executeAction("exit");
+            break;
+        default:
+            break;
         }
-    }
-
-    if (event.type == sf::Event::MouseMoved)
-    {
-        // 获取鼠标在网格中的位置
-        Grid &grid = Game::getInstance().getGrid();
-        sf::Vector2f mousePos(static_cast<float>(event.mouseMove.x),
-                              static_cast<float>(event.mouseMove.y));
-        m_mouseGridPos = grid.getGridPosition(mousePos);
     }
 }
 
 void MenuState::update(float deltaTime)
 {
-    // 更新网格信息显示
-    std::stringstream ss;
-    ss << "Grid Info:\n";
-    ss << "Size: " << GRID_ROWS << " rows x " << GRID_COLS << " columns\n";
-    ss << "Cell Size: " << GRID_WIDTH << " x " << GRID_HEIGHT << " pixels\n";
-    ss << "Grid Start: (" << GRID_START_X << ", " << GRID_START_Y << ")\n";
-
-    if (m_mouseGridPos.x >= 0 && m_mouseGridPos.y >= 0)
-    {
-        Grid &grid = Game::getInstance().getGrid();
-        sf::Vector2f worldPos = grid.getWorldPosition(m_mouseGridPos.x, m_mouseGridPos.y);
-        ss << "\nMouse Grid Position: Row " << m_mouseGridPos.x << ", Col " << m_mouseGridPos.y;
-        ss << "\nWorld Position: (" << static_cast<int>(worldPos.x) << ", " << static_cast<int>(worldPos.y) << ")";
-    }
-    else
-    {
-        ss << "\nMouse: Outside grid area";
-    }
-
-    m_gridInfoText.setString(ss.str());
+    // 可以添加菜单动画或其他更新逻辑
 }
 
 void MenuState::render(sf::RenderWindow &window)
 {
-    // 渲染文本
+    // 渲染背景
+    window.draw(m_background);
+
+    // 渲染标题
     window.draw(m_titleText);
-    window.draw(m_instructionText);
-    window.draw(m_gridInfoText);
 
-    // 如果鼠标在网格内，高亮显示当前格子
-    if (m_mouseGridPos.x >= 0 && m_mouseGridPos.y >= 0)
+    // 渲染菜单项
+    for (const auto &item : m_menuItems)
     {
-        Grid &grid = Game::getInstance().getGrid();
-        sf::Vector2f worldPos = grid.getWorldPosition(m_mouseGridPos.x, m_mouseGridPos.y);
-        sf::Vector2f cellSize = grid.getCellSize();
+        window.draw(item.text);
+    }
+}
 
-        sf::RectangleShape highlight;
-        highlight.setSize(cellSize);
-        highlight.setPosition(worldPos.x - cellSize.x / 2, worldPos.y - cellSize.y / 2);
-        highlight.setFillColor(sf::Color(255, 255, 0, 50)); // 半透明黄色
-        highlight.setOutlineColor(sf::Color::Yellow);
-        highlight.setOutlineThickness(2);
+void MenuState::updateSelection()
+{
+    for (size_t i = 0; i < m_menuItems.size(); ++i)
+    {
+        if (static_cast<int>(i) == m_selectedIndex)
+        {
+            m_menuItems[i].text.setFillColor(m_menuItems[i].selectedColor);
+            m_menuItems[i].isSelected = true;
+        }
+        else
+        {
+            m_menuItems[i].text.setFillColor(m_menuItems[i].normalColor);
+            m_menuItems[i].isSelected = false;
+        }
+    }
+}
 
-        window.draw(highlight);
+void MenuState::executeAction(const std::string &action)
+{
+    if (action == "start")
+    {
+        // 使用 this-> 来明确访问继承的成员
+        this->m_stateManager->changeState(std::make_unique<GamePlayState>(this->m_stateManager));
+    }
+    else if (action == "options")
+    {
+        std::cout << "Options menu not implemented yet" << std::endl;
+    }
+    else if (action == "exit")
+    {
+        this->m_stateManager->clearStates();
+    }
+}
+
+void MenuState::moveUp()
+{
+    m_selectedIndex--;
+    if (m_selectedIndex < 0)
+    {
+        m_selectedIndex = static_cast<int>(m_menuItems.size()) - 1;
+    }
+    updateSelection();
+}
+
+void MenuState::moveDown()
+{
+    m_selectedIndex++;
+    if (m_selectedIndex >= static_cast<int>(m_menuItems.size()))
+    {
+        m_selectedIndex = 0;
+    }
+    updateSelection();
+}
+
+void MenuState::select()
+{
+    if (m_selectedIndex >= 0 && m_selectedIndex < static_cast<int>(m_menuItems.size()))
+    {
+        executeAction(m_menuItems[m_selectedIndex].action);
     }
 }
