@@ -8,10 +8,11 @@ const int WINDOW_HEIGHT = 700;
 // 网格设置
 const int GRID_ROWS = 5;
 const int GRID_COLS = 9;
-const int GRID_WIDTH = 80;
-const int GRID_HEIGHT = 100;
+const int GRID_WIDTH = 90;
+const int GRID_HEIGHT = 90;
 const int GRID_START_X = 250;
 const int GRID_START_Y = 150;
+const int CELL_PADDING = 2;
 
 // 颜色常量
 const int GRID_LINE_COLOR_R = 100;

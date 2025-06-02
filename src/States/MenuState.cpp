@@ -1,10 +1,11 @@
 #include "States/MenuState.h"
-#include "States/GamePlayState.h" // 确保包含这个头文件
+#include "States/GamePlayState.h"
 #include "Core/StateManager.h"
+#include "../Utils/Constants.h"
 #include <iostream>
 
 MenuState::MenuState(StateManager *stateManager)
-    : GameState(stateManager), m_selectedIndex(0), m_useCustomFont(false)
+    : GameState(stateManager), m_useCustomFont(false), m_mousePosition(0.f, 0.f)
 {
 }
 
@@ -14,9 +15,6 @@ void MenuState::enter()
 
     // 尝试加载字体
     bool fontLoaded = false;
-
-#ifdef _WIN32
-    // Windows系统字体
     if (m_font.loadFromFile("C:/Windows/Fonts/arial.ttf"))
     {
         fontLoaded = true;
@@ -25,20 +23,12 @@ void MenuState::enter()
     {
         fontLoaded = true;
     }
-#else
-    // Linux/Mac系统字体
-    if (m_font.loadFromFile("/System/Library/Fonts/Arial.ttf") ||
-        m_font.loadFromFile("/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf"))
-    {
-        fontLoaded = true;
-    }
-#endif
-
     m_useCustomFont = fontLoaded;
 
     // 设置背景
-    m_background.setSize(sf::Vector2f(800, 600));
+    m_background.setSize(sf::Vector2f(WINDOW_WIDTH, WINDOW_HEIGHT));
     m_background.setFillColor(sf::Color(30, 30, 50));
+    m_background.setPosition(0, 0);
 
     // 设置标题
     m_titleText.setString("GAME MENU");
@@ -46,118 +36,114 @@ void MenuState::enter()
     {
         m_titleText.setFont(m_font);
     }
-
     m_titleText.setCharacterSize(48);
     m_titleText.setFillColor(sf::Color::White);
 
-    // 获取文本边界并居中
+    // 标题居中
     sf::FloatRect titleBounds = m_titleText.getLocalBounds();
-    m_titleText.setPosition((800 - titleBounds.width) / 2, 100);
+    m_titleText.setPosition(
+        (WINDOW_WIDTH - titleBounds.width) / 2.f,
+        100.f);
 
-    setupMenu();
+    setupButtons(); // 初始化按钮
 }
 
 void MenuState::exit()
 {
     std::cout << "Exiting Menu State" << std::endl;
-    m_menuItems.clear();
+    m_buttons.clear(); // 清理按钮容器
 }
 
-void MenuState::setupMenu()
+void MenuState::setupButtons()
 {
-    m_menuItems.clear();
+    m_buttons.clear(); // 确保容器清空
 
-    // 创建菜单项
-    m_menuItems.emplace_back("Start Game", "start");
-    m_menuItems.emplace_back("Options", "options");
-    m_menuItems.emplace_back("Exit", "exit");
+    // 按钮尺寸和垂直间距（与原菜单布局一致）
+    const sf::Vector2f buttonSize(200.f, 50.f);
+    const float startY = 300.f;
+    const float spacing = 80.f;
 
-    // 设置菜单项位置
-    float startY = 300;
-    float spacing = 80;
+    // 创建三个按钮并设置位置
+    m_buttons.emplace_back(Button(
+        sf::Vector2f(
+            (WINDOW_WIDTH - buttonSize.x) / 2.f,
+            startY + 0 * spacing),
+        buttonSize,
+        "Start Game",
+        m_font));
 
-    for (size_t i = 0; i < m_menuItems.size(); ++i)
-    {
-        // 设置字体
-        if (m_useCustomFont)
-        {
-            m_menuItems[i].text.setFont(m_font);
-        }
+    m_buttons.emplace_back(Button(
+        sf::Vector2f(
+            (WINDOW_WIDTH - buttonSize.x) / 2.f,
+            startY + 1 * spacing),
+        buttonSize,
+        "Options",
+        m_font));
 
-        // 设置文本属性
-        m_menuItems[i].text.setCharacterSize(36);
-        m_menuItems[i].text.setFillColor(m_menuItems[i].normalColor);
+    m_buttons.emplace_back(Button(
+        sf::Vector2f(
+            (WINDOW_WIDTH - buttonSize.x) / 2.f,
+            startY + 2 * spacing),
+        buttonSize,
+        "Exit",
+        m_font));
 
-        // 居中对齐
-        sf::FloatRect textBounds = m_menuItems[i].text.getLocalBounds();
-        float posX = (800 - textBounds.width) / 2;
-        float posY = startY + i * spacing;
-        m_menuItems[i].text.setPosition(posX, posY);
-    }
-
-    // 选中第一个菜单项
-    m_selectedIndex = 0;
-    updateSelection();
+    // 设置按钮点击回调（绑定到原有逻辑）
+    m_buttons[0].setCallback([this]()
+                             { executeAction("start"); });
+    m_buttons[1].setCallback([this]()
+                             { executeAction("options"); });
+    m_buttons[2].setCallback([this]()
+                             { executeAction("exit"); });
 }
 
 void MenuState::handleEvent(const sf::Event &event)
 {
-    if (event.type == sf::Event::KeyPressed)
+    // 处理鼠标移动事件（更新悬停状态）
+    if (event.type == sf::Event::MouseMoved)
     {
-        switch (event.key.code)
+        m_mousePosition = sf::Vector2f(
+            static_cast<float>(event.mouseMove.x),
+            static_cast<float>(event.mouseMove.y));
+        for (auto &btn : m_buttons)
         {
-        case sf::Keyboard::Up:
-            moveUp();
-            break;
-        case sf::Keyboard::Down:
-            moveDown();
-            break;
-        case sf::Keyboard::Enter:
-            select();
-            break;
-        case sf::Keyboard::Escape:
-            executeAction("exit");
-            break;
-        default:
-            break;
+            btn.handleMouseMove(m_mousePosition);
         }
+    }
+
+    // 处理鼠标左键点击事件（触发按钮回调）
+    if (event.type == sf::Event::MouseButtonPressed &&
+        event.mouseButton.button == sf::Mouse::Left)
+    {
+        for (auto &btn : m_buttons)
+        {
+            btn.handleMouseClick(m_mousePosition);
+        }
+    }
+
+    // 保留 ESC 键退出功能（可选，如需完全移除键盘可注释以下代码）
+    if (event.type == sf::Event::KeyPressed &&
+        event.key.code == sf::Keyboard::Escape)
+    {
+        executeAction("exit");
     }
 }
 
 void MenuState::update(float deltaTime)
 {
-    // 可以添加菜单动画或其他更新逻辑
+    // 可添加按钮动画逻辑（如淡入淡出、抖动等）
+    // 示例：if (m_buttons[0].isHovered()) { ... }
 }
 
 void MenuState::render(sf::RenderWindow &window)
 {
-    // 渲染背景
     window.draw(m_background);
-
-    // 渲染标题
     window.draw(m_titleText);
 
-    // 渲染菜单项
-    for (const auto &item : m_menuItems)
+    // 渲染所有按钮
+    for (auto &btn : m_buttons)
     {
-        window.draw(item.text);
-    }
-}
-
-void MenuState::updateSelection()
-{
-    for (size_t i = 0; i < m_menuItems.size(); ++i)
-    {
-        if (static_cast<int>(i) == m_selectedIndex)
-        {
-            m_menuItems[i].text.setFillColor(m_menuItems[i].selectedColor);
-            m_menuItems[i].isSelected = true;
-        }
-        else
-        {
-            m_menuItems[i].text.setFillColor(m_menuItems[i].normalColor);
-            m_menuItems[i].isSelected = false;
-        }
+        btn.render(window);
     }
 }
 
@@ -165,8 +151,8 @@ void MenuState::executeAction(const std::string &action)
 {
     if (action == "start")
     {
-        // 使用 this-> 来明确访问继承的成员
-        this->m_stateManager->changeState(std::make_unique<GamePlayState>(this->m_stateManager));
+        m_stateManager->changeState(
+            std::make_unique<GamePlayState>(m_stateManager));
     }
     else if (action == "options")
     {
@@ -174,34 +160,6 @@ void MenuState::executeAction(const std::string &action)
     }
     else if (action == "exit")
     {
-        this->m_stateManager->clearStates();
-    }
-}
-
-void MenuState::moveUp()
-{
-    m_selectedIndex--;
-    if (m_selectedIndex < 0)
-    {
-        m_selectedIndex = static_cast<int>(m_menuItems.size()) - 1;
-    }
-    updateSelection();
-}
-
-void MenuState::moveDown()
-{
-    m_selectedIndex++;
-    if (m_selectedIndex >= static_cast<int>(m_menuItems.size()))
-    {
-        m_selectedIndex = 0;
-    }
-    updateSelection();
-}
-
-void MenuState::select()
-{
-    if (m_selectedIndex >= 0 && m_selectedIndex < static_cast<int>(m_menuItems.size()))
-    {
-        executeAction(m_menuItems[m_selectedIndex].action);
+        m_stateManager->clearStates(); // 退出游戏（根据状态管理逻辑）
     }
 }

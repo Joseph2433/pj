@@ -1,4 +1,4 @@
-// Game.cpp - 方案二：移除全局Grid系统
+
 #include "Game.h"
 #include "../Utils/Constants.h"
 #include "../States/MenuState.h"

@@ -44,14 +44,14 @@ void GamePlayState::enter()
     m_titleText.setPosition(50, 30);
 
     // 设置说明文本
-    m_instructionText.setString("Game Started! Move mouse to see position\nPress ESC to return to menu\nPress R to restart game");
-    if (m_useCustomFont)
-    {
-        m_instructionText.setFont(m_font);
-    }
-    m_instructionText.setCharacterSize(18);
-    m_instructionText.setFillColor(sf::Color::Yellow);
-    m_instructionText.setPosition(50, 80);
+    // m_instructionText.setString("Game Started! Move mouse to see position\nPress ESC to return to menu\nPress R to restart game");
+    // if (m_useCustomFont)
+    // {
+    //     m_instructionText.setFont(m_font);
+    // }
+    // m_instructionText.setCharacterSize(18);
+    // m_instructionText.setFillColor(sf::Color::Yellow);
+    // m_instructionText.setPosition(50, 80);
 
     // 设置游戏信息文本
     if (m_useCustomFont)
@@ -144,39 +144,50 @@ void GamePlayState::render(sf::RenderWindow &window)
     sf::RectangleShape gridLine;
     gridLine.setFillColor(sf::Color(0, 200, 0, 150)); // 更亮的绿色，提高可见度
 
-    // 网格参数
-    const int gridStartX = 50;
-    const int gridStartY = 300;
-    const int gridWidth = WINDOW_WIDTH - 100;   // 窗口宽度 - 边距
-    const int gridHeight = WINDOW_HEIGHT - 350; // 窗口高度 - 顶部UI区域
-    const int cellWidth = 80;
-    const int cellHeight = 80;
-    const int lineWidth = 3; // 更粗的线条
+    // 计算网格总宽度和高度（包含边框）
+    const int GRID_TOTAL_WIDTH = GRID_COLS * GRID_WIDTH + (GRID_COLS + 1) * CELL_PADDING;
+    const int GRID_TOTAL_HEIGHT = GRID_ROWS * GRID_HEIGHT + (GRID_ROWS + 1) * CELL_PADDING;
 
-    // 绘制垂直线
-    for (int x = gridStartX; x <= gridStartX + gridWidth; x += cellWidth)
+    // 计算网格起始位置（居中显示，或自定义边距）
+    const int GRID_START_X = (WINDOW_WIDTH - GRID_TOTAL_WIDTH) / 2; // 水平居中
+    const int GRID_START_Y = 200;                                   // 顶部边距200px
+
+    // 定义线条样式（使用单独的线条宽度变量，可灵活调整）
+    const int LINE_WIDTH = CELL_PADDING * 2;          // 线条宽度等于2倍间距，视觉更明显
+    gridLine.setFillColor(sf::Color(0, 200, 0, 180)); // 深绿色半透明线条
+    gridLine.setOutlineThickness(0);                  // 禁用轮廓
+
+    // 绘制垂直线（列边框）
+    for (int col = 0; col <= GRID_COLS; col++)
     {
-        gridLine.setSize(sf::Vector2f(lineWidth, gridHeight));
-        gridLine.setPosition(x, gridStartY);
+        int x = GRID_START_X + col * (GRID_WIDTH + CELL_PADDING);
+        gridLine.setSize(sf::Vector2f(LINE_WIDTH, GRID_TOTAL_HEIGHT));
+        gridLine.setPosition(x, GRID_START_Y);
         window.draw(gridLine);
     }
 
-    // 绘制水平线
-    for (int y = gridStartY; y <= gridStartY + gridHeight; y += cellHeight)
+    // 绘制水平线（行边框）
+    for (int row = 0; row <= GRID_ROWS; row++)
     {
-        gridLine.setSize(sf::Vector2f(gridWidth, lineWidth));
-        gridLine.setPosition(gridStartX, y);
+        int y = GRID_START_Y + row * (GRID_HEIGHT + CELL_PADDING);
+        gridLine.setSize(sf::Vector2f(GRID_TOTAL_WIDTH, LINE_WIDTH));
+        gridLine.setPosition(GRID_START_X, y);
         window.draw(gridLine);
     }
 
-    // 绘制鼠标位置指示器
+    // 优化后的鼠标位置指示器（适配网格坐标）
     if (m_mousePos.x >= 0 && m_mousePos.y >= 0)
     {
-        sf::CircleShape mouseIndicator(8); // 更大的指示器
+        // 计算鼠标所在网格单元格（可选功能）
+        int mouseCol = (m_mousePos.x - GRID_START_X - LINE_WIDTH / 2) / (GRID_WIDTH + CELL_PADDING);
+        int mouseRow = (m_mousePos.y - GRID_START_Y - LINE_WIDTH / 2) / (GRID_HEIGHT + CELL_PADDING);
+
+        sf::CircleShape mouseIndicator(6); // 更大的指示器
         mouseIndicator.setFillColor(sf::Color::Red);
         mouseIndicator.setOutlineColor(sf::Color::White);
-        mouseIndicator.setOutlineThickness(2);
-        mouseIndicator.setPosition(m_mousePos.x - 8, m_mousePos.y - 8);
+        mouseIndicator.setOutlineThickness(3);
+        mouseIndicator.setPosition(m_mousePos.x - 12, m_mousePos.y - 12); // 居中显示
+
         window.draw(mouseIndicator);
     }
 }
