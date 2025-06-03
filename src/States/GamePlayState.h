@@ -4,6 +4,7 @@
 #include "../Systems/Grid.h"              // 网格系统
 #include "../Systems/ProjectileManager.h" //子弹管理器
 #include "../Systems/PlantManager.h"      // 植物管理器
+#include "../Systems/ZombieManager.h"     //僵尸管理器
 #include "../UI/HUD.h"                    // HUD (内部包含SeedManager)
 #include "../Systems/SunManager.h"        // SunManager (之前是GameLogic/，根据你的结构改为Systems/)
 #include "../Entities/Sun.h"              // <--- 新增: 包含阳光实体头文件
@@ -40,6 +41,8 @@ private:
     void loadAssets();
     // 私有辅助方法，用于从天空随机产生阳光
     void spawnSunFromSky();
+    // 测试僵尸的生成
+    void spawnInitialZombiesForTesting();
 
     // --- 字体资源 ---
     sf::Font m_primaryGameFont;   // 主要游戏字体
@@ -52,9 +55,10 @@ private:
 
     // --- 核心游戏系统与逻辑对象 ---
     Grid m_grid;                           // 游戏场地网格
-    ProjectileManager m_projectileManager; // 子弹管理器
-    PlantManager m_plantManager;           // 植物管理器 (构造时会接收 GamePlayState&)
-    SunManager m_sunManager;               // 阳光管理器 (管理总阳光数)
+    ProjectileManager m_projectileManager; // 子弹管理器实例
+    PlantManager m_plantManager;           // 植物管理器实例 (构造时会接收 GamePlayState&)
+    SunManager m_sunManager;               // 阳光管理器实例 (管理总阳光数)
+    ZombieManager m_zombieManager;         // 僵尸管理器实例
     HUD m_hud;                             // 游戏主界面 (包含种子包栏和阳光显示)
 
     // --- 阳光实体管理 ---
@@ -65,6 +69,10 @@ private:
     float m_skySunSpawnIntervalMin;     // <--- 新增: 最小生成间隔 (秒)
     float m_skySunSpawnIntervalMax;     // <--- 新增: 最大生成间隔 (秒)
     float m_currentSkySunSpawnInterval; // <--- 新增: 当前的随机生成间隔
+
+    // 简单按时间生成僵尸的计时器
+    sf::Clock m_zombieSpawnTestTimer;
+    float m_zombieSpawnTestInterval = 8.0f; // 每8秒生成一个测试僵尸
 
     // --- 状态内部变量 ---
     float m_gameTime;             // 游戏进行时间

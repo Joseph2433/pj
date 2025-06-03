@@ -45,6 +45,7 @@ public:
 
     // 获取实体精灵图的全局包围盒 (常用于碰撞检测)
     sf::FloatRect getGlobalBounds() const;
+    sf::FloatRect getLocalBounds() const;
 
     void move(float offsetX, float offsetY);
     void move(const sf::Vector2f &offset);

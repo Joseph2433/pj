@@ -117,3 +117,18 @@ const float PEA_LIFESPAN_SECONDS = 3.0f; // 例如，豌豆飞行3秒后消失 (
 // const std::string ICE_PEA_TEXTURE_KEY = "ice_pea_projectile";
 // const float ICE_PEA_VISUAL_WIDTH = 15.f;
 // const float ICE_PEA_VISUAL_HEIGHT = 15.f;
+
+// --- 僵尸 (Zombies) ---
+// 普通僵尸 (Basic Zombie)
+const int BASIC_ZOMBIE_HEALTH = 100;                         // 普通僵尸的生命值
+const float BASIC_ZOMBIE_SPEED = 25.f;                       // 普通僵尸的移动速度 (像素/秒，向左为负)
+                                                             // 注意：速度通常设为正数，方向在逻辑中处理
+const int BASIC_ZOMBIE_DAMAGE_PER_ATTACK = 10;               // 普通僵尸每次攻击对植物造成的伤害 (未来使用)
+const float BASIC_ZOMBIE_ATTACK_INTERVAL = 1.0f;             // 普通僵尸的攻击间隔 (秒) (未来使用)
+const std::string BASIC_ZOMBIE_TEXTURE_KEY = "basic_zombie"; // 普通僵尸纹理的键名
+// (可选) 僵尸动画相关常量，如帧数、帧延迟等
+
+// 僵尸生成相关
+const float ZOMBIE_SPAWN_START_X_OFFSET = 50.f; // 僵尸在屏幕右侧外多少像素处生成
+const float ZOMBIE_REACHED_HOUSE_X = 180.f;     // 僵尸到达这个X坐标时，玩家失败 (需要根据你的游戏布局调整)
+                                                // 例如，在网格系统左侧或房子的位置

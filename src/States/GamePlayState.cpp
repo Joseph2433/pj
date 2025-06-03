@@ -5,7 +5,8 @@
 #include "Core/ResourceManager.h"         // 资源管理器
 #include "../Utils/Constants.h"           // 游戏常量
 #include "../Entities/Plant.h"            // Plant 类 (spawnSunFromPlant 参数需要)
-#include "../Systems/ProjectileManager.h" // <--- 确保包含了 ProjectileManager.h
+#include "../Systems/ProjectileManager.h" // 子弹类
+#include "../Systems/ZombieManager.h"     //僵尸类
 #include <iostream>                       // 用于调试输出
 #include <sstream>                        // 用于构建调试信息字符串
 #include <cstdlib>                        // 为了 rand(), srand()
@@ -20,6 +21,8 @@ GamePlayState::GamePlayState(StateManager *stateManager)
       m_sunManager(INITIAL_SUN_AMOUNT), // 初始化阳光管理器
       // 初始化 ProjectileManager (它需要 ResourceManager)
       m_projectileManager(stateManager->getGame()->getResourceManager()),
+      // 初始化 ZombieManager
+      m_zombieManager(stateManager->getGame()->getResourceManager(), m_grid),
       // 初始化 PlantManager (它需要 GamePlayState& 和 ProjectileManager&)
       m_plantManager(stateManager->getGame()->getResourceManager(), m_grid, *this, m_projectileManager),
       // 初始化 HUD (它需要 ResourceManager, SunManager, 和字体)
@@ -38,6 +41,8 @@ GamePlayState::GamePlayState(StateManager *stateManager)
     m_currentSkySunSpawnInterval = m_skySunSpawnIntervalMin +
                                    static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (m_skySunSpawnIntervalMax - m_skySunSpawnIntervalMin)));
     m_skySunSpawnTimer.restart(); // 启动计时器
+
+    m_zombieSpawnTestTimer.restart(); // 初始化测试僵尸生成计时器
 
     std::cout << "GamePlayState 构造完毕。" << std::endl;
 }
@@ -74,6 +79,15 @@ void GamePlayState::loadAssets()
     if (!m_fontsLoaded && m_primaryGameFont.getInfo().family.empty())
     {
         std::cerr << "GamePlayState:警告 - 没有有效的字体被加载!UI文本可能无法显示。" << std::endl;
+    }
+
+    // --- 僵尸主要纹理加载 ---
+    if (!resMan.hasTexture(BASIC_ZOMBIE_TEXTURE_KEY))
+    {
+        if (!resMan.loadTexture(BASIC_ZOMBIE_TEXTURE_KEY, "assets/images/zombies/basic_zombie.png"))
+        { // 确保路径正确
+            std::cerr << "GamePlayState: 普通僵尸纹理 (" << BASIC_ZOMBIE_TEXTURE_KEY << ") 加载失败！" << std::endl;
+        }
     }
 
     // --- 植物主要纹理加载 ---
@@ -136,21 +150,33 @@ void GamePlayState::enter()
     m_grid.initialize();
     m_sunManager.reset();
     m_plantManager.clear();
-    m_projectileManager.clear(); // <--- 新增: 清空上一局的子弹
+    m_projectileManager.clear();
+    m_zombieManager.clear();
     m_activeSuns.clear();
 
     m_skySunSpawnTimer.restart();
     m_currentSkySunSpawnInterval = m_skySunSpawnIntervalMin +
                                    static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (m_skySunSpawnIntervalMax - m_skySunSpawnIntervalMin)));
+    // 重置测试僵尸生成计时器
+    m_zombieSpawnTestTimer.restart();
+    spawnInitialZombiesForTesting();
     m_gameTime = 0.f;
+    std::cout << "GamePlayState enter。" << std::endl;
+}
+// 测试用，生成初始僵尸
+void GamePlayState::spawnInitialZombiesForTesting()
+{
+    m_zombieManager.spawnZombie(rand() % GRID_ROWS); // 在随机行生成一个普通僵尸
+    m_zombieManager.spawnZombie(rand() % GRID_ROWS);
 }
 
 // 退出状态时的清理
 void GamePlayState::exit()
 {
-    std::cout << "GamePlayState 退出。" << std::endl;
+    std::cout << "GamePlayState exit。" << std::endl;
     m_plantManager.clear();
-    m_projectileManager.clear(); // <--- 新增: 清理子弹
+    m_projectileManager.clear();
+    m_zombieManager.clear();
     m_activeSuns.clear();
 }
 
@@ -236,14 +262,17 @@ void GamePlayState::handleEvent(const sf::Event &event)
                         }
                         else
                         { /* 种植失败日志 */
+                            std::cout << "Plant faild" << std::endl;
                         }
                     }
                     else
                     { /* 阳光不足日志 */
+                        std::cout << "Sun is not enough" << std::endl;
                     }
                 }
                 else
                 { /* 无效选择或位置日志 */
+                    std::cout << "Illegal position" << std::endl;
                 }
             }
         }
@@ -277,20 +306,40 @@ void GamePlayState::update(float deltaTime)
     m_plantManager.update(deltaTime);
 
     // 4. 更新子弹 <--- 确保这行存在且被调用
-    // std::cout << "[GamePlayState] DEBUG: Calling m_projectileManager.update(). Projectiles before: " << m_projectileManager.getAllProjectiles().size() << std::endl;
-    m_projectileManager.update(deltaTime, m_stateManager->getGame()->getWindow());
-    // std::cout << "[GamePlayState] DEBUG: m_projectileManager.update() finished. Projectiles after: " << m_projectileManager.getAllProjectiles().size() << std::endl;
 
-    // 5. 更新 HUD
+    m_projectileManager.update(deltaTime, m_stateManager->getGame()->getWindow());
+
+    // 5. 更新僵尸
+    // std::cout << "[GamePlayState] DEBUG: Calling m_zombieManager.update(). Zombies before: " << m_zombieManager.getActiveZombies().size() << std::endl;
+    m_zombieManager.update(deltaTime, m_stateManager->getGame()->getWindow());
+    // std::cout << "[GamePlayState] DEBUG: m_zombieManager.update() finished. Zombies after: " << m_zombieManager.getActiveZombies().size() << std::endl;
+
+    // 6. (未来) 碰撞检测系统更新
+    // m_collisionSystem.update(m_projectileManager.getAllProjectiles(), m_zombieManager.getActiveZombies(), m_plantManager.getAllPlants());
+
+    // 7. 测试：按时间间隔生成僵尸 (简单版波次)
+    if (m_zombieSpawnTestTimer.getElapsedTime().asSeconds() >= m_zombieSpawnTestInterval)
+    {
+        int randomRow = rand() % GRID_ROWS;     // 在随机一行生成
+        m_zombieManager.spawnZombie(randomRow); // 调用 ZombieManager 生成僵尸
+        std::cout << "测试：在第 " << randomRow << " 行生成了一个僵尸。" << std::endl;
+        m_zombieSpawnTestTimer.restart(); // 重置计时器，为下一次生成做准备
+        // (可选) 更新下一次生成的间隔时间，使其随机化
+        // m_zombieSpawnTestInterval = Constants::MIN_ZOMBIE_SPAWN_INTERVAL +
+        //                           static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (Constants::MAX_ZOMBIE_SPAWN_INTERVAL - Constants::MIN_ZOMBIE_SPAWN_INTERVAL)));
+    }
+
+    // 7. 更新 HUD
     m_hud.update(deltaTime);
 
     // 更新调试信息文本
     std::stringstream ss;
-    ss << "时间: " << static_cast<int>(m_gameTime) << "s | FPS: " << static_cast<int>(1.f / deltaTime)
-       << " | 鼠标: (" << m_mousePixelPos.x << "," << m_mousePixelPos.y << ")"
-       << " | 阳光: " << m_sunManager.getCurrentSun()
-       << " | 存活阳光实体: " << m_activeSuns.size()
-       << " | 子弹: " << m_projectileManager.getAllProjectiles().size(); // <--- 添加子弹数量到调试信息
+    ss << "Time: " << static_cast<int>(m_gameTime) << "s | FPS: " << static_cast<int>(1.f / deltaTime)
+       << " | Mouse: (" << m_mousePixelPos.x << "," << m_mousePixelPos.y << ")"
+       << " | Suns: " << m_sunManager.getCurrentSun()
+       << " | Existing Suns: " << m_activeSuns.size()
+       << " | Projectiles: " << m_projectileManager.getAllProjectiles().size()
+       << " | Zombies: " << m_zombieManager.getActiveZombies().size();
     m_debugInfoText.setString(ss.str());
 }
 
@@ -299,6 +348,8 @@ void GamePlayState::render(sf::RenderWindow &window)
 {
     window.draw(m_backgroundShape);
     m_grid.render(window);
+
+    // 绘制植物
     m_plantManager.draw(window);
 
     // 绘制阳光实体
@@ -307,15 +358,16 @@ void GamePlayState::render(sf::RenderWindow &window)
         sun->draw(window);
     }
 
-    // 绘制子弹 <--- 新增
+    // 绘制子弹
     m_projectileManager.draw(window);
+
+    // 绘制僵尸
+    m_zombieManager.draw(window);
 
     m_hud.draw(window);
     window.draw(m_debugInfoText);
 }
 
-// --- 私有辅助方法实现 ---
-// spawnSunFromSky() 和 spawnSunFromPlant(Plant* plant) 方法保持之前的实现即可
 void GamePlayState::spawnSunFromSky()
 {
     sf::RenderWindow &window = m_stateManager->getGame()->getWindow();

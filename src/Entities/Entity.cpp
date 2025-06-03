@@ -94,6 +94,11 @@ sf::FloatRect Entity::getGlobalBounds() const
     return m_sprite.getGlobalBounds();
 }
 
+sf::FloatRect Entity::getLocalBounds() const
+{
+    return m_sprite.getLocalBounds();
+}
+
 void Entity::move(float offsetX, float offsetY)
 {
     m_sprite.move(offsetX, offsetY);

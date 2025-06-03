@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.28)
-project(pj_status5 LANGUAGES CXX)
+project(pj_status6 LANGUAGES CXX)
 
 # 设置C++标准
 set(CMAKE_CXX_STANDARD 20)
@@ -50,7 +50,7 @@ set(STATES_HEADERS
 set(ENTITIES_SOURCES
     src/Entities/Entity.cpp
     src/Entities/Plant.cpp
-    # src/Entities/Zombie.cpp
+    src/Entities/Zombie.cpp
     src/Entities/Projectile.cpp
     src/Entities/Sun.cpp
 )
@@ -58,7 +58,7 @@ set(ENTITIES_SOURCES
 set(ENTITIES_HEADERS
     src/Entities/Entity.h
     src/Entities/Plant.h
-    # src/Entities/Zombie.h
+    src/Entities/Zombie.h
     src/Entities/Projectile.h
     src/Entities/Sun.h
 )
@@ -80,13 +80,13 @@ set(PLANTS_HEADERS
 
 # 僵尸类源文件
 set(ZOMBIES_SOURCES
-    # src/Zombies/BasicZombie.cpp
+    src/Zombies/BasicZombie.cpp
     # src/Zombies/ConeheadZombie.cpp
     # src/Zombies/BucketheadZombie.cpp
 )
 
 set(ZOMBIES_HEADERS
-    # src/Zombies/BasicZombie.h
+    src/Zombies/BasicZombie.h
     # src/Zombies/ConeheadZombie.h
     # src/Zombies/BucketheadZombie.h
 )
@@ -97,7 +97,7 @@ set(SYSTEMS_SOURCES
     # src/Systems/CollisionSystem.cpp
     # src/Systems/WaveManager.cpp
     src/Systems/PlantManager.cpp
-    # src/Systems/ZombieManager.cpp
+    src/Systems/ZombieManager.cpp
     src/Systems/SunManager.cpp
     src/Systems/ProjectileManager.cpp
 )
@@ -107,7 +107,7 @@ set(SYSTEMS_HEADERS
     # src/Systems/CollisionSystem.h
     # src/Systems/WaveManager.h
     src/Systems/PlantManager.h
-    # src/Systems/ZombieManager.h
+    src/Systems/ZombieManager.h
     src/Systems/SunManager.h
     src/Systems/ProjectileManager.h
 )
