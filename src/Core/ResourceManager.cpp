@@ -1,5 +1,6 @@
-#include "ResourceManager.h" // 假设在 Core/ 目录下
+#include "ResourceManager.h"
 #include <iostream>
+#include "../Utils/Constants.h"
 
 ResourceManager::ResourceManager()
 {
@@ -8,45 +9,35 @@ ResourceManager::ResourceManager()
 
 void ResourceManager::createDefaultResources()
 {
-    // 创建一个简单的默认纹理
-    if (m_defaultTexture.create(32, 32))
-    {
-        sf::Uint8 pixels[32 * 32 * 4];
-        for (int i = 0; i < 32 * 32 * 4; i += 4)
-        {
-            pixels[i] = 255;     // R
-            pixels[i + 1] = 0;   // G
-            pixels[i + 2] = 255; // B (Magenta)
-            pixels[i + 3] = 255; // A
-        }
-        m_defaultTexture.update(pixels);
-    }
-    else
+    // Default Texture
+    sf::Image image;
+    image.create(32, 32, sf::Color::Magenta);
+    if (!m_defaultTexture.loadFromImage(image))
     {
         std::cerr << "Failed to create default texture." << std::endl;
     }
 
-    // 尝试加载一个系统字体作为默认字体
-    // 注意: 这里的路径是硬编码的，更好的做法是提供一个通用的字体文件或错误处理
-    if (!m_defaultFont.loadFromFile("C:/Windows/Fonts/arial.ttf") &&
-        !m_defaultFont.loadFromFile("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"))
-    {
-        std::cerr << "Failed to load default font. Text rendering might be affected." << std::endl;
-        // 如果字体加载失败，m_defaultFont 会是一个无效的字体对象
+    // Default Font - Try to load a common system font or one from assets
+    if (!m_defaultFont.loadFromFile(FONT_PATH_ARIAL))
+    {   // Using constant
+        // Attempt to load a font from assets as a fallback
+        // if (!m_defaultFont.loadFromFile("assets/fonts/some_fallback_font.ttf")) {
+        std::cerr << "ResourceManager: Failed to load default font. Text may not render." << std::endl;
+        // }
     }
 }
 
 bool ResourceManager::loadTexture(const std::string &id, const std::string &filename)
 {
     auto texture = std::make_unique<sf::Texture>();
-    if (texture->loadFromFile(filename))
+    if (!texture->loadFromFile(filename))
     {
-        m_textures[id] = std::move(texture);
-        std::cout << "Loaded texture: " << filename << " as ID: " << id << std::endl;
-        return true;
+        std::cerr << "ResourceManager: Failed to load texture '" << filename << "' for ID '" << id << "'." << std::endl;
+        return false;
     }
-    std::cerr << "Failed to load texture: " << filename << std::endl;
-    return false;
+    m_textures[id] = std::move(texture);
+    std::cout << "ResourceManager: Loaded texture '" << filename << "' as ID '" << id << "'." << std::endl;
+    return true;
 }
 
 const sf::Texture &ResourceManager::getTexture(const std::string &id) const
@@ -56,25 +47,27 @@ const sf::Texture &ResourceManager::getTexture(const std::string &id) const
     {
         return *(it->second);
     }
-    // std::cerr << "Warning: Texture with ID '" << id << "' not found. Returning default texture." << std::endl;
-    return m_defaultTexture; // 返回预先创建的默认纹理
+    // std::cout << "ResourceManager: Texture ID '" << id << "' not found. Returning default." << std::endl;
+    return m_defaultTexture;
 }
 
 bool ResourceManager::hasTexture(const std::string &id) const
 {
-    return m_textures.count(id) > 0;
+    return m_textures.count(id);
 }
 
+// Font loading
 bool ResourceManager::loadFont(const std::string &id, const std::string &filename)
 {
     auto font = std::make_unique<sf::Font>();
-    if (font->loadFromFile(filename))
+    if (!font->loadFromFile(filename))
     {
-        m_fonts[id] = std::move(font);
-        return true;
+        std::cerr << "ResourceManager: Failed to load font '" << filename << "' for ID '" << id << "'." << std::endl;
+        return false;
     }
-    std::cerr << "Failed to load font: " << filename << std::endl;
-    return false;
+    m_fonts[id] = std::move(font);
+    std::cout << "ResourceManager: Loaded font '" << filename << "' as ID '" << id << "'." << std::endl;
+    return true;
 }
 
 const sf::Font &ResourceManager::getFont(const std::string &id) const
@@ -84,11 +77,11 @@ const sf::Font &ResourceManager::getFont(const std::string &id) const
     {
         return *(it->second);
     }
-    // std::cerr << "Warning: Font with ID '" << id << "' not found. Returning default font." << std::endl;
-    return m_defaultFont; // 返回预先创建的默认字体
+    // std::cout << "ResourceManager: Font ID '" << id << "' not found. Returning default." << std::endl;
+    return m_defaultFont; // Ensure m_defaultFont is valid
 }
 
 bool ResourceManager::hasFont(const std::string &id) const
 {
-    return m_fonts.count(id) > 0;
+    return m_fonts.count(id);
 }

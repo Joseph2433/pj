@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.28)
-project(pj_status3 LANGUAGES CXX)
+project(pj_status5 LANGUAGES CXX)
 
 # 设置C++标准
 set(CMAKE_CXX_STANDARD 20)
@@ -52,7 +52,7 @@ set(ENTITIES_SOURCES
     src/Entities/Plant.cpp
     # src/Entities/Zombie.cpp
     # src/Entities/Projectile.cpp
-    # src/Entities/Sun.cpp
+    src/Entities/Sun.cpp
 )
 
 set(ENTITIES_HEADERS
@@ -60,7 +60,7 @@ set(ENTITIES_HEADERS
     src/Entities/Plant.h
     # src/Entities/Zombie.h
     # src/Entities/Projectile.h
-    # src/Entities/Sun.h
+    src/Entities/Sun.h
 )
 
 # 植物类源文件
@@ -98,6 +98,7 @@ set(SYSTEMS_SOURCES
     # src/Systems/WaveManager.cpp
     src/Systems/PlantManager.cpp
     # src/Systems/ZombieManager.cpp
+    src/Systems/SunManager.cpp
 )
 
 set(SYSTEMS_HEADERS
@@ -106,21 +107,24 @@ set(SYSTEMS_HEADERS
     # src/Systems/WaveManager.h
     src/Systems/PlantManager.h
     # src/Systems/ZombieManager.h
+    src/Systems/SunManager.h
 )
 
 # UI组件源文件
 set(UI_SOURCES
     src/UI/Button.cpp
-    # src/UI/SeedPacket.cpp
+    src/UI/SeedManager.cpp
+    src/UI/SeedPacket.cpp
     # src/UI/ProgressBar.cpp
-    # src/UI/HUD.cpp
+    src/UI/HUD.cpp
 )
 
 set(UI_HEADERS
     src/UI/Button.h
-    # src/UI/SeedPacket.h
+    src/UI/SeedManager.h
+    src/UI/SeedPacket.h
     # src/UI/ProgressBar.h
-    # src/UI/HUD.h
+    src/UI/HUD.h
 )
 
 # 工具类源文件

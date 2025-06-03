@@ -3,8 +3,8 @@
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
-#include <SFML/System/Vector2.hpp>
-#include <SFML/Graphics/Rect.hpp>
+#include <SFML/System.hpp>
+#include <SFML/Graphics.hpp>
 
 class Entity
 {
@@ -16,7 +16,7 @@ public:
     virtual ~Entity() = default;
 
     // 虚更新函数，由派生类重写
-    // dt: دلتا时间，即自上一帧以来经过的时间
+    // dt: 经过的时间，即自上一帧以来经过的时间
     virtual void update(float dt);
 
     // 将实体绘制到渲染窗口
@@ -45,6 +45,9 @@ public:
 
     // 获取实体精灵图的全局包围盒 (常用于碰撞检测)
     sf::FloatRect getGlobalBounds() const;
+
+    void move(float offsetX, float offsetY);
+    void move(const sf::Vector2f &offset);
 
     // 可选：如果派生类需要更复杂的精灵图操作，可以提供对精灵图的直接访问
     // sf::Sprite& getSprite();

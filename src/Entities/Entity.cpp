@@ -94,6 +94,16 @@ sf::FloatRect Entity::getGlobalBounds() const
     return m_sprite.getGlobalBounds();
 }
 
+void Entity::move(float offsetX, float offsetY)
+{
+    m_sprite.move(offsetX, offsetY);
+}
+
+void Entity::move(const sf::Vector2f &offset)
+{
+    m_sprite.move(offset);
+}
+
 // 可选：直接访问精灵图
 // sf::Sprite& Entity::getSprite() {
 //     return m_sprite;

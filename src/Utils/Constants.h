@@ -1,69 +1,84 @@
 #pragma once
 
-#define WINDOW_TITLE "Plants vs Zombies"
+#include <string>
+#include <SFML/System/Time.hpp> // For sf::Time
 
-// 窗口设置
+// --- Window & Game ---
+#define WINDOW_TITLE "植物大战僵尸 克隆版"
 const int WINDOW_WIDTH = 1200;
 const int WINDOW_HEIGHT = 700;
+const float TARGET_FPS = 60.0f;
+const sf::Time TIME_PER_FRAME = sf::seconds(1.f / TARGET_FPS);
 
-// 网格设置 (你的 Grid.cpp 使用 GRID_WIDTH 作为 m_cellWidth, GRID_HEIGHT 作为 m_cellHeight)
+// --- Grid ---
 const int GRID_ROWS = 5;
 const int GRID_COLS = 9;
-const int GRID_CELL_WIDTH = 90;  // 单元格宽度 (原 GRID_WIDTH)
-const int GRID_CELL_HEIGHT = 90; // 单元格高度 (原 GRID_HEIGHT)
-const int GRID_START_X = 250;
-const int GRID_START_Y = 150;
-const int CELL_PADDING = 2; // 这个常量目前在你的Grid.cpp中没用到，但可以保留
-
-// 颜色常量
+const float GRID_CELL_WIDTH = 90.f;
+const float GRID_CELL_HEIGHT = 90.f;
+const float GRID_START_X = 250.f;
+const float GRID_START_Y = 150.f;
 const int GRID_LINE_COLOR_R = 100;
 const int GRID_LINE_COLOR_G = 100;
 const int GRID_LINE_COLOR_B = 100;
 const int GRID_LINE_COLOR_A = 128;
 
-// 游戏常量
-const float FRAME_RATE = 60.0f;
-// const float DELTA_TIME = 1.0f / FRAME_RATE; // DELTA_TIME 通常在游戏循环中计算得出，而不是作为编译期常量
+// --- Sun ---
+const int INITIAL_SUN_AMOUNT = 150;
+const int SUN_VALUE_DEFAULT = 25;
+const float SKY_SUN_FALL_SPEED = 70.f;
+const float SKY_SUN_LIFESPAN_ON_GROUND = 8.0f;
+const float PLANT_SUN_LIFESPAN = 7.0f;
+const float SUN_COLLECT_RADIUS = 30.f; // 稍微增大点击半径
+const std::string SUN_TEXTURE_KEY = "sun_texture";
+const float PLANT_SUN_SPAWN_VELOCITY_Y = -90.f;
+const float PLANT_SUN_SPAWN_VELOCITY_X_MAX_OFFSET = 25.f;
+const float PLANT_SUN_GRAVITY = 280.f;
+const float PLANT_SUN_TARGET_Y_OFFSET = 25.f;
 
-// 实体常量
-const float ENTITY_DEFAULT_SCALE = 1.0f;
-
-// 植物常量 (新增部分)
-// -----------------------------------------------------------------------------
-// 向日葵 (Sunflower)
+// --- Plants ---
+// Sunflower
 const int SUNFLOWER_HEALTH = 80;
 const int SUNFLOWER_COST = 50;
-// 可以在这里定义向日葵生产阳光的间隔、数量等，例如：
-// const float SUNFLOWER_SUN_PRODUCTION_INTERVAL = 24.0f; // 秒
-// const int SUNFLOWER_SUN_AMOUNT = 25;
+const float SUNFLOWER_COOLDOWN_TIME = 7.5f;
+const float SUNFLOWER_SUN_PRODUCTION_INTERVAL = 10.0f; // 向日葵生产阳光间隔
+const std::string SUNFLOWER_TEXTURE_KEY = "sunflower";
+const std::string SUNFLOWER_ICON_TEXTURE_KEY = "sunflower_icon";
 
-// 豌豆射手 (Peashooter)
+// Peashooter
 const int PEASHOOTER_HEALTH = 100;
 const int PEASHOOTER_COST = 100;
-// 可以在这里定义豌豆射手的攻击力、射速等，例如：
-// const float PEASHOOTER_SHOOT_INTERVAL = 1.5f; // 秒
-// const int PEASHOOTER_PROJECTILE_DAMAGE = 20;
+const float PEASHOOTER_COOLDOWN_TIME = 7.5f;
+const std::string PEASHOOTER_TEXTURE_KEY = "peashooter";
+const std::string PEASHOOTER_ICON_TEXTURE_KEY = "peashooter_icon";
 
-// 坚果墙 (WallNut) - 示例
-const int WALLNUT_HEALTH = 1000; // 坚果墙生命值很高
-const int WALLNUT_COST = 50;
+// (Add other plants here)
 
-// 土豆雷 (Potato Mine) - 示例
-// const int POTATOMINE_HEALTH = 70;
-// const int POTATOMINE_COST = 25;
-// const float POTATOMINE_ARM_TIME = 15.0f; // 秒，准备时间
+// --- UI: SeedManager (Seed Packet Bar) & SeedPackets ---
+const float SEED_PACKET_UI_START_X = 20.f;
+const float SEED_PACKET_UI_START_Y = 10.f;
+const float SEED_PACKET_WIDTH = 65.f;
+const float SEED_PACKET_HEIGHT = 90.f;
+const float SEED_PACKET_SPACING = 8.f;
+const unsigned int SEED_PACKET_COST_FONT_SIZE = 16;
+const unsigned int SEED_PACKET_COOLDOWN_FONT_SIZE = 14;
+const float SEED_PACKET_ICON_SCALE_FACTOR = 0.75f; // 图标缩放比例
+const float SEED_PACKET_COOLDOWN_OVERLAY_ALPHA = 170.f;
 
-// 植物通用常量 (如果需要)
-// const float PLANT_ANIMATION_SPEED = 0.1f;
-// -----------------------------------------------------------------------------
+// --- UI: HUD (Sun Display) ---
+// 根据种子包栏的位置和数量动态计算或预估一个位置
+const int APPROX_NUM_SEED_PACKETS_DISPLAYED = 7; // 大约会显示多少个种子包
+const float SUN_DISPLAY_X = SEED_PACKET_UI_START_X + (APPROX_NUM_SEED_PACKETS_DISPLAYED * (SEED_PACKET_WIDTH + SEED_PACKET_SPACING)) + 30.f;
+const float SUN_DISPLAY_Y = SEED_PACKET_UI_START_Y + 15.f;
+const unsigned int SUN_DISPLAY_FONT_SIZE = 24;
+const std::string SUN_ICON_HUD_TEXTURE_KEY = "sun_icon_hud"; // HUD上阳光图标的键名
 
-// 僵尸常量 (未来添加)
-// ...
+// --- Fonts ---
+const std::string FONT_PATH_ARIAL = "C:/Windows/Fonts/arial.ttf";     // Windows默认
+const std::string FONT_PATH_VERDANA = "C:/Windows/Fonts/verdana.ttf"; // 另一个Windows默认
+// 推荐：将字体文件放在 assets/fonts/ 目录下，并使用相对路径
+const std::string FONT_PATH_MAIN = "";
+const std::string FONT_PATH_PRIMARY_ASSET = "assets/fonts/your_primary_font.ttf";
+const std::string FONT_PATH_SECONDARY_ASSET = "assets/fonts/your_secondary_font.ttf";
 
-// 阳光常量 (未来添加)
-// const int SUN_VALUE_SMALL = 15;
-// const int SUN_VALUE_NORMAL = 25;
-// const int SUN_FALL_SPEED = 50; // pixels per second
-
-// 其他游戏常量
-// ...
+const std::string FONT_ID_PRIMARY = "font_primary";
+const std::string FONT_ID_SECONDARY = "font_secondary";
