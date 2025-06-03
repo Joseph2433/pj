@@ -51,7 +51,7 @@ set(ENTITIES_SOURCES
     src/Entities/Entity.cpp
     src/Entities/Plant.cpp
     # src/Entities/Zombie.cpp
-    # src/Entities/Projectile.cpp
+    src/Entities/Projectile.cpp
     src/Entities/Sun.cpp
 )
 
@@ -59,7 +59,7 @@ set(ENTITIES_HEADERS
     src/Entities/Entity.h
     src/Entities/Plant.h
     # src/Entities/Zombie.h
-    # src/Entities/Projectile.h
+    src/Entities/Projectile.h
     src/Entities/Sun.h
 )
 
@@ -99,6 +99,7 @@ set(SYSTEMS_SOURCES
     src/Systems/PlantManager.cpp
     # src/Systems/ZombieManager.cpp
     src/Systems/SunManager.cpp
+    src/Systems/ProjectileManager.cpp
 )
 
 set(SYSTEMS_HEADERS
@@ -108,6 +109,7 @@ set(SYSTEMS_HEADERS
     src/Systems/PlantManager.h
     # src/Systems/ZombieManager.h
     src/Systems/SunManager.h
+    src/Systems/ProjectileManager.h
 )
 
 # UI组件源文件
@@ -143,6 +145,15 @@ set(UTILS_HEADERS
     # src/Utils/SoundManager.h
 )
 
+# 子弹类源文件
+set(PROJECTILES_SOURCES
+    src/Projectiles/Pea.cpp
+)
+
+set(PROJECTILES_HEADERS
+    src/Projectiles/Pea.h
+)
+
 # 合并所有源文件
 set(ALL_SOURCES
     ${MAIN_SOURCES}
@@ -154,6 +165,7 @@ set(ALL_SOURCES
     ${SYSTEMS_SOURCES}
     ${UI_SOURCES}
     ${UTILS_SOURCES}
+    ${PROJECTILES_SOURCES}
 )
 
 # 合并所有头文件
@@ -166,6 +178,7 @@ set(ALL_HEADERS
     ${SYSTEMS_HEADERS}
     ${UI_HEADERS}
     ${UTILS_HEADERS}
+    ${PROJECTILES_HEADERS}
 )
 
 # 创建可执行文件

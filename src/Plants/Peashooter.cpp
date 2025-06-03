@@ -1,66 +1,100 @@
 #include "Peashooter.h"
-#include "../Utils/Constants.h"
-#include "../Core/ResourceManager.h"
-#include "../Systems/Grid.h"
+#include "../Core/ResourceManager.h"      // 包含资源管理器
+#include "../Systems/Grid.h"              // 包含网格系统
+#include "../Systems/ProjectileManager.h" // 包含子弹管理器
+#include "../Systems/PlantManager.h"      // 如果构造函数需要 PlantManager
+#include "../Utils/Constants.h"           // 包含常量定义
+#include <iostream>                       // 用于调试输出
+#include <cstdlib>                        // 为了 rand() (用于随机化初始射击计时)
+// #include <ctime> (srand 已在 Game::Game() 中调用)
 
-#include <iostream> // 用于调试 (可选)
-
+// Peashooter 构造函数实现
 Peashooter::Peashooter(ResourceManager &resManager,
-                       const sf::Vector2i &gridPos, // (row, column)
-                       Grid &gridSystem)
-    : Plant(resManager,
-            "peashooter", // 这是在 ResourceManager 中注册的豌豆射手纹理的键名
-                          // 你需要在加载资源时使用如:
-                          // game->getResourceManager().loadTexture("peashooter", "assets/images/plants/peashooter.png");
-            gridPos,
-            gridSystem,
-            PEASHOOTER_HEALTH, // 从 Constants.h 获取生命值
-            PEASHOOTER_COST)   // 从 Constants.h 获取花费
-// m_shootTimer(0.0f),
-// m_shootInterval(Constants::PEASHOOTER_SHOOT_INTERVAL) // 如果定义了射击间隔常量
-{
-    // 豌豆射手特有的初始化代码
-    // 例如，如果豌豆射手有多个动画帧，可以在这里设置动画
-    // std::cout << "Peashooter created at grid (" << gridPos.x << "r, " << gridPos.y << "c)" << std::endl;
+                       const sf::Vector2i &gridPos, // (行, 列)
+                       Grid &gridSystem,
+                       ProjectileManager &projectileManager
+                       /* PlantManager* ownerManager */)
+    : Plant(resManager,                          // 调用 Plant 基类构造函数
+            PEASHOOTER_TEXTURE_KEY,              // 植物纹理的键名
+            gridPos,                             // 网格位置
+            gridSystem,                          // 网格系统引用
+            PEASHOOTER_HEALTH,                   // 生命值 (来自常量)
+            PEASHOOTER_COST),                    // 花费 (来自常量)
+      m_projectileManagerRef(projectileManager), // 初始化子弹管理器引用
+      m_shootTimer(0.0f),                        // 初始化射击计时器
+      m_shootInterval(PEASHOOTER_SHOOT_INTERVAL)
+{ // 从常量获取射击间隔
 
-    // 设置一个合适的缩放，如果原始图片太大或太小
-    // m_sprite.setScale(Constants::ENTITY_DEFAULT_SCALE * 0.8f, Constants::ENTITY_DEFAULT_SCALE * 0.8f); // 举例
-    // centerOrigin(); // Plant的构造函数已经调用了centerOrigin，这里通常不需要重复调用，除非你想基于新尺寸重新计算
+    // 为了避免所有同时种植的豌豆射手在完全相同的时间点首次射击，
+    // 可以给 m_shootTimer 一个小的随机初始值 (0 到 m_shootInterval 之间)。
+    if (m_shootInterval > 0.001f)
+    { // 避免除以0或过小的值
+        m_shootTimer = static_cast<float>(rand() % static_cast<int>(m_shootInterval * 1000.0f)) / 1000.0f;
+    }
+
+    // 可选: 设置子弹发射点的精确偏移（如果需要）
+    // 这个偏移量是相对于 getPosition() 返回的点（通常是精灵中心）
+    // 你需要根据你的豌豆射手精灵图来调整这些值
+    // 例如，如果精灵宽度为 W, 高度为 H, 原点在中心:
+    // m_shootOriginOffset = sf::Vector2f(W * 0.3f, -H * 0.1f); // 假设嘴巴在右前方偏上一点
+    // 或者在 shoot() 方法中动态计算
+
+    // std::cout << "豌豆射手创建于网格 (" << gridPos.x << "行, " << gridPos.y << "列)，初始射击计时: " << m_shootTimer << std::endl;
 }
 
+// Peashooter 每帧的更新逻辑
 void Peashooter::update(float dt)
 {
-    // 首先调用基类 Plant 的 update 方法
-    Plant::update(dt);
+    Plant::update(dt); // 首先调用基类 Plant 的 update 方法 (如果它有逻辑的话)
 
-    // --- 豌豆射手特有的更新逻辑 ---
-    // 在这个阶段，我们还没有实现射击，所以这里可能为空。
-    // 未来，这里会包含：
-    // 1. 更新射击计时器
-    //    m_shootTimer += dt;
-    // 2. 检查是否可以射击 (计时器到达间隔，且前方有僵尸)
-    //    if (m_shootTimer >= m_shootInterval) {
-    //        // bool zombieInLane = checkForZombieInLane(); // 需要一个方法来检测同行的僵尸
-    //        // if (zombieInLane) {
-    //        //     shoot();
-    //        //     m_shootTimer = 0.0f; // 重置计时器
-    //        // }
-    //    }
-    // 3. 更新动画（如果豌豆射手有攻击动画等）
+    // 更新射击计时器
+    m_shootTimer += dt;
 
-    // 示例：简单地让它左右晃动（纯粹为了演示update可以做事）
-    // static float elapsedTime = 0.0f;
-    // elapsedTime += dt;
-    // float offsetX = std::sin(elapsedTime * 2.0f) * 2.0f; // 晃动幅度为2像素
-    // sf::Vector2f currentPos = getPosition(); // 假设Plant基类没有直接提供原始放置位置
-    // 我们需要知道它在网格单元中的原始中心点才能正确晃动
-    // 这个简单的晃动示例可能不理想，因为它会偏离格子中心
-    // 更好的做法是基于其在格子内的相对位置进行动画
+    // 检查是否到达射击时间
+    if (m_shootTimer >= m_shootInterval)
+    {
+        m_shootTimer -= m_shootInterval; // 重置计时器 (减去间隔比直接设为0更精确，以处理可能的帧延迟)
+
+        // TODO: 在这里添加逻辑：只在当前行有僵尸时才射击
+        // 这通常需要访问游戏状态或一个专门的僵尸管理器来查询信息。
+        // 例如:
+        // bool zombieInLane = m_ownerPlantManager->isZombieInLane(this->getRow(), this->getPosition().x);
+        // if (zombieInLane) {
+        //     shoot();
+        // }
+        // 当前阶段，我们先让它无条件射击，只要冷却完毕。
+        shoot();
+    }
 }
 
-// 未来实现的 shoot 方法
-// void Peashooter::shoot() {
-//    std::cout << "Peashooter at (" << getGridPosition().x << "r, " << getGridPosition().y << "c) shoots!" << std::endl;
-//    // 在这里创建并发射一个豌豆子弹实体
-//    // 需要一个 ProjectileManager 来管理子弹
-// }
+// 私有辅助方法：执行射击动作
+void Peashooter::shoot()
+{
+    // 1. 计算子弹的起始位置
+    // getPosition() 返回的是植物精灵的原点位置 (通常在 Plant 基类中通过 centerOrigin() 设置为其中心)
+    sf::Vector2f projectileStartPosition = getPosition();
+
+    // 2. 根据豌豆射手的视觉效果调整子弹的精确发射点 (例如，“嘴部”)
+    // 这些偏移值需要你根据你的精灵图资源进行微调。
+    // getGlobalBounds() 可以获取精灵在世界坐标中的边界框。
+    sf::FloatRect plantBounds = getGlobalBounds();
+    projectileStartPosition.x += plantBounds.width * 0.35f;  // 假设嘴部在精灵宽度的35%偏右处 (如果原点在中心)
+                                                             // 如果原点在左边，可能是 plantBounds.width * 0.8f
+    projectileStartPosition.y -= plantBounds.height * 0.05f; // 假设嘴部在精灵高度的5%偏上处 (如果原点在中心)
+                                                             // 或者 projectileStartPosition.y += Y_OFFSET_FROM_CENTER_TO_MOUTH;
+
+    // (可选) 如果在构造函数中设置了 m_shootOriginOffset:
+    // projectileStartPosition += m_shootOriginOffset;
+
+    // 3. 发射子弹
+    // 豌豆的默认飞行方向是向右 (1, 0)
+    // 速度和伤害从 Constants.h 获取
+    m_projectileManagerRef.firePea(projectileStartPosition, sf::Vector2f(1.f, 0.f));
+    // std::cout << "豌豆射手 (" << getGridPosition().x << "行," << getGridPosition().y << "列) 发射了一颗豌豆！" << std::endl;
+
+    // 可选：播放射击音效
+    // m_soundManagerRef.playSound(SoundID::PEASHOOTER_SHOOT);
+
+    // 可选：触发射击动画 (如果豌豆射手有射击动画)
+    // startShootingAnimation();
+}

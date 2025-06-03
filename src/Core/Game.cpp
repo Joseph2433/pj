@@ -25,16 +25,16 @@ Game::Game()
 
     if (m_stateManager.isEmpty())
     { // 检查状态是否成功推入
-        std::cerr << "严重错误：没有初始状态被推入 StateManager！" << std::endl;
+        std::cerr << "严重错误:没有初始状态被推入 StateManager！" << std::endl;
         m_window.close(); // 如果没有状态，游戏无法运行
     }
 }
 
-// 新增：加载全局资源的方法
+// 新增:加载全局资源的方法
 void Game::loadGlobalResources()
 {
-    std::cout << "Game：正在加载全局资源..." << std::endl;
-    // 示例：加载主要字体，如果 Constants.h 中定义了 FONT_ID_PRIMARY 和 FONT_PATH_MAIN
+    std::cout << "Game:正在加载全局资源..." << std::endl;
+    // 示例:加载主要字体，如果 Constants.h 中定义了 FONT_ID_PRIMARY 和 FONT_PATH_MAIN
     if (!m_resourceManager.hasFont(FONT_ID_PRIMARY))
     {
         if (!m_resourceManager.loadFont(FONT_ID_PRIMARY, FONT_PATH_ARIAL))
@@ -42,7 +42,7 @@ void Game::loadGlobalResources()
             // 如果主要字体（例如项目自带字体）加载失败，尝试加载一个系统字体作为备用
             if (!m_resourceManager.loadFont(FONT_ID_PRIMARY, FONT_PATH_ARIAL))
             { // 使用常量定义的Arial路径
-                std::cerr << "Game：严重 - 全局主要字体加载失败。" << std::endl;
+                std::cerr << "Game:严重 - 全局主要字体加载失败。" << std::endl;
             }
         }
     }
@@ -52,10 +52,18 @@ void Game::loadGlobalResources()
         // 假设 FONT_PATH_ARIAL 也可作为次要字体路径，或定义另一个路径常量
         if (!m_resourceManager.loadFont(FONT_ID_SECONDARY, FONT_PATH_ARIAL))
         {
-            std::cerr << "Game：全局次要字体加载失败。某些UI可能会使用主要字体作为备用。" << std::endl;
+            std::cerr << "Game:全局次要字体加载失败。某些UI可能会使用主要字体作为备用。" << std::endl;
         }
     }
-    std::cout << "Game：全局资源加载尝试完毕。" << std::endl;
+
+    if (!m_resourceManager.hasTexture(PEA_TEXTURE_KEY))
+    {
+        if (!m_resourceManager.loadTexture(PEA_TEXTURE_KEY, "assets/images/projectiles/pea.png"))
+        { // 确保路径正确
+            std::cerr << "Game: 豌豆子弹纹理 (" << PEA_TEXTURE_KEY << ") 加载失败！" << std::endl;
+        }
+    }
+    std::cout << "Game:全局资源加载尝试完毕。" << std::endl;
 }
 
 void Game::run()
@@ -69,7 +77,7 @@ void Game::run()
         sf::Time elapsedTime = clock.restart(); // 获取自上次调用 clock.restart() 以来经过的时间
         timeSinceLastUpdate += elapsedTime;     // 累加到时间池
 
-        // 固定时间步长更新循环：
+        // 固定时间步长更新循环:
         // 只要累积的时间足够执行一次或多次固定时长的更新，就执行更新。
         // 这能确保游戏逻辑的更新频率是稳定的，不受渲染帧率波动的影响。
         while (timeSinceLastUpdate > TIME_PER_FRAME)

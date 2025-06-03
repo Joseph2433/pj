@@ -4,7 +4,7 @@
 #include <SFML/System/Time.hpp> // For sf::Time
 
 // --- Window & Game ---
-#define WINDOW_TITLE "植物大战僵尸 克隆版"
+#define WINDOW_TITLE "JOSEPH'S OOP PROJECT"
 const int WINDOW_WIDTH = 1200;
 const int WINDOW_HEIGHT = 700;
 const float TARGET_FPS = 60.0f;
@@ -50,6 +50,7 @@ const int PEASHOOTER_COST = 100;
 const float PEASHOOTER_COOLDOWN_TIME = 7.5f;
 const std::string PEASHOOTER_TEXTURE_KEY = "peashooter";
 const std::string PEASHOOTER_ICON_TEXTURE_KEY = "peashooter_icon";
+const float PEASHOOTER_SHOOT_INTERVAL = 1.4f; // 豌豆射手两次射击之间的间隔时间 (秒)
 
 // (Add other plants here)
 
@@ -82,3 +83,37 @@ const std::string FONT_PATH_SECONDARY_ASSET = "assets/fonts/your_secondary_font.
 
 const std::string FONT_ID_PRIMARY = "font_primary";
 const std::string FONT_ID_SECONDARY = "font_secondary";
+
+// --- 子弹 (Projectiles) ---
+
+// **豌豆 (Pea)**
+const float PEA_SPEED = 350.f; // 豌豆子弹的飞行速度 (单位：像素/秒)
+                               // 你可以调整这个值来改变子弹快慢
+
+const int PEA_DAMAGE = 20; // 豌豆子弹对僵尸造成的伤害值
+                           // 普通僵尸可能需要承受多次攻击才会死亡
+
+const std::string PEA_TEXTURE_KEY = "pea_projectile"; // 豌豆子弹纹理在 ResourceManager 中的键名
+                                                      // 确保这个键名与你加载纹理时使用的ID一致
+                                                      // 例如: resourceManager.loadTexture("pea_projectile", "assets/images/projectiles/pea.png");
+
+// (可选) 子弹的近似尺寸，主要用于粗略的边界检测或非常简单的碰撞（更精确的碰撞用 getGlobalBounds()）
+// 这些值应该大致匹配你的 pea.png 图片中豌豆视觉部分的大小
+const float PEA_VISUAL_WIDTH = 13.f;  // 豌豆视觉上的宽度 (像素)
+const float PEA_VISUAL_HEIGHT = 13.f; // 豌豆视觉上的高度 (像素)
+
+// (可选) 子弹的生命周期（如果子弹飞行一定时间后会自动消失，即使没打中或飞出屏幕）
+// 设置为负数或很大的数表示它主要依赖飞出屏幕或击中目标来销毁
+const float PEA_LIFESPAN_SECONDS = 3.0f; // 例如，豌豆飞行3秒后消失 (如果设为 > 0)
+                                         // 如果希望它一直飞直到出界，可以将此值设为 -1.f 或一个非常大的数，
+                                         // 并在 Projectile 基类中相应处理。
+                                         // 在我们之前的 Projectile 实现中，lifespan < 0 表示无限。
+
+// --- 其他类型的子弹 (未来扩展) ---
+// 例如：冰冻豌豆 (Ice Pea)
+// const float ICE_PEA_SPEED = 320.f;
+// const int ICE_PEA_DAMAGE = 20; // 伤害可能与普通豌豆相同，但有减速效果
+// const float ICE_PEA_SLOW_DURATION = 3.0f; // 减速效果持续时间
+// const std::string ICE_PEA_TEXTURE_KEY = "ice_pea_projectile";
+// const float ICE_PEA_VISUAL_WIDTH = 15.f;
+// const float ICE_PEA_VISUAL_HEIGHT = 15.f;

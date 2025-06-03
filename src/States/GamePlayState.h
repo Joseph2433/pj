@@ -1,14 +1,15 @@
 #pragma once // 防止头文件被多次包含
 
-#include "Core/GameState.h"          // 游戏状态基类
-#include "../Systems/Grid.h"         // 网格系统
-#include "../Systems/PlantManager.h" // 植物管理器
-#include "../UI/HUD.h"               // HUD (内部包含SeedManager)
-#include "../Systems/SunManager.h"   // SunManager (之前是GameLogic/，根据你的结构改为Systems/)
-#include "../Entities/Sun.h"         // <--- 新增: 包含阳光实体头文件
-#include <SFML/Graphics.hpp>         // SFML 图形库
-#include <vector>                    // <--- 新增: 用于 std::vector
-#include <memory>                    // <--- 新增: 用于 std::unique_ptr
+#include "Core/GameState.h"               // 游戏状态基类
+#include "../Systems/Grid.h"              // 网格系统
+#include "../Systems/ProjectileManager.h" //子弹管理器
+#include "../Systems/PlantManager.h"      // 植物管理器
+#include "../UI/HUD.h"                    // HUD (内部包含SeedManager)
+#include "../Systems/SunManager.h"        // SunManager (之前是GameLogic/，根据你的结构改为Systems/)
+#include "../Entities/Sun.h"              // <--- 新增: 包含阳光实体头文件
+#include <SFML/Graphics.hpp>              // SFML 图形库
+#include <vector>                         // <--- 新增: 用于 std::vector
+#include <memory>                         // <--- 新增: 用于 std::unique_ptr
 
 // 前向声明
 class StateManager;
@@ -50,10 +51,11 @@ private:
     sf::Text m_debugInfoText;             // 显示调试信息
 
     // --- 核心游戏系统与逻辑对象 ---
-    Grid m_grid;                 // 游戏场地网格
-    PlantManager m_plantManager; // 植物管理器 (构造时会接收 GamePlayState&)
-    SunManager m_sunManager;     // 阳光管理器 (管理总阳光数)
-    HUD m_hud;                   // 游戏主界面 (包含种子包栏和阳光显示)
+    Grid m_grid;                           // 游戏场地网格
+    ProjectileManager m_projectileManager; // 子弹管理器
+    PlantManager m_plantManager;           // 植物管理器 (构造时会接收 GamePlayState&)
+    SunManager m_sunManager;               // 阳光管理器 (管理总阳光数)
+    HUD m_hud;                             // 游戏主界面 (包含种子包栏和阳光显示)
 
     // --- 阳光实体管理 ---
     std::vector<std::unique_ptr<Sun>> m_activeSuns; // <--- 新增: 存储所有激活的阳光实体
