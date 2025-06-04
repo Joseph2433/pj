@@ -2,16 +2,18 @@
 #include "../Core/ResourceManager.h"      // 包含资源管理器
 #include "../Systems/Grid.h"              // 包含网格系统
 #include "../Systems/ProjectileManager.h" // 包含子弹管理器
-#include "../Systems/PlantManager.h"      // 如果构造函数需要 PlantManager
-#include "../Utils/Constants.h"           // 包含常量定义
-#include <iostream>                       // 用于调试输出
-#include <cstdlib>                        // 为了 rand() (用于随机化初始射击计时)
+#include "../Systems/PlantManager.h"
+#include "../Utils/Constants.h" // 包含常量定义
+#include "../Entities/Zombie.h" // 为了在 checkForZombiesInLane 中使用 Zombie 类型
+#include <iostream>             // 用于调试输出
+#include <cstdlib>              // 为了 rand() (用于随机化初始射击计时)
 // #include <ctime> (srand 已在 Game::Game() 中调用)
 
 // Peashooter 构造函数实现
 Peashooter::Peashooter(ResourceManager &resManager,
                        const sf::Vector2i &gridPos, // (行, 列)
                        Grid &gridSystem,
+                       PlantManager &plantManager,
                        ProjectileManager &projectileManager
                        /* PlantManager* ownerManager */)
     : Plant(resManager,                          // 调用 Plant 基类构造函数
@@ -21,7 +23,8 @@ Peashooter::Peashooter(ResourceManager &resManager,
             PEASHOOTER_HEALTH,                   // 生命值 (来自常量)
             PEASHOOTER_COST),                    // 花费 (来自常量)
       m_projectileManagerRef(projectileManager), // 初始化子弹管理器引用
-      m_shootTimer(0.0f),                        // 初始化射击计时器
+      m_plantManagerRef(plantManager),
+      m_shootTimer(0.0f), // 初始化射击计时器
       m_shootInterval(PEASHOOTER_SHOOT_INTERVAL)
 { // 从常量获取射击间隔
 
@@ -53,18 +56,36 @@ void Peashooter::update(float dt)
     // 检查是否到达射击时间
     if (m_shootTimer >= m_shootInterval)
     {
-        m_shootTimer -= m_shootInterval; // 重置计时器 (减去间隔比直接设为0更精确，以处理可能的帧延迟)
-
-        // TODO: 在这里添加逻辑：只在当前行有僵尸时才射击
-        // 这通常需要访问游戏状态或一个专门的僵尸管理器来查询信息。
-        // 例如:
-        // bool zombieInLane = m_ownerPlantManager->isZombieInLane(this->getRow(), this->getPosition().x);
-        // if (zombieInLane) {
-        //     shoot();
-        // }
-        // 当前阶段，我们先让它无条件射击，只要冷却完毕。
-        shoot();
+        m_shootTimer -= m_shootInterval;
+        if (checkForZombiesInLane())
+        { // 只有前方有僵尸才射击
+            shoot();
+            m_shootTimer = 0.0f;
+        }
+        // 如果没有僵尸，计时器可以不重置，或者部分重置以实现更快的首次射击
+        // 当前设计：如果没有僵尸，计时器会继续累积，直到下一次检查到僵尸且时间也到了才射击
+        // 如果想没僵尸时也重置，可以把 m_shootTimer -= m_shootInterval; 移到 if 外部
+        // 但通常是只有射击了才消耗冷却时间
     }
+}
+
+// 检查当前行是否有僵尸
+bool Peashooter::checkForZombiesInLane() const
+{
+    // 通过 PlantManager 获取当前行所有僵尸的原始指针
+    // getRow() 返回植物的行号
+    // getPosition().x 返回植物的X坐标，我们只关心植物右方的僵尸
+    std::vector<Zombie *> zombiesInLane = m_plantManagerRef.getZombiesInLane(this->getRow());
+    for (Zombie *zombie : zombiesInLane)
+    {
+        if (zombie && zombie->isAlive() && zombie->getPosition().x > this->getPosition().x)
+        {
+            // 如果僵尸存活且在豌豆射手的右边（即前方）
+            // std::cout << "Peashooter sees zombie in lane!" << std::endl;
+            return true; // 发现僵尸，可以射击
+        }
+    }
+    return false; // 没有发现前方僵尸
 }
 
 // 私有辅助方法：执行射击动作
@@ -80,7 +101,7 @@ void Peashooter::shoot()
     sf::FloatRect plantBounds = getGlobalBounds();
     projectileStartPosition.x += plantBounds.width * 0.35f;  // 假设嘴部在精灵宽度的35%偏右处 (如果原点在中心)
                                                              // 如果原点在左边，可能是 plantBounds.width * 0.8f
-    projectileStartPosition.y -= plantBounds.height * 0.05f; // 假设嘴部在精灵高度的5%偏上处 (如果原点在中心)
+    projectileStartPosition.y -= plantBounds.height * 0.85f; // 假设嘴部在精灵高度的5%偏上处 (如果原点在中心)
                                                              // 或者 projectileStartPosition.y += Y_OFFSET_FROM_CENTER_TO_MOUTH;
 
     // (可选) 如果在构造函数中设置了 m_shootOriginOffset:

@@ -33,8 +33,13 @@ void Plant::update(float dt)
 
 void Plant::takeDamage(int damage)
 {
+    if (!isAlive())
+        return; // 如果已经死了，不再受伤
+
     m_health -= damage;
-    if (m_health < 0)
+    // std::cout << "植物类型(未知) 在 (" << m_gridPosition.x << "r, " << m_gridPosition.y << "c) 受到 "
+    //           << damage << " 点伤害, 剩余生命: " << m_health << std::endl;
+    if (m_health <= 0)
     {
         m_health = 0;
     }

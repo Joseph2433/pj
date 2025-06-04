@@ -32,6 +32,7 @@ public:
 
     int getRow() const;
     int getColumn() const;
+    int getHealth() const { return m_health; };
 
 protected:
     int m_health;

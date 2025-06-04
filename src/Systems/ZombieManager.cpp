@@ -30,7 +30,7 @@ void ZombieManager::spawnZombie(int row, ZombieType type)
     switch (type)
     {
     case ZombieType::BASIC:
-        newZombie = std::make_unique<BasicZombie>(m_resourceManagerRef, spawnPosition);
+        newZombie = std::make_unique<BasicZombie>(m_resourceManagerRef, spawnPosition, m_gridRef); // <--- 修改这里，传递 m_gridRef
         break;
     // case ZombieType::CONEHEAD:
     //     newZombie = std::make_unique<ConeheadZombie>(m_resourceManagerRef, spawnPosition);
@@ -46,26 +46,22 @@ void ZombieManager::spawnZombie(int row, ZombieType type)
         // std::cout << "ZombieManager: 在第 " << row << " 行生成了一个普通僵尸。" << std::endl;
     }
 }
-
 void ZombieManager::update(float dt, const sf::RenderWindow &window)
 {
-    // 1. 更新所有僵尸
-    for (auto &zombie : m_zombies)
-    {
-        if (zombie && zombie->isAlive())
-        { // 只更新存活的僵尸
-            // 未来，这里可能需要传递植物列表给僵尸的 update 用于索敌
-            // std::vector<Plant*> plantsInLane = m_plantManagerRef.getPlantsInRow(zombie->getLane(...));
-            zombie->update(dt /*, plantsInLane */);
+    // 1. 更新所有僵尸的状态和AI逻辑是在 GamePlayState::update 中通过遍历并调用 zombie->update(dt, plants) 完成的。
+    //    ZombieManager::update 主要负责管理僵尸集合和一些全局逻辑。
 
-            // 2. 检查僵尸是否到达房子 (游戏失败条件之一)
-            // 注意：这个逻辑也可以放在 GamePlayState 中处理
-            if (zombie->getPosition().x < ZOMBIE_REACHED_HOUSE_X)
+    // 2. 检查僵尸是否到达房子 (游戏失败条件之一)
+    for (auto &zombie_ptr : m_zombies)
+    {
+        if (zombie_ptr && zombie_ptr->isAlive())
+        {
+            if (zombie_ptr->getPosition().x < ZOMBIE_REACHED_HOUSE_X)
             {
-                std::cout << "游戏失败：一个僵尸到达了你的房子！" << std::endl;
+                std::cout << "游戏失败：一个僵尸 (Addr: " << zombie_ptr.get() << ") 到达了你的房子！" << std::endl;
                 // TODO: 触发游戏结束状态
-                // m_gameStateRef.triggerGameOver();
-                zombie->changeState(ZombieState::DEAD); // 简单处理，让它被移除
+                // m_gameStateRef.triggerGameOver(); // 如果 ZombieManager 有 GameState 引用
+                zombie_ptr->changeState(ZombieState::DEAD); // 简单处理，让它被移除
             }
         }
     }
@@ -76,7 +72,7 @@ void ZombieManager::update(float dt, const sf::RenderWindow &window)
                        [](const std::unique_ptr<Zombie> &z_ptr)
                        {
                            if (!z_ptr)
-                               return true; // 移除空指针
+                               return true;
                            return z_ptr->isReadyToBeRemoved();
                        }),
         m_zombies.end());

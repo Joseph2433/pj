@@ -126,6 +126,7 @@ const float BASIC_ZOMBIE_SPEED = 25.f;                       // 普通僵尸的�
 const int BASIC_ZOMBIE_DAMAGE_PER_ATTACK = 10;               // 普通僵尸每次攻击对植物造成的伤害 (未来使用)
 const float BASIC_ZOMBIE_ATTACK_INTERVAL = 1.0f;             // 普通僵尸的攻击间隔 (秒) (未来使用)
 const std::string BASIC_ZOMBIE_TEXTURE_KEY = "basic_zombie"; // 普通僵尸纹理的键名
+const float ZOMBIE_ATTACK_RANGE = 5.f;                       // 僵尸开始攻击植物的近距离阈值 (像素)
 // (可选) 僵尸动画相关常量，如帧数、帧延迟等
 
 // 僵尸生成相关

@@ -2,9 +2,12 @@
 
 #include "Entity.h" // 继承自实体基类
 #include <string>
+#include <vector> // 确保包含 <vector>
 
+// 前向声明
 class ResourceManager;
-class Plant; // 前向声明，用于攻击目标
+class Plant; // 用于 update 和 findTargetPlant 的参数类型
+class Grid;  // <--- 新增前向声明，如果 getLane 需要 Grid&
 
 // 僵尸可能有的状态
 enum class ZombieState
@@ -20,54 +23,50 @@ class Zombie : public Entity
 {
 public:
     // 构造函数
-    // textureKey: 在 ResourceManager 中的纹理键名
-    // spawnPosition: 僵尸的初始生成位置
-    // health: 初始生命值
-    // speed: 移动速度 (通常为正值，方向由逻辑控制)
-    // damage: 每次攻击造成的伤害
     Zombie(ResourceManager &resManager, const std::string &textureKey,
            const sf::Vector2f &spawnPosition,
-           int health, float speed, int damage);
+           int health, float speed, int damage,
+           float attackInterval,
+           Grid &grid); // <--- 新增 Grid 引用，用于准确计算行号
 
-    ~Zombie() override = default; // 虚析构函数由 Entity 继承
+    // 虚析构函数由 Entity 继承而来
+    ~Zombie() override = default;
 
-    // 更新僵尸状态 (由派生类具体实现或部分实现)
+    // 更新僵尸状态
     // dt: 帧间隔时间
-    // plantsInLane: 当前行上的植物列表 (用于索敌和攻击，未来使用)
-    virtual void update(float dt /*, const std::vector<Plant*>& plantsInLane */);
-
-    // Entity 基类已有 draw()
+    // plantsInLane: 当前僵尸所在行的植物列表
+    virtual void update(float dt, const std::vector<Plant *> &plantsInLane);
 
     // 僵尸受到伤害
-    // amount: 受到的伤害值
     virtual void takeDamage(int amount);
 
-    // 检查僵尸是否还存活 (生命值 > 0 且不在死亡状态)
+    // --- 状态查询 ---
     bool isAlive() const;
-    // 检查僵尸是否已彻底死亡并可被移除
     bool isReadyToBeRemoved() const;
+    ZombieState getCurrentState() const;
 
     // --- 状态管理 ---
-    ZombieState getCurrentState() const;
     virtual void changeState(ZombieState newState);
 
-    // --- 攻击相关 (未来实现) ---
-    // virtual void attack(Plant* targetPlant);
-    // int getDamage() const;
-
-    // 获取僵尸所在的行 (基于其Y坐标和网格信息)
-    // gridCellHeight: 网格单元的高度
-    // gridStartY: 网格区域的起始Y坐标
-    int getLane(float gridCellHeight, float gridStartY) const;
+    // --- 位置/逻辑相关 ---
+    // 获取僵尸当前所在的行号 (现在使用内部的 m_gridRef)
+    int getLane() const;
 
 protected:
-    int m_health;          // 当前生命值
-    float m_speed;         // 移动速度 (通常是向左移动的基础速度值)
-    int m_damagePerAttack; // 每次攻击的伤害值
+    int m_health;
+    float m_speed;
+    int m_damagePerAttack;
+    float m_attackInterval;
 
-    ZombieState m_currentState; // 僵尸当前状态
-    float m_stateTimer;         // 用于状态相关的计时 (例如攻击间隔、死亡动画时长)
+    ZombieState m_currentState;
+    float m_stateTimer;
+    Plant *m_currentTargetPlant;
+    Grid &m_gridRef; // <--- 新增: 对 Grid 的引用，用于 getLane
 
-    // 辅助方法，处理移动逻辑
+    // --- 行为辅助方法 ---
     virtual void moveLeft(float dt);
+    // 在已筛选的、同一行的植物中寻找攻击目标
+    Plant *findTargetPlant(const std::vector<Plant *> &plantsInLane);
+    // 执行一次攻击动作
+    virtual void attack(Plant *targetPlant);
 };

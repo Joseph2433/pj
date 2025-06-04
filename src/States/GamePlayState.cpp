@@ -1,36 +1,38 @@
 #include "States/GamePlayState.h"
-#include "States/MenuState.h"             // 为了实现按 ESC 返回主菜单
-#include "Core/StateManager.h"            // 状态管理器
-#include "Core/Game.h"                    // Game 类，用于获取 ResourceManager 和 Window
-#include "Core/ResourceManager.h"         // 资源管理器
-#include "../Utils/Constants.h"           // 游戏常量
-#include "../Entities/Plant.h"            // Plant 类 (spawnSunFromPlant 参数需要)
-#include "../Systems/ProjectileManager.h" // 子弹类
-#include "../Systems/ZombieManager.h"     //僵尸类
-#include <iostream>                       // 用于调试输出
-#include <sstream>                        // 用于构建调试信息字符串
-#include <cstdlib>                        // 为了 rand(), srand()
-#include <ctime>                          // 为了 std::time() (用于 srand 初始化)
-#include <algorithm>                      // 为了 std::remove_if
+#include "States/MenuState.h"
+#include "Core/StateManager.h"
+#include "Core/Game.h"
+#include "Core/ResourceManager.h"
+#include "../Utils/Constants.h"
+#include "../Entities/Plant.h"
+#include "../Systems/ProjectileManager.h"
+#include "../Systems/ZombieManager.h"
+#include "../Systems/CollisionSystem.h"
+#include "../Entities/Zombie.h"
+#include "../Entities/Projectile.h"
+#include <iostream>
+#include <sstream>
+#include <cstdlib>
+#include <ctime>
+#include <algorithm>
 
-// GamePlayState 构造函数
 GamePlayState::GamePlayState(StateManager *stateManager)
     : GameState(stateManager),          // 初始化基类
       m_fontsLoaded(false),             // 初始时字体未加载
       m_grid(),                         // Grid 使用默认构造函数
       m_sunManager(INITIAL_SUN_AMOUNT), // 初始化阳光管理器
-      // 初始化 ProjectileManager (它需要 ResourceManager)
       m_projectileManager(stateManager->getGame()->getResourceManager()),
-      // 初始化 ZombieManager
       m_zombieManager(stateManager->getGame()->getResourceManager(), m_grid),
       // 初始化 PlantManager (它需要 GamePlayState& 和 ProjectileManager&)
-      m_plantManager(stateManager->getGame()->getResourceManager(), m_grid, *this, m_projectileManager),
+      m_plantManager(stateManager->getGame()->getResourceManager(), m_grid, *this, m_projectileManager, m_zombieManager),
       // 初始化 HUD (它需要 ResourceManager, SunManager, 和字体)
       m_hud(stateManager->getGame()->getResourceManager(), m_sunManager, m_primaryGameFont, m_secondaryGameFont),
       m_gameTime(0.0f), // 初始化游戏时间
       m_skySunSpawnIntervalMin(5.0f),
       m_skySunSpawnIntervalMax(12.0f),
-      m_currentSkySunSpawnInterval(0.0f)
+      m_currentSkySunSpawnInterval(0.0f),
+      m_collisionSystem(),
+      m_zombieSpawnTestInterval(8.0f)
 {
 
     std::cout << "GamePlayState 正在构造..." << std::endl;
@@ -127,7 +129,6 @@ void GamePlayState::loadAssets()
     std::cout << "GamePlayState:资源加载尝试完毕。" << std::endl;
 }
 
-// 进入状态时的初始化
 void GamePlayState::enter()
 {
     std::cout << "GamePlayState 进入。" << std::endl;
@@ -167,7 +168,6 @@ void GamePlayState::enter()
 void GamePlayState::spawnInitialZombiesForTesting()
 {
     m_zombieManager.spawnZombie(rand() % GRID_ROWS); // 在随机行生成一个普通僵尸
-    m_zombieManager.spawnZombie(rand() % GRID_ROWS);
 }
 
 // 退出状态时的清理
@@ -282,7 +282,6 @@ void GamePlayState::handleEvent(const sf::Event &event)
 // 更新游戏逻辑
 void GamePlayState::update(float deltaTime)
 {
-    // std::cout << "[GamePlayState] DEBUG: update called with dt = " << deltaTime << std::endl;
     m_gameTime += deltaTime;
 
     // 1. 更新阳光实体
@@ -309,15 +308,39 @@ void GamePlayState::update(float deltaTime)
 
     m_projectileManager.update(deltaTime, m_stateManager->getGame()->getWindow());
 
-    // 5. 更新僵尸
-    // std::cout << "[GamePlayState] DEBUG: Calling m_zombieManager.update(). Zombies before: " << m_zombieManager.getActiveZombies().size() << std::endl;
+    // 5.更新僵尸 (僵尸的索敌和攻击植物)
+    std::vector<Plant *> activePlantsForZombies = m_plantManager.getAllActivePlants(); // 获取所有存活植物
+    std::vector<Zombie *> activeZombiesToUpdate = m_zombieManager.getActiveZombies();  // 获取所有存活僵尸
+
+    for (Zombie *zombie : activeZombiesToUpdate)
+    {
+        if (zombie && zombie->isAlive())
+        {
+            int currentZombieLane = zombie->getLane();
+            std::vector<Plant *> plantsInThisSpecificLane;
+            if (currentZombieLane != -1)
+            { // 确保僵尸在有效行内
+                for (Plant *p : activePlantsForZombies)
+                {
+                    if (p && p->isAlive() && p->getRow() == currentZombieLane)
+                    {
+                        plantsInThisSpecificLane.push_back(p);
+                    }
+                }
+            }
+            else
+            {
+                std::cout << "[GamePlayState] DEBUG: Zombie Addr: " << zombie << " is not in a valid lane, passing empty plant list." << std::endl;
+            }
+            zombie->update(deltaTime, plantsInThisSpecificLane);
+        }
+    }
+    // ZombieManager 自身的更新 (例如，移除已死亡僵尸，检查是否到达房子)
     m_zombieManager.update(deltaTime, m_stateManager->getGame()->getWindow());
-    // std::cout << "[GamePlayState] DEBUG: m_zombieManager.update() finished. Zombies after: " << m_zombieManager.getActiveZombies().size() << std::endl;
 
-    // 6. (未来) 碰撞检测系统更新
-    // m_collisionSystem.update(m_projectileManager.getAllProjectiles(), m_zombieManager.getActiveZombies(), m_plantManager.getAllPlants());
-
-    // 7. 测试：按时间间隔生成僵尸 (简单版波次)
+    // 执行碰撞检测
+    m_collisionSystem.update(m_projectileManager, m_zombieManager, m_plantManager);
+    // 6. 测试：按时间间隔生成僵尸 (简单版波次)
     if (m_zombieSpawnTestTimer.getElapsedTime().asSeconds() >= m_zombieSpawnTestInterval)
     {
         int randomRow = rand() % GRID_ROWS;     // 在随机一行生成
@@ -325,8 +348,8 @@ void GamePlayState::update(float deltaTime)
         std::cout << "测试：在第 " << randomRow << " 行生成了一个僵尸。" << std::endl;
         m_zombieSpawnTestTimer.restart(); // 重置计时器，为下一次生成做准备
         // (可选) 更新下一次生成的间隔时间，使其随机化
-        // m_zombieSpawnTestInterval = Constants::MIN_ZOMBIE_SPAWN_INTERVAL +
-        //                           static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (Constants::MAX_ZOMBIE_SPAWN_INTERVAL - Constants::MIN_ZOMBIE_SPAWN_INTERVAL)));
+        // m_zombieSpawnTestInterval = MIN_ZOMBIE_SPAWN_INTERVAL +
+        //                           static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (MAX_ZOMBIE_SPAWN_INTERVAL - MIN_ZOMBIE_SPAWN_INTERVAL)));
     }
 
     // 7. 更新 HUD

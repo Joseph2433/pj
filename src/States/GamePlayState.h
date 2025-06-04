@@ -7,11 +7,13 @@
 #include "../Systems/ZombieManager.h"     //僵尸管理器
 #include "../UI/HUD.h"                    // HUD (内部包含SeedManager)
 #include "../Systems/SunManager.h"        // SunManager (之前是GameLogic/，根据你的结构改为Systems/)
-#include "../Entities/Sun.h"              // <--- 新增: 包含阳光实体头文件
+#include "../Entities/Sun.h"              //  包含阳光实体头文件
+#include "../Systems/CollisionSystem.h"   //碰撞系统
 #include <SFML/Graphics.hpp>              // SFML 图形库
 #include <vector>                         // <--- 新增: 用于 std::vector
 #include <memory>                         // <--- 新增: 用于 std::unique_ptr
 
+// class CollisionSystem;
 // 前向声明
 class StateManager;
 class Plant; // <--- 新增: 前向声明 Plant 类，因为 spawnSunFromPlant 方法参数需要
@@ -74,7 +76,12 @@ private:
     sf::Clock m_zombieSpawnTestTimer;
     float m_zombieSpawnTestInterval = 8.0f; // 每8秒生成一个测试僵尸
 
+    // CollisionSystem m_collisionSystem;
+
     // --- 状态内部变量 ---
     float m_gameTime;             // 游戏进行时间
     sf::Vector2i m_mousePixelPos; // 最近的鼠标像素坐标
+
+    // --- 碰撞检测 ---
+    CollisionSystem m_collisionSystem;
 };

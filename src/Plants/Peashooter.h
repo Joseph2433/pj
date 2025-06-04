@@ -22,6 +22,7 @@ public:
     Peashooter(ResourceManager &resManager,
                const sf::Vector2i &gridPos,
                Grid &gridSystem,
+               PlantManager &plantManager,
                ProjectileManager &projectileManager
                /* PlantManager* ownerManager = nullptr */); // PlantManager 可以是可选的或通过其他方式获取
 
@@ -37,10 +38,11 @@ public:
 private:
     // 私有辅助方法，用于执行射击动作
     void shoot();
+    bool checkForZombiesInLane() const; // 检查前方是否有僵尸
 
     // --- 成员变量 ---
     ProjectileManager &m_projectileManagerRef; // 对子弹管理器的引用，用于发射豌豆
-
+    PlantManager &m_plantManagerRef;
     float m_shootTimer;          // 射击计时器，记录距离下次射击还有多久
     const float m_shootInterval; // 固定的射击间隔时间 (从 Constants.h 初始化)
 

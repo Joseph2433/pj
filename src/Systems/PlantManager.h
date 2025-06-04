@@ -12,8 +12,10 @@ namespace sf
 class Plant;
 class ResourceManager;
 class Grid;
-class GamePlayState;     // 用于阳光生成回调
-class ProjectileManager; // <--- 新增: 用于传递给需要发射子弹的植物
+class GamePlayState; // 用于阳光生成回调
+class ProjectileManager;
+class ZombieManager;
+class Zombie;
 
 enum class PlantType
 {
@@ -27,7 +29,7 @@ class PlantManager
 public:
     // 构造函数现在需要 GamePlayState (用于产阳光) 和 ProjectileManager (用于发射子弹的植物)
     PlantManager(ResourceManager &resManager, Grid &gridSystem,
-                 GamePlayState &gameState, ProjectileManager &projectileManager);
+                 GamePlayState &gameState, ProjectileManager &projectileManager, ZombieManager &zombieManager);
     ~PlantManager(); // 在.cpp中定义，确保Plant类型完整
 
     // 尝试在指定网格位置种植植物
@@ -38,9 +40,11 @@ public:
     bool isCellOccupied(const sf::Vector2i &gridPosition) const;
     const std::vector<std::unique_ptr<Plant>> &getAllPlants() const;
     std::vector<Plant *> getPlantsInRow(int gridRow);
+    std::vector<Plant *> getAllActivePlants(); // 返回原始指针列表
 
     // 供植物（如向日葵）调用以请求在其位置产生阳光
     void requestSunSpawnFromPlant(Plant *requestingPlant);
+    std::vector<Zombie *> getZombiesInLane(int lane) const; // 供植物索敌
 
 private:
     // 私有创建辅助方法，用于根据植物类型调用正确的构造函数
@@ -48,9 +52,10 @@ private:
     std::unique_ptr<Plant> createPeashooter(const sf::Vector2i &gridPosition);
     // ... 其他植物的创建方法
 
-    std::vector<std::unique_ptr<Plant>> m_plants;        // 存储所有植物
-    ResourceManager &m_resourceManagerRef;               // 资源管理器引用
-    Grid &m_gridRef;                                     // 网格系统引用
-    GamePlayState &m_gameStateRef;                       // GamePlayState引用 (用于回调)
-    ProjectileManager &m_projectileManagerRef_forPlants; // <--- 新增: ProjectileManager引用
+    std::vector<std::unique_ptr<Plant>> m_plants; // 存储所有植物
+    ResourceManager &m_resourceManagerRef;        // 资源管理器引用
+    Grid &m_gridRef;                              // 网格系统引用
+    GamePlayState &m_gameStateRef;                // GamePlayState引用 (用于回调)
+    ProjectileManager &m_projectileManagerRef_forPlants;
+    ZombieManager &m_zombieManagerRef;
 };

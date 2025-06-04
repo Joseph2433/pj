@@ -101,7 +101,7 @@ bool Projectile::isOutOfValidArea(const sf::RenderWindow &window) const
 void Projectile::onHit()
 {
     if (!m_hasHit)
-    { // 防止重复调用
+    {
         m_hasHit = true;
         std::cout << "[Projectile] DEBUG: Addr: " << this << " - onHit() called. m_hasHit is now true." << std::endl;
     }

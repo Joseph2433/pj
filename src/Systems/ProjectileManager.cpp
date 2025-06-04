@@ -89,3 +89,16 @@ const std::vector<std::unique_ptr<Projectile>> &ProjectileManager::getAllProject
 {
     return m_projectiles;
 }
+
+std::vector<Projectile *> ProjectileManager::getAllActiveProjectiles()
+{
+    std::vector<Projectile *> activeProjectiles;
+    for (const auto &proj_ptr : m_projectiles)
+    {
+        if (proj_ptr && !proj_ptr->hasHit())
+        { // 只返回未击中且有效的子弹
+            activeProjectiles.push_back(proj_ptr.get());
+        }
+    }
+    return activeProjectiles;
+}

@@ -9,7 +9,7 @@ namespace sf
 {
     class RenderWindow;
 }
-class Projectile; // <--- 使用 Projectile 基类
+class Projectile;
 class ResourceManager;
 // class Zombie;
 
@@ -30,6 +30,7 @@ public:
     void update(float dt, const sf::RenderWindow &window /*, const std::vector<std::unique_ptr<Zombie>>& zombies */);
     void draw(sf::RenderWindow &window);
     void clear();
+    std::vector<Projectile *> getAllActiveProjectiles();
 
     // 返回所有活动子弹的列表 (只读访问，用于碰撞检测等)
     const std::vector<std::unique_ptr<Projectile>> &getAllProjectiles() const;

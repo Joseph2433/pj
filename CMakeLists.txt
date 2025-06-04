@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.28)
-project(pj_status6 LANGUAGES CXX)
+project(status7 LANGUAGES CXX)
 
 # 设置C++标准
 set(CMAKE_CXX_STANDARD 20)
@@ -94,7 +94,7 @@ set(ZOMBIES_HEADERS
 # 游戏系统源文件
 set(SYSTEMS_SOURCES
     src/Systems/Grid.cpp
-    # src/Systems/CollisionSystem.cpp
+    src/Systems/CollisionSystem.cpp
     # src/Systems/WaveManager.cpp
     src/Systems/PlantManager.cpp
     src/Systems/ZombieManager.cpp
@@ -104,7 +104,7 @@ set(SYSTEMS_SOURCES
 
 set(SYSTEMS_HEADERS
     src/Systems/Grid.h
-    # src/Systems/CollisionSystem.h
+    src/Systems/CollisionSystem.h
     # src/Systems/WaveManager.h
     src/Systems/PlantManager.h
     src/Systems/ZombieManager.h

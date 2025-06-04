@@ -1,13 +1,16 @@
 #include "BasicZombie.h"
+#include "../Utils/Constants.h"
 #include "../Core/ResourceManager.h" // 确保包含
 
-BasicZombie::BasicZombie(ResourceManager &resManager, const sf::Vector2f &spawnPosition)
-    : Zombie(resManager,               // 资源管理器
-             BASIC_ZOMBIE_TEXTURE_KEY, // 纹理键名 (来自常量)
-             spawnPosition,            // 生成位置
-             BASIC_ZOMBIE_HEALTH,      // 生命值 (来自常量)
-             BASIC_ZOMBIE_SPEED,       // 速度 (来自常量)
-             BASIC_ZOMBIE_DAMAGE_PER_ATTACK)
+BasicZombie::BasicZombie(ResourceManager &resManager, const sf::Vector2f &spawnPosition, Grid &grid) // <--- 接收 Grid& grid
+    : Zombie(resManager,
+             BASIC_ZOMBIE_TEXTURE_KEY,
+             spawnPosition,
+             BASIC_ZOMBIE_HEALTH,
+             BASIC_ZOMBIE_SPEED,
+             BASIC_ZOMBIE_DAMAGE_PER_ATTACK,
+             BASIC_ZOMBIE_ATTACK_INTERVAL,
+             grid)
 { // 伤害值 (来自常量)
 
     // 普通僵尸特有的初始化代码（如果需要）

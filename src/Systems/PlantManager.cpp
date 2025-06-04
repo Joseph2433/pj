@@ -6,17 +6,20 @@
 #include "../Systems/Grid.h"
 #include "../States/GamePlayState.h"      // GamePlayState定义
 #include "../Systems/ProjectileManager.h" // ProjectileManager定义 (虽然这里不直接用，但Peashooter需要)
+#include "../Systems/ZombieManager.h"
+#include "../Entities/Zombie.h"
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <algorithm>
 #include <iostream>
 
 // 修改构造函数以接收并存储 ProjectileManager 引用
 PlantManager::PlantManager(ResourceManager &resManager, Grid &gridSystem,
-                           GamePlayState &gameState, ProjectileManager &projectileManager)
+                           GamePlayState &gameState, ProjectileManager &projectileManager, ZombieManager &zombieManager)
     : m_resourceManagerRef(resManager),
       m_gridRef(gridSystem),
       m_gameStateRef(gameState),
-      m_projectileManagerRef_forPlants(projectileManager)
+      m_projectileManagerRef_forPlants(projectileManager),
+      m_zombieManagerRef(zombieManager)
 {
 }
 
@@ -32,7 +35,30 @@ std::unique_ptr<Plant> PlantManager::createSunflower(const sf::Vector2i &gridPos
 std::unique_ptr<Plant> PlantManager::createPeashooter(const sf::Vector2i &gridPosition)
 {
     // 豌豆射手构造函数需要 ProjectileManager 引用
-    return std::make_unique<Peashooter>(m_resourceManagerRef, gridPosition, m_gridRef, m_projectileManagerRef_forPlants);
+    return std::make_unique<Peashooter>(m_resourceManagerRef, gridPosition, m_gridRef, *this, m_projectileManagerRef_forPlants);
+}
+
+std::vector<Zombie *> PlantManager::getZombiesInLane(int lane) const
+{
+    // 直接调用 ZombieManager 的方法 (假设 ZombieManager 有一个类似的方法)
+    // 如果 ZombieManager 没有，那么 PlantManager 就无法提供这个信息，
+    // 或者 GamePlayState 需要充当这个查询的中间人。
+    // 让我们假设 ZombieManager 提供了 getActiveZombies()，我们在这里筛选。
+    std::vector<Zombie *> zombiesInSpecifiedLane;
+    for (Zombie *zombie : m_zombieManagerRef.getActiveZombies())
+    { // getActiveZombies() 返回 std::vector<Zombie*>
+        if (zombie && zombie->isAlive())
+        {
+            int zombieCurrentLane = zombie->getLane();
+            if (zombieCurrentLane == lane)
+            {
+                zombiesInSpecifiedLane.push_back(zombie);
+            }
+        }
+    }
+    return zombiesInSpecifiedLane;
+    // 或者，如果 ZombieManager 有更直接的方法：
+    // return m_zombieManagerRef.getZombiesInLane(lane);
 }
 
 bool PlantManager::tryAddPlant(PlantType type, const sf::Vector2i &gridPosition)
@@ -129,6 +155,19 @@ std::vector<Plant *> PlantManager::getPlantsInRow(int gridRow)
         }
     }
     return plantsInRow;
+}
+
+std::vector<Plant *> PlantManager::getAllActivePlants()
+{
+    std::vector<Plant *> activePlants;
+    for (const auto &plant_ptr : m_plants)
+    {
+        if (plant_ptr && plant_ptr->isAlive())
+        { // 只返回存活的植物
+            activePlants.push_back(plant_ptr.get());
+        }
+    }
+    return activePlants;
 }
 
 // 当植物（如向日葵）调用此方法时，PlantManager 会请求 GamePlayState 产生阳光
