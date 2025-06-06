@@ -128,15 +128,34 @@ const float PEA_LIFESPAN_SECONDS = 3.0f; // 例如，豌豆飞行3秒后消失 (
 // const float ICE_PEA_VISUAL_HEIGHT = 15.f;
 
 // --- 僵尸 (Zombies) ---
+const float ZOMBIE_ATTACK_RANGE = 5.f;
 // 普通僵尸 (Basic Zombie)
-const int BASIC_ZOMBIE_HEALTH = 100;                         // 普通僵尸的生命值
-const float BASIC_ZOMBIE_SPEED = 30.f;                       // 普通僵尸的移动速度 (像素/秒，向左为负)
-                                                             // 注意：速度通常设为正数，方向在逻辑中处理
-const int BASIC_ZOMBIE_DAMAGE_PER_ATTACK = 10;               // 普通僵尸每次攻击对植物造成的伤害 (未来使用)
-const float BASIC_ZOMBIE_ATTACK_INTERVAL = 1.0f;             // 普通僵尸的攻击间隔 (秒) (未来使用)
-const std::string BASIC_ZOMBIE_TEXTURE_KEY = "basic_zombie"; // 普通僵尸纹理的键名
-const float ZOMBIE_ATTACK_RANGE = 5.f;                       // 僵尸开始攻击植物的近距离阈值 (像素)
-// (可选) 僵尸动画相关常量，如帧数、帧延迟等
+const int BASIC_ZOMBIE_HEALTH = 100;
+const float BASIC_ZOMBIE_SPEED = 30.f;
+const int BASIC_ZOMBIE_DAMAGE_PER_ATTACK = 10;
+const float BASIC_ZOMBIE_ATTACK_INTERVAL = 1.0f;
+const std::string BASIC_ZOMBIE_TEXTURE_KEY = "basic_zombie";
+
+// 大僵尸 (Big Zombie)
+const int BIG_ZOMBIE_HEALTH = 100;
+const float BIG_ZOMBIE_SPEED = 30.f;
+const int BIG_ZOMBIE_DAMAGE_PER_ATTACK = 10;
+const float BIG_ZOMBIE_ATTACK_INTERVAL = 1.0f;
+const std::string BIG_ZOMBIE_TEXTURE_KEY = "big_zombie";
+
+// 巨人僵尸 (Boss Zombie)
+const int BOSS_ZOMBIE_HEALTH = 100;
+const float BOSS_ZOMBIE_SPEED = 30.f;
+const int BOSS_ZOMBIE_DAMAGE_PER_ATTACK = 10;
+const float BOSS_ZOMBIE_ATTACK_INTERVAL = 1.0f;
+const std::string BOSS_ZOMBIE_TEXTURE_KEY = "boss_zombie";
+
+// 小僵尸 (quick Zombie)
+const int QUICK_ZOMBIE_HEALTH = 100;
+const float QUICK_ZOMBIE_SPEED = 30.f;
+const int QUICK_ZOMBIE_DAMAGE_PER_ATTACK = 10;
+const float QUICK_ZOMBIE_ATTACK_INTERVAL = 1.0f;
+const std::string QUICK_ZOMBIE_TEXTURE_KEY = "quick_zombie";
 
 // 僵尸生成相关
 const float ZOMBIE_SPAWN_START_X_OFFSET = 50.f; // 僵尸在屏幕右侧外多少像素处生成

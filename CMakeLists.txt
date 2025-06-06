@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.28)
-project(status9 LANGUAGES CXX)
+project(status11 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -83,14 +83,17 @@ set(PLANTS_HEADERS
 # 僵尸类源文件
 set(ZOMBIES_SOURCES
     src/Zombies/BasicZombie.cpp
-    # src/Zombies/ConeheadZombie.cpp
-    # src/Zombies/BucketheadZombie.cpp
+    src/Zombies/BigZombie.cpp
+    src/Zombies/BossZombie.cpp
+    src/Zombies/QuickZombie.cpp
+   
 )
 
 set(ZOMBIES_HEADERS
     src/Zombies/BasicZombie.h
-    # src/Zombies/ConeheadZombie.h
-    # src/Zombies/BucketheadZombie.h
+    src/Zombies/BigZombie.h
+    src/Zombies/BossZombie.h
+    src/Zombies/QuickZombie.h
 )
 
 # 游戏系统源文件

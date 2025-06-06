@@ -17,16 +17,14 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Window/Event.hpp>
 
-// 确保 randomFloat 辅助函数可用
 namespace
 {
     float randomFloat(float min, float max)
     {
         if (min >= max)
             return min;
-        // 修正可能的除零错误，如果 min == max，则 RAND_MAX / 0 会出问题
         if ((max - min) == 0.0f)
-            return min; // 或者抛出异常，或者返回一个固定值
+            return min;
         return min + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (max - min)));
     }
 }
@@ -86,7 +84,7 @@ void GamePlayState::loadAssets()
         std::cout << "GamePlayState::loadAssets: Gameplay background '" << gameplayBgTextureId << "' already loaded." << std::endl;
     }
 
-    // 字体加载 (填充你省略的部分)
+    // 字体加载
     if (resMan.hasFont(FONT_ID_PRIMARY))
     {
         m_primaryGameFont = resMan.getFont(FONT_ID_PRIMARY);
@@ -96,7 +94,7 @@ void GamePlayState::loadAssets()
     {
         std::cerr << "GamePlayState:主要字体 (ID: " << FONT_ID_PRIMARY << ") 未从 ResourceManager 加载!" << std::endl;
         if (m_primaryGameFont.loadFromFile(FONT_PATH_ARIAL))
-        { // 使用常量
+        {
             m_fontsLoaded = true;
             std::cout << "GamePlayState: Loaded fallback primary font: " << FONT_PATH_ARIAL << std::endl;
         }
@@ -113,26 +111,37 @@ void GamePlayState::loadAssets()
     {
         std::cerr << "GamePlayState:次要字体 (ID: " << FONT_ID_SECONDARY << ") 未从 ResourceManager 加载，尝试备用。" << std::endl;
         if (m_secondaryGameFont.loadFromFile(FONT_PATH_VERDANA))
-        { // 使用另一个常量或路径
+        {
             std::cout << "GamePlayState: Loaded fallback secondary font: " << FONT_PATH_VERDANA << std::endl;
         }
         else
         {
             std::cerr << "GamePlayState:备用次要字体也加载失败, 将使用主要字体。" << std::endl;
-            m_secondaryGameFont = m_primaryGameFont; // 使用已加载的主字体（如果有）
+            m_secondaryGameFont = m_primaryGameFont;
         }
     }
     if (!m_fontsLoaded && m_primaryGameFont.getInfo().family.empty())
     {
         std::cerr << "GamePlayState:警告 - 没有有效的字体被加载!UI文本可能无法显示。" << std::endl;
     }
-
     if (!resMan.hasTexture(BASIC_ZOMBIE_TEXTURE_KEY))
     {
-        if (!resMan.loadTexture(BASIC_ZOMBIE_TEXTURE_KEY, "assets/images/zombies/basic_zombie.png"))
-        {
-            std::cerr << "GamePlayState: 普通僵尸纹理 (" << BASIC_ZOMBIE_TEXTURE_KEY << ") 加载失败！" << std::endl;
-        }
+        resMan.loadTexture(BASIC_ZOMBIE_TEXTURE_KEY, "assets/images/zombies/basic_zombie.png");
+    }
+
+    if (!resMan.hasTexture(BIG_ZOMBIE_TEXTURE_KEY))
+    {
+        resMan.loadTexture(BIG_ZOMBIE_TEXTURE_KEY, "assets/images/zombies/big_zombie.png");
+    }
+
+    if (!resMan.hasTexture(BOSS_ZOMBIE_TEXTURE_KEY))
+    {
+        resMan.loadTexture(BOSS_ZOMBIE_TEXTURE_KEY, "assets/images/zombies/boss_zombie.png");
+    }
+
+    if (!resMan.hasTexture(QUICK_ZOMBIE_TEXTURE_KEY))
+    {
+        resMan.loadTexture(QUICK_ZOMBIE_TEXTURE_KEY, "assets/images/zombies/quick_zombie.png");
     }
     if (!resMan.hasTexture(SUNFLOWER_TEXTURE_KEY))
     {
@@ -160,10 +169,7 @@ void GamePlayState::loadAssets()
     }
     if (!resMan.hasTexture(PEA_TEXTURE_KEY))
     {
-        if (!resMan.loadTexture(PEA_TEXTURE_KEY, "assets/images/projectiles/pea.png"))
-        {
-            std::cerr << "GamePlayState: 豌豆子弹纹理 (" << PEA_TEXTURE_KEY << ") 加载失败!" << std::endl;
-        }
+        resMan.loadTexture(PEA_TEXTURE_KEY, "assets/images/projectiles/pea.png");
     }
     if (!resMan.hasTexture(SHOVEL_TEXTURE_KEY))
     {
@@ -173,12 +179,12 @@ void GamePlayState::loadAssets()
     {
         resMan.loadTexture(SHOVEL_CURSOR_TEXTURE_KEY, "assets/images/ui/shovel_cursor.png");
     }
-    std::cout << "GamePlayState:资源加载尝试完毕。" << std::endl;
+    std::cout << "GamePlayState:source load trying finish。" << std::endl;
 }
 
 void GamePlayState::enter()
 {
-    std::cout << "GamePlayState 进入。" << std::endl;
+    std::cout << "GamePlayState enter。" << std::endl;
     if (!m_stateManager || !m_stateManager->getGame())
     {
         std::cerr << "GamePlayState::enter: Fatal error - StateManager or Game pointer is null!" << std::endl;
@@ -209,12 +215,10 @@ void GamePlayState::enter()
     else
     {
         std::cerr << "GamePlayState::enter - 调试文本无法设置字体，因字体未加载。" << std::endl;
-        // 可以尝试使用 ResourceManager 的默认字体，如果 ResourceManager 有此机制
-        // m_debugInfoText.setFont(resManager.getDefaultFont());
     }
     m_debugInfoText.setCharacterSize(14);
     m_debugInfoText.setFillColor(sf::Color::White);
-    m_debugInfoText.setPosition(10, WINDOW_HEIGHT - 50); // 调整Y位置以防遮挡
+    m_debugInfoText.setPosition(10, WINDOW_HEIGHT - 50);
 
     m_grid.initialize();
     m_sunManager.reset();
@@ -222,15 +226,13 @@ void GamePlayState::enter()
     m_projectileManager.clear();
     m_zombieManager.clear();
     m_activeSuns.clear();
-    // 如果 HUD 或 SeedManager 需要在进入时重置，应有相应方法
-    // m_hud.resetState();
     m_skySunSpawnTimer.restart();
     m_currentSkySunSpawnInterval = randomFloat(m_skySunSpawnIntervalMin, m_skySunSpawnIntervalMax);
     m_isGameOver = false;
     m_waveManager.start();
 
     m_gameTime = 0.f;
-    std::cout << "GamePlayState enter 逻辑执行完毕。" << std::endl;
+    std::cout << "GamePlayState enter finish。" << std::endl;
 }
 
 void GamePlayState::exit()
@@ -240,15 +242,14 @@ void GamePlayState::exit()
     m_projectileManager.clear();
     m_zombieManager.clear();
     m_activeSuns.clear();
-    m_waveManager.reset(); // <--- 推荐在退出时重置 WaveManager
+    m_waveManager.reset();
 }
 
 void GamePlayState::handleEvent(const sf::Event &event)
 {
     sf::RenderWindow &window = m_stateManager->getGame()->getWindow();
-    sf::Vector2f mousePosView; // 将用于 HUD 和游戏区域的鼠标交互
+    sf::Vector2f mousePosView;
 
-    // 统一获取当前事件帧的鼠标视图坐标
     if (event.type == sf::Event::MouseMoved)
     {
         m_mousePixelPos = sf::Vector2i(event.mouseMove.x, event.mouseMove.y);
@@ -260,57 +261,48 @@ void GamePlayState::handleEvent(const sf::Event &event)
     }
     else
     {
-        // 对于非鼠标移动/点击事件，如果后续逻辑不需要精确的事件发生点鼠标位置，
-        // 也可以只在需要时获取 sf::Mouse::getPosition()
-        mousePosView = window.mapPixelToCoords(m_mousePixelPos, window.getView()); // 使用最后记录的
+        mousePosView = window.mapPixelToCoords(m_mousePixelPos, window.getView());
     }
 
-    // 1. 按键事件处理 (优先级较高)
     if (event.type == sf::Event::KeyPressed)
     {
         if (event.key.code == sf::Keyboard::Escape)
         {
             if (m_hud.getCurrentInteractionMode() == HUDInteractionMode::SHOVEL_SELECTED)
             {
-                m_hud.resetInteractionMode(); // ESC 取消铲子模式
+                m_hud.resetInteractionMode();
                 std::cout << "GamePlayState: Shovel mode cancelled by ESC." << std::endl;
             }
             else
             {
                 m_stateManager->pushState(std::make_unique<PauseState>(m_stateManager)); // 返回主菜单
             }
-            return; // ESC 事件已处理完毕，直接返回
+            return;
         }
         if (event.key.code == sf::Keyboard::F1)
         {
             m_sunManager.addSun(100);
             std::cout << "调试:阳光增加到 " << m_sunManager.getCurrentSun() << std::endl;
-            // F1 通常不中断其他事件处理，所以不 return
         }
-        // 其他按键可以在这里处理
     }
 
     // 2. 将所有事件（包括按键和鼠标）传递给 HUD 处理
-    // HUD 内部会处理自己的UI元素点击，如铲子图标、种子包等，并可能改变 HUD 的交互模式
     bool eventConsumedByHUD = m_hud.handleEvent(event, mousePosView);
 
     if (eventConsumedByHUD)
     {
         std::cout << "GamePlayState: Event was consumed by HUD. Game area logic for this mouse click will be skipped." << std::endl;
-        return; // <--- 关键的返回语句
+        return;
     }
-    // 3. 处理游戏区域的鼠标点击事件（基于 HUD 可能已更新的模式）
+
     if (event.type == sf::Event::MouseButtonPressed)
     {
-        // mousePosView 此时是本次点击的精确视图坐标
-
         if (event.mouseButton.button == sf::Mouse::Left)
         {
             // --- 左键点击逻辑 ---
             if (m_hud.getCurrentInteractionMode() == HUDInteractionMode::SHOVEL_SELECTED)
             {
                 // --- A. 铲子模式：尝试移除植物 ---
-                // (这里的 mousePosView 是本次点击的精确位置)
                 sf::Vector2i gridCoords = m_grid.getGridPosition(mousePosView);
 
                 if (m_grid.isValidGridPosition(gridCoords))
@@ -319,7 +311,7 @@ void GamePlayState::handleEvent(const sf::Event &event)
                     if (plantToShovel)
                     {
                         std::cout << "GamePlayState: Shoveling plant at grid (" << gridCoords.x << "," << gridCoords.y << ")" << std::endl;
-                        m_plantManager.removePlant(plantToShovel); // PlantManager 内部更新 Grid
+                        m_plantManager.removePlant(plantToShovel);
                     }
                     else
                     {
@@ -330,14 +322,13 @@ void GamePlayState::handleEvent(const sf::Event &event)
                 {
                     std::cout << "GamePlayState: Shovel clicked outside valid grid." << std::endl;
                 }
-                m_hud.resetInteractionMode(); // 无论是否成功铲除，使用完铲子后都重置模式
-                return;                       // 铲子操作是本次点击的最终目的，处理完毕后返回
+                m_hud.resetInteractionMode();
+                return;
             }
             else if (m_hud.getCurrentInteractionMode() == HUDInteractionMode::NORMAL)
             {
                 // --- B. 正常模式：收集阳光或尝试种植 ---
-
-                // B.1 尝试收集阳光 (优先)
+                // B.1 尝试收集阳光
                 bool sunCollectedThisClick = false;
                 for (auto it = m_activeSuns.rbegin(); it != m_activeSuns.rend(); ++it)
                 {
@@ -351,10 +342,10 @@ void GamePlayState::handleEvent(const sf::Event &event)
                 }
                 if (sunCollectedThisClick)
                 {
-                    return; // 收集了阳光，事件处理完毕
+                    return;
                 }
 
-                // B.2 尝试种植植物 (如果没有收集到阳光)
+                // B.2 尝试种植植物
                 bool clickedOnGridArea = mousePosView.y > (SEED_PACKET_UI_START_Y + SEED_PACKET_HEIGHT + SEED_PACKET_SPACING);
                 if (clickedOnGridArea)
                 {
@@ -391,7 +382,6 @@ void GamePlayState::handleEvent(const sf::Event &event)
                     }
                     else
                     {
-                        // 打印具体是哪个条件不满足
                         if (!m_grid.isValidGridPosition(gridCoords))
                             std::cout << "GamePlayState: Planting click on invalid grid position." << std::endl;
                         else if (!isValidPlantSelection)
@@ -405,11 +395,10 @@ void GamePlayState::handleEvent(const sf::Event &event)
             // --- 右键点击逻辑 ---
             if (m_hud.getCurrentInteractionMode() == HUDInteractionMode::SHOVEL_SELECTED)
             {
-                m_hud.resetInteractionMode(); // 右键取消铲子模式
+                m_hud.resetInteractionMode();
                 std::cout << "GamePlayState: Shovel mode cancelled by Right Click." << std::endl;
-                return; // 右键取消铲子后，通常不希望再触发其他右键逻辑（如果有的话）
+                return;
             }
-            // 如果有其他正常模式下的右键功能，可以在这里添加 else if (m_hud.getCurrentInteractionMode() == HUDInteractionMode::NORMAL) { ... }
         }
     }
 }
@@ -525,7 +514,7 @@ void GamePlayState::spawnSunFromSky()
     float groundMaxY = GRID_START_Y + GRID_ROWS * GRID_CELL_HEIGHT - GRID_CELL_HEIGHT * 0.5f; // Example logic
     groundMaxY = std::min(groundMaxY, static_cast<float>(window.getSize().y - 50.f));
     if (groundMinY >= groundMaxY)
-        groundMinY = groundMaxY - 50.f; // Basic safety
+        groundMinY = groundMaxY - 50.f;
     float targetY = randomFloat(groundMinY, groundMaxY);
 
     m_activeSuns.emplace_back(std::make_unique<Sun>(
@@ -541,10 +530,9 @@ void GamePlayState::spawnSunFromPlant(Plant *plant)
     if (!plant)
         return;
     sf::Vector2f plantPos = plant->getPosition();
-    // Make sure plant->getGlobalBounds() is valid if sprite is not yet drawn or texture not fully loaded
     float heightOffset = plant->getGlobalBounds().height * 0.3f;
     if (heightOffset <= 0)
-        heightOffset = 20.f; // Fallback if bounds are weird
+        heightOffset = 20.f;
 
     sf::Vector2f sunSpawnPos = sf::Vector2f(plantPos.x, plantPos.y - heightOffset);
     m_activeSuns.emplace_back(std::make_unique<Sun>(
@@ -560,11 +548,11 @@ void GamePlayState::resetLevel()
     m_gameTime = 0.f;
 
     m_sunManager.reset();
-    m_plantManager.clear(); // PlantManager::clear 应该处理 Grid 的 setCellOccupied(false)
+    m_plantManager.clear();
     m_projectileManager.clear();
     m_zombieManager.clear();
-    m_waveManager.reset(); // 重置波数到初始状态
-    m_waveManager.start(); // 重新启动波数逻辑 (会进入初始和平期)
+    m_waveManager.reset();
+    m_waveManager.start();
 
     m_activeSuns.clear();
 

@@ -16,9 +16,8 @@ class Sun : public Entity
 {
 public:
     Sun(ResourceManager &resManager, SunManager &sunManager,
-        const sf::Vector2f &spawnPosition, // 统一叫 spawnPosition
+        const sf::Vector2f &spawnPosition,
         SunSpawnType type,
-        // 对于天空阳光，targetY 是其最终落地点Y；对于植物阳光，这可能是其运动的相对目标Y或不用
         float skySunTargetYGround = -1.f);
 
     ~Sun() override = default;
@@ -33,22 +32,22 @@ public:
     void collect();
 
 private:
-    void updateSkySun(float dt);   // 天空阳光的更新逻辑
-    void updatePlantSun(float dt); // 植物阳光的更新逻辑
+    void updateSkySun(float dt);
+    void updatePlantSun(float dt);
 
     SunManager &m_sunManagerRef;
     int m_value;
     SunSpawnType m_spawnType;
 
-    float m_lifespanTimer; // 对于天空阳光，是在地上的计时；对于植物阳光，是总计时
+    float m_lifespanTimer;
     bool m_collected;
 
-    // 特定于天空阳光的属性
+    // 天空阳光
     bool m_isFallingSkySun;
     float m_skySunTargetY;
 
-    // 特定于植物阳光的属性
-    sf::Vector2f m_velocity;          // 植物阳光的当前速度 (x, y)
-    sf::Vector2f m_plantSunTargetPos; // 植物阳光的目标停留位置 (相对于初始产生位置)
-    bool m_plantSunReachedTarget;     // 植物阳光是否已到达其目标位置
+    // 植物阳光
+    sf::Vector2f m_velocity;
+    sf::Vector2f m_plantSunTargetPos;
+    bool m_plantSunReachedTarget;
 };

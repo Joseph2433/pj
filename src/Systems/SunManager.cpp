@@ -1,5 +1,4 @@
 #include "SunManager.h"
-// No external dependencies other than its own header for this simple version.
 
 SunManager::SunManager(int initialSun)
     : m_currentSun(initialSun), m_initialSunValue(initialSun)
@@ -17,8 +16,6 @@ void SunManager::addSun(int amount)
     {
         m_currentSun += amount;
     }
-    // Optionally, add a cap for sun amount if desired
-    // if (m_currentSun > MAX_SUN_CAP) m_currentSun = MAX_SUN_CAP;
 }
 
 bool SunManager::trySpendSun(int amount)

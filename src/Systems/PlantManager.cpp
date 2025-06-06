@@ -1,12 +1,12 @@
 #include "PlantManager.h"
-#include "../Entities/Plant.h"    // 需要 Plant.h 的完整定义 (因为 unique_ptr析构)
-#include "../Plants/Sunflower.h"  // 向日葵实现
-#include "../Plants/Peashooter.h" // 豌豆射手实现
+#include "../Entities/Plant.h"
+#include "../Plants/Sunflower.h"
+#include "../Plants/Peashooter.h"
 #include "../Plants/WallNut.h"
 #include "../Core/ResourceManager.h"
 #include "../Systems/Grid.h"
-#include "../States/GamePlayState.h"      // GamePlayState定义
-#include "../Systems/ProjectileManager.h" // ProjectileManager定义 (虽然这里不直接用，但Peashooter需要)
+#include "../States/GamePlayState.h"
+#include "../Systems/ProjectileManager.h"
 #include "../Systems/ZombieManager.h"
 #include "../Entities/Zombie.h"
 #include <SFML/Graphics/RenderWindow.hpp>
@@ -45,13 +45,10 @@ std::unique_ptr<Plant> PlantManager::createWallNut(const sf::Vector2i &gridPosit
 
 std::vector<Zombie *> PlantManager::getZombiesInLane(int lane) const
 {
-    // 直接调用 ZombieManager 的方法 (假设 ZombieManager 有一个类似的方法)
-    // 如果 ZombieManager 没有，那么 PlantManager 就无法提供这个信息，
-    // 或者 GamePlayState 需要充当这个查询的中间人。
-    // 让我们假设 ZombieManager 提供了 getActiveZombies()，我们在这里筛选。
+
     std::vector<Zombie *> zombiesInSpecifiedLane;
     for (Zombie *zombie : m_zombieManagerRef.getActiveZombies())
-    { // getActiveZombies() 返回 std::vector<Zombie*>
+    {
         if (zombie && zombie->isAlive())
         {
             int zombieCurrentLane = zombie->getLane();
@@ -62,8 +59,6 @@ std::vector<Zombie *> PlantManager::getZombiesInLane(int lane) const
         }
     }
     return zombiesInSpecifiedLane;
-    // 或者，如果 ZombieManager 有更直接的方法：
-    // return m_zombieManagerRef.getZombiesInLane(lane);
 }
 
 bool PlantManager::tryAddPlant(PlantType type, const sf::Vector2i &gridPosition)
@@ -92,7 +87,7 @@ bool PlantManager::tryAddPlant(PlantType type, const sf::Vector2i &gridPosition)
 
     if (newPlant)
     {
-        // (未来在这里加入阳光花费检查，例如：)
+        // (在这里加入阳光花费检查，例如：)
         // if (m_gameStateRef.getSunManager().trySpendSun(newPlant->getCost())) {
         //     m_plants.push_back(std::move(newPlant));
         //     return true;
@@ -100,8 +95,8 @@ bool PlantManager::tryAddPlant(PlantType type, const sf::Vector2i &gridPosition)
         //     std::cout << "阳光不足以种植此植物！" << std::endl;
         //     return false;
         // }
-        m_plants.push_back(std::move(newPlant)); // 当前不检查阳光
-        std::cout << "PlantManager: 已种植植物类型 " << static_cast<int>(type) << " 于网格 (" << gridPosition.x << "行, " << gridPosition.y << "列)" << std::endl;
+        m_plants.push_back(std::move(newPlant));
+        std::cout << "PlantManager: planted " << static_cast<int>(type) << " in  (" << gridPosition.x << ", " << gridPosition.y << ")" << std::endl;
 
         return true;
     }
@@ -170,19 +165,18 @@ std::vector<Plant *> PlantManager::getAllActivePlants()
     for (const auto &plant_ptr : m_plants)
     {
         if (plant_ptr && plant_ptr->isAlive())
-        { // 只返回存活的植物
+        {
             activePlants.push_back(plant_ptr.get());
         }
     }
     return activePlants;
 }
 
-// 当植物（如向日葵）调用此方法时，PlantManager 会请求 GamePlayState 产生阳光
 void PlantManager::requestSunSpawnFromPlant(Plant *requestingPlant)
 {
     if (requestingPlant)
     {
-        m_gameStateRef.spawnSunFromPlant(requestingPlant); // 调用 GamePlayState 的方法
+        m_gameStateRef.spawnSunFromPlant(requestingPlant);
     }
 }
 
@@ -210,10 +204,10 @@ bool PlantManager::removePlant(Plant *plantToRemove)
     if (it != m_plants.end())
     {
         sf::Vector2i gridPos = (*it)->getGridPosition();
-        m_plants.erase(it); // 移除植物对象，unique_ptr 会自动删除
+        m_plants.erase(it);
         if (m_gridRef.isValidGridPosition(gridPos))
         {
-            m_gridRef.setCellOccupied(gridPos.x, gridPos.y, false); // 更新 Grid 占用状态
+            m_gridRef.setCellOccupied(gridPos.x, gridPos.y, false);
             std::cout << "PlantManager: Plant removed from grid (" << gridPos.x << "," << gridPos.y
                       << "), cell now unoccupied in Grid." << std::endl;
         }
