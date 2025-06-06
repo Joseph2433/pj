@@ -39,8 +39,6 @@ void ProjectileManager::update(float dt, const sf::RenderWindow &window /*, zomb
         }
     }
 
-    // 2. (未来) 碰撞检测：如果碰撞，调用 projectile->onHit();
-
     // 3. 移除无效的子弹 (飞出屏幕、已击中、生命周期结束)
     // std::cout << "[ProjectileManager] DEBUG: Checking for removal. Current count: " << m_projectiles.size() << std::endl;
 
@@ -55,18 +53,18 @@ void ProjectileManager::update(float dt, const sf::RenderWindow &window /*, zomb
                                      return true; // 标记为空指针以便移除
                                  }
                                  bool shouldRemove = proj_ptr->isOutOfValidArea(window);
-                                 if (shouldRemove)
-                                 {
-                                     std::cout << "[ProjectileManager] DEBUG: Marking projectile Addr: " << proj_ptr.get()
-                                               << " at (" << proj_ptr->getPosition().x << "," << proj_ptr->getPosition().y << ")"
-                                               << " for REMOVAL. (isOutOfValidArea returned true)" << std::endl;
-                                 }
+                                 //  if (shouldRemove)
+                                 //  {
+                                 //      std::cout << "[ProjectileManager] DEBUG: Marking projectile Addr: " << proj_ptr.get()
+                                 //                << " at (" << proj_ptr->getPosition().x << "," << proj_ptr->getPosition().y << ")"
+                                 //                << " for REMOVAL. (isOutOfValidArea returned true)" << std::endl;
+                                 //  }
                                  return shouldRemove;
                              });
 
     if (it != m_projectiles.end())
     { // 如果确实有元素被标记为移除
-        std::cout << "[ProjectileManager] DEBUG: Erasing " << std::distance(it, m_projectiles.end()) << " projectiles." << std::endl;
+
         m_projectiles.erase(it, m_projectiles.end());
     }
     // std::cout << "[ProjectileManager] DEBUG: Update END. Num projectiles after removal: " << m_projectiles.size() << std::endl;

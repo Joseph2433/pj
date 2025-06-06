@@ -16,7 +16,8 @@ enum class SpawnState
     NORMAL_SPAWN,       // 普通生成状态
     HUGE_WAVE_ANNOUNCE, // (新增) 大规模波次宣告阶段
     HUGE_WAVE_SPAWN,    // 大规模生成状态 ("一大波僵尸")
-    WAVE_COOLDOWN       // (新增) 当前波次僵尸已生成完毕，等待清理或下一波开始的间歇
+    WAVE_COOLDOWN,      // (新增) 当前波次僵尸已生成完毕，等待清理或下一波开始的间歇
+    ALL_WAVES_COMPLETED
 };
 
 class WaveManager
@@ -43,6 +44,7 @@ private:
     void updateHugeWaveAnnounceState(float dt);
     void updateHugeWaveSpawnState(float dt);
     void updateWaveCooldownState(float dt);
+    void updateAllWavesCompletedState(float dt);
 
     void prepareNextWaveLogic(); // 决定下一波是普通还是巨大，并设置参数
     void spawnZombiesForNormalWave();

@@ -9,6 +9,7 @@ const int WINDOW_WIDTH = 1200;
 const int WINDOW_HEIGHT = 700;
 const float TARGET_FPS = 60.0f;
 const sf::Time TIME_PER_FRAME = sf::seconds(1.f / TARGET_FPS);
+const int TOTAL_WAVES_TO_WIN = 1;
 
 // --- Grid ---
 const int GRID_ROWS = 5;
@@ -126,7 +127,7 @@ const float PEA_LIFESPAN_SECONDS = 3.0f; // 例如，豌豆飞行3秒后消失 (
 // --- 僵尸 (Zombies) ---
 // 普通僵尸 (Basic Zombie)
 const int BASIC_ZOMBIE_HEALTH = 100;                         // 普通僵尸的生命值
-const float BASIC_ZOMBIE_SPEED = 25.f;                       // 普通僵尸的移动速度 (像素/秒，向左为负)
+const float BASIC_ZOMBIE_SPEED = 30.f;                       // 普通僵尸的移动速度 (像素/秒，向左为负)
                                                              // 注意：速度通常设为正数，方向在逻辑中处理
 const int BASIC_ZOMBIE_DAMAGE_PER_ATTACK = 10;               // 普通僵尸每次攻击对植物造成的伤害 (未来使用)
 const float BASIC_ZOMBIE_ATTACK_INTERVAL = 1.0f;             // 普通僵尸的攻击间隔 (秒) (未来使用)

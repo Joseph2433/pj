@@ -82,4 +82,6 @@ private:
 
     // --- 碰撞检测 ---
     CollisionSystem m_collisionSystem;
+
+    bool m_isGameOver;
 };

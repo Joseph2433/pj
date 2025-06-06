@@ -103,3 +103,12 @@ void ProgressBar::setFillColor(const sf::Color &color)
 {
     m_fillBar.setFillColor(color);
 }
+
+sf::Vector2f ProgressBar::getPosition() const
+{
+    return m_backgroundBar.getPosition();
+}
+sf::Vector2f ProgressBar::getSize() const
+{
+    return m_backgroundBar.getSize();
+}

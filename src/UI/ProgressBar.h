@@ -23,6 +23,9 @@ public:
     void draw(sf::RenderWindow &window) const;
     void setFillColor(const sf::Color &color);
 
+    sf::Vector2f getPosition() const;
+    sf::Vector2f getSize() const;
+
 private:
     void updateTextPosition();
 

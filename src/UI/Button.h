@@ -10,7 +10,8 @@ public:
            const std::string &text, const sf::Font &font);
 
     // 渲染按钮（调用时会自动更新外观）
-    void render(sf::RenderWindow &window);
+
+    void render(sf::RenderWindow &window) const;
 
     // 处理鼠标移动事件（更新悬停状态）
     void handleMouseMove(const sf::Vector2f &mousePosition);

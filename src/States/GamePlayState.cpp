@@ -1,5 +1,7 @@
 #include "States/GamePlayState.h"
 #include "States/MenuState.h"
+#include "States/GameOverState.h"
+#include "States/VictoryState.h"
 #include "Core/StateManager.h"
 #include "Core/Game.h"
 #include "Core/ResourceManager.h"
@@ -42,8 +44,8 @@ GamePlayState::GamePlayState(StateManager *stateManager)
       m_skySunSpawnIntervalMin(5.0f),
       m_skySunSpawnIntervalMax(12.0f),
       m_currentSkySunSpawnInterval(0.0f),
-      m_collisionSystem()
-
+      m_collisionSystem(),
+      m_isGameOver(false)
 {
     std::cout << "GamePlayState 正在构造..." << std::endl;
     loadAssets();
@@ -213,12 +215,11 @@ void GamePlayState::enter()
     m_zombieManager.clear();
     m_activeSuns.clear();
     // 如果 HUD 或 SeedManager 需要在进入时重置，应有相应方法
-    // m_hud.resetState(); // 示例
-
+    // m_hud.resetState();
     m_skySunSpawnTimer.restart();
     m_currentSkySunSpawnInterval = randomFloat(m_skySunSpawnIntervalMin, m_skySunSpawnIntervalMax);
-
-    m_waveManager.start(); // <--- 启动或重置 WaveManager
+    m_isGameOver = false;
+    m_waveManager.start();
 
     m_gameTime = 0.f;
     std::cout << "GamePlayState enter 逻辑执行完毕。" << std::endl;
@@ -340,6 +341,9 @@ void GamePlayState::handleEvent(const sf::Event &event)
 
 void GamePlayState::update(float deltaTime)
 {
+    if (m_isGameOver)
+        return;
+
     m_gameTime += deltaTime;
 
     for (auto &sun : m_activeSuns)
@@ -354,7 +358,7 @@ void GamePlayState::update(float deltaTime)
 
     if (m_skySunSpawnTimer.getElapsedTime().asSeconds() >= m_currentSkySunSpawnInterval)
     {
-        spawnSunFromSky(); // spawnSunFromSky 内部会重置计时器和间隔
+        spawnSunFromSky();
     }
 
     m_plantManager.update(deltaTime);
@@ -365,7 +369,7 @@ void GamePlayState::update(float deltaTime)
     for (Zombie *zombie : activeZombiesToUpdate)
     {
         if (zombie && zombie->isAlive())
-        { // 再次确认存活
+        {
             int currentZombieLane = zombie->getLane();
             std::vector<Plant *> plantsInThisSpecificLane;
             if (currentZombieLane != -1)
@@ -381,13 +385,31 @@ void GamePlayState::update(float deltaTime)
             zombie->update(deltaTime, plantsInThisSpecificLane);
         }
     }
+    for (Zombie *zombie : m_zombieManager.getActiveZombies())
+    {
+        if (zombie && zombie->isAlive() && zombie->getPosition().x < ZOMBIE_REACHED_HOUSE_X)
+        {
+            std::cout << "Game Over: A zombie reached the house!" << std::endl;
+            m_isGameOver = true;
+            m_stateManager->changeState(std::make_unique<GameOverState>(m_stateManager));
+            return;
+        }
+    }
     m_zombieManager.update(deltaTime, m_stateManager->getGame()->getWindow());
-
     m_collisionSystem.update(m_projectileManager, m_zombieManager, m_plantManager);
-
-    m_waveManager.update(deltaTime); // <--- 更新 WaveManager
-
+    m_waveManager.update(deltaTime);
     m_hud.update(deltaTime);
+
+    if (!m_isGameOver &&
+        m_waveManager.getCurrentWaveNumber() >= TOTAL_WAVES_TO_WIN &&
+        m_waveManager.getCurrentSpawnState() == SpawnState::ALL_WAVES_COMPLETED &&
+        m_zombieManager.getActiveZombies().empty())
+    {
+        std::cout << "Victory! All waves cleared." << std::endl;
+        m_isGameOver = true;
+        m_stateManager->changeState(std::make_unique<VictoryState>(m_stateManager));
+        return;
+    }
 
     std::stringstream ss;
     ss.precision(1);
@@ -396,10 +418,10 @@ void GamePlayState::update(float deltaTime)
        << " | Mouse: (" << m_mousePixelPos.x << "," << m_mousePixelPos.y << ")"
        << " | Suns: " << m_sunManager.getCurrentSun()
        << " | Entities: S:" << m_activeSuns.size()
-       << " P:" << m_projectileManager.getAllProjectiles().size() // 假设 ProjectileManager 有此方法
+       << " P:" << m_projectileManager.getAllProjectiles().size()
        << " Z:" << m_zombieManager.getActiveZombies().size()
-       << " | Plants: " << m_plantManager.getAllActivePlants().size() // 假设 PlantManager 有此方法
-       << " | " << m_waveManager.getCurrentWaveStatusText();          // <--- 添加波数状态
+       << " | Plants: " << m_plantManager.getAllActivePlants().size()
+       << " | " << m_waveManager.getCurrentWaveStatusText();
     m_debugInfoText.setString(ss.str());
 }
 

@@ -12,7 +12,6 @@ Pea::Pea(ResourceManager &resManager, const sf::Vector2f &startPosition, const s
                  PEA_DAMAGE,      // 伤害值 (来自 Constants.h)
                  -1.f)
 {
-    std::cout << "[Projectile] DEBUG: Constructed. Speed: " << m_speed << ", Direction: (" << m_direction.x << "," << m_direction.y << ")" << std::endl;
     // 生命周期 (-1 表示无限，直到出界或击中)
     // Pea 特有的初始化代码（如果需要）
     // 例如，如果豌豆有特定的视觉效果或动画，可以在这里设置

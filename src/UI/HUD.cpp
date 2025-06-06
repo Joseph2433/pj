@@ -1,7 +1,7 @@
 #include "HUD.h"
 #include "../Core/ResourceManager.h" // If HUD loads its own resources like sun icon
 #include "../Systems/SunManager.h"
-#include "../Utils/Constants.h" // For layout constants like SUN_DISPLAY_X/Y
+#include "../Utils/Constants.h"
 #include <SFML/Window/Event.hpp>
 #include "../Systems/WaveManager.h"
 #include <sstream>
@@ -32,6 +32,19 @@ HUD::HUD(ResourceManager &resManager, SunManager &sunManager, WaveManager &waveM
     m_waveProgressBar.setFont(m_primaryFontRef);
     m_waveProgressBar.setCharacterSize(12);
     m_waveProgressBar.setTextColor(sf::Color::White);
+
+    m_totalWavesText.setFont(m_primaryFontRef);                                       // 使用主字体
+    m_totalWavesText.setCharacterSize(14);                                            // 字号可以小一点
+    m_totalWavesText.setFillColor(sf::Color(200, 20, 200));                           // 浅灰色或白色
+    m_totalWavesText.setString("Total Waves: " + std::to_string(TOTAL_WAVES_TO_WIN)); // <--- 直接使用常量
+
+    // 设置总波数文本的位置，例如在进度条下方
+    sf::Vector2f progressBarPos = m_waveProgressBar.getPosition();
+    sf::Vector2f progressBarSize = m_waveProgressBar.getSize();
+
+    float totalWavesTextX = WINDOW_WIDTH - 220.f;
+    float totalWavesTextY = SEED_PACKET_UI_START_Y + 10.f + 20.f + 5.f;
+    m_totalWavesText.setPosition(totalWavesTextX, totalWavesTextY);
 }
 
 void HUD::handleEvent(const sf::Event &event, const sf::Vector2f &mousePosInView)
@@ -82,6 +95,7 @@ void HUD::draw(sf::RenderWindow &window)
 {
     m_seedManager.draw(window);
     window.draw(m_sunDisplayText);
+    window.draw(m_totalWavesText);
     m_waveProgressBar.draw(window);
 }
 

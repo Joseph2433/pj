@@ -28,6 +28,7 @@ private:
 
     // HUD's own UI elements, like sun display
     sf::Text m_sunDisplayText;
+    sf::Text m_totalWavesText;
     // sf::Sprite m_sunIcon; // Optional sun icon next to the display
     ProgressBar m_waveProgressBar;
     WaveManager &m_waveManagerRef;

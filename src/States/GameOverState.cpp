@@ -4,7 +4,7 @@
 #include "Core/ResourceManager.h"
 #include "States/MenuState.h"     // 用于返回主菜单
 #include "States/GamePlayState.h" // 用于重新开始
-#include "../Utils/Constants.h"   // 用于窗口尺寸等
+#include "../Utils/Constants.h"
 #include <iostream>
 
 GameOverState::GameOverState(StateManager *stateManager)
@@ -147,6 +147,6 @@ void GameOverState::render(sf::RenderWindow &window)
     window.draw(m_gameOverText);
     for (const auto &btn : m_buttons)
     {
-        btn.draw(window);
+        btn.render(window);
     }
 }
