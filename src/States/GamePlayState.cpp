@@ -126,7 +126,6 @@ void GamePlayState::loadAssets()
         std::cerr << "GamePlayState:警告 - 没有有效的字体被加载!UI文本可能无法显示。" << std::endl;
     }
 
-    // 其他资源加载 (填充你省略的部分)
     if (!resMan.hasTexture(BASIC_ZOMBIE_TEXTURE_KEY))
     {
         if (!resMan.loadTexture(BASIC_ZOMBIE_TEXTURE_KEY, "assets/images/zombies/basic_zombie.png"))
@@ -164,6 +163,14 @@ void GamePlayState::loadAssets()
         {
             std::cerr << "GamePlayState: 豌豆子弹纹理 (" << PEA_TEXTURE_KEY << ") 加载失败!" << std::endl;
         }
+    }
+    if (!resMan.hasTexture(SHOVEL_TEXTURE_KEY))
+    {
+        resMan.loadTexture(SHOVEL_TEXTURE_KEY, "assets/images/ui/shovel.png");
+    }
+    if (!resMan.hasTexture(SHOVEL_CURSOR_TEXTURE_KEY))
+    {
+        resMan.loadTexture(SHOVEL_CURSOR_TEXTURE_KEY, "assets/images/ui/shovel_cursor.png");
     }
     std::cout << "GamePlayState:资源加载尝试完毕。" << std::endl;
 }
@@ -238,103 +245,170 @@ void GamePlayState::exit()
 void GamePlayState::handleEvent(const sf::Event &event)
 {
     sf::RenderWindow &window = m_stateManager->getGame()->getWindow();
-    sf::Vector2f currentEventMousePosView;
+    sf::Vector2f mousePosView; // 将用于 HUD 和游戏区域的鼠标交互
 
+    // 统一获取当前事件帧的鼠标视图坐标
     if (event.type == sf::Event::MouseMoved)
     {
         m_mousePixelPos = sf::Vector2i(event.mouseMove.x, event.mouseMove.y);
+        mousePosView = window.mapPixelToCoords(m_mousePixelPos, window.getView());
     }
-
-    // 确保 currentEventMousePosView 总是有最新的映射值
-    if (event.type == sf::Event::MouseButtonPressed || event.type == sf::Event::MouseButtonReleased || event.type == sf::Event::MouseMoved)
+    else if (event.type == sf::Event::MouseButtonPressed || event.type == sf::Event::MouseButtonReleased)
     {
-        currentEventMousePosView = window.mapPixelToCoords(sf::Mouse::getPosition(window), window.getView());
+        mousePosView = window.mapPixelToCoords(sf::Vector2i(event.mouseButton.x, event.mouseButton.y), window.getView());
     }
     else
-    { // 其他事件类型，也获取当前鼠标位置（如果需要的话）
-        currentEventMousePosView = window.mapPixelToCoords(m_mousePixelPos, window.getView());
+    {
+        // 对于非鼠标移动/点击事件，如果后续逻辑不需要精确的事件发生点鼠标位置，
+        // 也可以只在需要时获取 sf::Mouse::getPosition()
+        mousePosView = window.mapPixelToCoords(m_mousePixelPos, window.getView()); // 使用最后记录的
     }
 
+    // 1. 按键事件处理 (优先级较高)
     if (event.type == sf::Event::KeyPressed)
     {
         if (event.key.code == sf::Keyboard::Escape)
         {
-            m_stateManager->changeState(std::make_unique<MenuState>(m_stateManager));
-            return; // 切换状态后，当前状态的事件处理应结束
+            if (m_hud.getCurrentInteractionMode() == HUDInteractionMode::SHOVEL_SELECTED)
+            {
+                m_hud.resetInteractionMode(); // ESC 取消铲子模式
+                std::cout << "GamePlayState: Shovel mode cancelled by ESC." << std::endl;
+            }
+            else
+            {
+                m_stateManager->changeState(std::make_unique<MenuState>(m_stateManager)); // 返回主菜单
+            }
+            return; // ESC 事件已处理完毕，直接返回
         }
         if (event.key.code == sf::Keyboard::F1)
         {
             m_sunManager.addSun(100);
             std::cout << "调试:阳光增加到 " << m_sunManager.getCurrentSun() << std::endl;
+            // F1 通常不中断其他事件处理，所以不 return
         }
+        // 其他按键可以在这里处理
     }
 
-    m_hud.handleEvent(event, currentEventMousePosView); // HUD 事件处理
+    // 2. 将所有事件（包括按键和鼠标）传递给 HUD 处理
+    // HUD 内部会处理自己的UI元素点击，如铲子图标、种子包等，并可能改变 HUD 的交互模式
+    bool eventConsumedByHUD = m_hud.handleEvent(event, mousePosView);
 
+    if (eventConsumedByHUD)
+    {
+        std::cout << "GamePlayState: Event was consumed by HUD. Game area logic for this mouse click will be skipped." << std::endl;
+        return; // <--- 关键的返回语句
+    }
+    // 3. 处理游戏区域的鼠标点击事件（基于 HUD 可能已更新的模式）
     if (event.type == sf::Event::MouseButtonPressed)
     {
+        // mousePosView 此时是本次点击的精确视图坐标
+
         if (event.mouseButton.button == sf::Mouse::Left)
         {
-            // 注意：clickPosView 应该使用事件发生时的精确坐标
-            sf::Vector2f clickPosView = window.mapPixelToCoords(sf::Vector2i(event.mouseButton.x, event.mouseButton.y), window.getView());
-
-            bool sunCollectedThisClick = false;
-            for (auto it = m_activeSuns.rbegin(); it != m_activeSuns.rend(); ++it)
+            // --- 左键点击逻辑 ---
+            if (m_hud.getCurrentInteractionMode() == HUDInteractionMode::SHOVEL_SELECTED)
             {
-                if (!(*it)->isCollected() && (*it)->handleClick(clickPosView))
-                {
-                    (*it)->collect();
-                    sunCollectedThisClick = true;
-                    break;
-                }
-            }
-            if (sunCollectedThisClick)
-                return; // 如果收集了阳光，则不进行后续的种植尝试
+                // --- A. 铲子模式：尝试移除植物 ---
+                // (这里的 mousePosView 是本次点击的精确位置)
+                sf::Vector2i gridCoords = m_grid.getGridPosition(mousePosView);
 
-            // 尝试种植植物
-            bool clickedOnGridArea = clickPosView.y > (SEED_PACKET_UI_START_Y + SEED_PACKET_HEIGHT + SEED_PACKET_SPACING); // 简单判断
-            if (clickedOnGridArea)
-            {
-                sf::Vector2i gridCoords = m_grid.getGridPosition(clickPosView);
-                bool isValidPlantSelection = false;
-                PlantType selectedPlant = m_hud.getSelectedPlantTypeFromSeedManager(isValidPlantSelection);
-
-                if (m_grid.isValidGridPosition(gridCoords) && isValidPlantSelection)
+                if (m_grid.isValidGridPosition(gridCoords))
                 {
-                    // 检查格子是否被占用 (依赖 PlantManager 正确更新 Grid 状态，或 Grid 自身维护)
-                    if (!m_grid.isCellOccupied(gridCoords.x, gridCoords.y))
+                    Plant *plantToShovel = m_plantManager.getPlantAt(gridCoords);
+                    if (plantToShovel)
                     {
-                        int cost = m_hud.getSelectedPlantCostFromSeedManager();
-                        if (m_sunManager.getCurrentSun() >= cost)
-                        {
-                            if (m_plantManager.tryAddPlant(selectedPlant, gridCoords))
-                            {
-                                m_sunManager.trySpendSun(cost);
-                                m_hud.notifyPlantPlacedToSeedManager(selectedPlant);
-                            }
-                            else
-                            {
-                                std::cout << "GamePlayState: PlantManager failed to add plant." << std::endl;
-                            }
-                        }
-                        else
-                        {
-                            std::cout << "GamePlayState: Sun is not enough to plant." << std::endl;
-                        }
+                        std::cout << "GamePlayState: Shoveling plant at grid (" << gridCoords.x << "," << gridCoords.y << ")" << std::endl;
+                        m_plantManager.removePlant(plantToShovel); // PlantManager 内部更新 Grid
                     }
                     else
                     {
-                        std::cout << "GamePlayState: Cell (" << gridCoords.x << "," << gridCoords.y << ") is already occupied!" << std::endl;
+                        std::cout << "GamePlayState: Shovel clicked on empty grid cell (" << gridCoords.x << "," << gridCoords.y << ")." << std::endl;
                     }
                 }
                 else
                 {
-                    if (!m_grid.isValidGridPosition(gridCoords))
-                        std::cout << "GamePlayState: Clicked on invalid grid position." << std::endl;
-                    if (!isValidPlantSelection)
-                        std::cout << "GamePlayState: No valid plant selected from HUD." << std::endl;
+                    std::cout << "GamePlayState: Shovel clicked outside valid grid." << std::endl;
+                }
+                m_hud.resetInteractionMode(); // 无论是否成功铲除，使用完铲子后都重置模式
+                return;                       // 铲子操作是本次点击的最终目的，处理完毕后返回
+            }
+            else if (m_hud.getCurrentInteractionMode() == HUDInteractionMode::NORMAL)
+            {
+                // --- B. 正常模式：收集阳光或尝试种植 ---
+
+                // B.1 尝试收集阳光 (优先)
+                bool sunCollectedThisClick = false;
+                for (auto it = m_activeSuns.rbegin(); it != m_activeSuns.rend(); ++it)
+                {
+                    if (!(*it)->isCollected() && (*it)->handleClick(mousePosView))
+                    {
+                        (*it)->collect();
+                        sunCollectedThisClick = true;
+                        std::cout << "GamePlayState: Sun collected." << std::endl;
+                        break;
+                    }
+                }
+                if (sunCollectedThisClick)
+                {
+                    return; // 收集了阳光，事件处理完毕
+                }
+
+                // B.2 尝试种植植物 (如果没有收集到阳光)
+                bool clickedOnGridArea = mousePosView.y > (SEED_PACKET_UI_START_Y + SEED_PACKET_HEIGHT + SEED_PACKET_SPACING);
+                if (clickedOnGridArea)
+                {
+                    sf::Vector2i gridCoords = m_grid.getGridPosition(mousePosView);
+                    bool isValidPlantSelection = false;
+                    PlantType selectedPlant = m_hud.getSelectedPlantTypeFromSeedManager(isValidPlantSelection);
+
+                    if (m_grid.isValidGridPosition(gridCoords) && isValidPlantSelection)
+                    {
+                        if (!m_grid.isCellOccupied(gridCoords.x, gridCoords.y))
+                        {
+                            int cost = m_hud.getSelectedPlantCostFromSeedManager();
+                            if (m_sunManager.getCurrentSun() >= cost)
+                            {
+                                if (m_plantManager.tryAddPlant(selectedPlant, gridCoords))
+                                {
+                                    m_sunManager.trySpendSun(cost);
+                                    m_hud.notifyPlantPlacedToSeedManager(selectedPlant);
+                                }
+                                else
+                                {
+                                    std::cout << "GamePlayState: PlantManager failed to add plant." << std::endl;
+                                }
+                            }
+                            else
+                            {
+                                std::cout << "GamePlayState: Sun is not enough to plant." << std::endl;
+                            }
+                        }
+                        else
+                        {
+                            std::cout << "GamePlayState: Cell (" << gridCoords.x << "," << gridCoords.y << ") is already occupied!" << std::endl;
+                        }
+                    }
+                    else
+                    {
+                        // 打印具体是哪个条件不满足
+                        if (!m_grid.isValidGridPosition(gridCoords))
+                            std::cout << "GamePlayState: Planting click on invalid grid position." << std::endl;
+                        else if (!isValidPlantSelection)
+                            std::cout << "GamePlayState: No valid plant selected from HUD for planting." << std::endl;
+                    }
                 }
             }
+        }
+        else if (event.mouseButton.button == sf::Mouse::Right)
+        {
+            // --- 右键点击逻辑 ---
+            if (m_hud.getCurrentInteractionMode() == HUDInteractionMode::SHOVEL_SELECTED)
+            {
+                m_hud.resetInteractionMode(); // 右键取消铲子模式
+                std::cout << "GamePlayState: Shovel mode cancelled by Right Click." << std::endl;
+                return; // 右键取消铲子后，通常不希望再触发其他右键逻辑（如果有的话）
+            }
+            // 如果有其他正常模式下的右键功能，可以在这里添加 else if (m_hud.getCurrentInteractionMode() == HUDInteractionMode::NORMAL) { ... }
         }
     }
 }
@@ -438,6 +512,7 @@ void GamePlayState::render(sf::RenderWindow &window)
     m_zombieManager.draw(window);
     m_hud.draw(window);
     window.draw(m_debugInfoText);
+    m_hud.draw(window);
 }
 
 void GamePlayState::spawnSunFromSky()

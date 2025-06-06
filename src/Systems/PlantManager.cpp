@@ -185,3 +185,49 @@ void PlantManager::requestSunSpawnFromPlant(Plant *requestingPlant)
         m_gameStateRef.spawnSunFromPlant(requestingPlant); // 调用 GamePlayState 的方法
     }
 }
+
+Plant *PlantManager::getPlantAt(const sf::Vector2i &gridPosition)
+{
+    for (auto &plant_ptr : m_plants)
+    {
+        if (plant_ptr && plant_ptr->getGridPosition() == gridPosition && plant_ptr->isAlive())
+        {
+            return plant_ptr.get();
+        }
+    }
+    return nullptr;
+}
+
+bool PlantManager::removePlant(Plant *plantToRemove)
+{
+    if (!plantToRemove)
+        return false;
+
+    auto it = std::find_if(m_plants.begin(), m_plants.end(),
+                           [&](const std::unique_ptr<Plant> &p)
+                           { return p.get() == plantToRemove; });
+
+    if (it != m_plants.end())
+    {
+        sf::Vector2i gridPos = (*it)->getGridPosition();
+        m_plants.erase(it); // 移除植物对象，unique_ptr 会自动删除
+        if (m_gridRef.isValidGridPosition(gridPos))
+        {
+            m_gridRef.setCellOccupied(gridPos.x, gridPos.y, false); // 更新 Grid 占用状态
+            std::cout << "PlantManager: Plant removed from grid (" << gridPos.x << "," << gridPos.y
+                      << "), cell now unoccupied in Grid." << std::endl;
+        }
+        return true;
+    }
+    return false;
+}
+
+bool PlantManager::removePlantAt(const sf::Vector2i &gridPosition)
+{
+    Plant *plant = getPlantAt(gridPosition);
+    if (plant)
+    {
+        return removePlant(plant);
+    }
+    return false;
+}

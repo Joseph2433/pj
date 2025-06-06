@@ -47,6 +47,10 @@ public:
     void requestSunSpawnFromPlant(Plant *requestingPlant);
     std::vector<Zombie *> getZombiesInLane(int lane) const; // 供植物索敌
 
+    Plant *getPlantAt(const sf::Vector2i &gridPosition); // <--- 新增：获取指定格子的植物
+    bool removePlant(Plant *plantToRemove);              // <--- 新增：移除指定的植物对象
+    bool removePlantAt(const sf::Vector2i &gridPosition);
+
 private:
     // 私有创建辅助方法，用于根据植物类型调用正确的构造函数
     std::unique_ptr<Plant> createSunflower(const sf::Vector2i &gridPosition);

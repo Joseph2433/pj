@@ -20,19 +20,19 @@ public:
     SeedManager(ResourceManager &resManager, SunManager &sunManager,
                 sf::Font &primaryFont, sf::Font &secondaryFont);
 
-    void handleEvent(const sf::Event &event, const sf::Vector2f &mousePosInView);
+    bool handleEvent(const sf::Event &event, const sf::Vector2f &mousePosInView);
     void update(float dt);
     void draw(sf::RenderWindow &window) const;
 
     PlantType getSelectedPlantType(bool &isValidSelection) const;
     void notifyPlantPlaced(PlantType plantType);
     int getSelectedPlantCost() const;
+    void deselectAllPackets();
 
 private:
     void initializeSeedPackets(); // 方法名也可以调整以匹配
     void addSeedPacket(PlantType type, const std::string &textureKey, int cost, float cooldownTime);
     void selectSeedPacket(PlantType type);
-    void deselectAllPackets();
 
     std::vector<SeedPacket> m_seedPackets;
     PlantType m_selectedPlantType;

@@ -79,6 +79,9 @@ const float SUN_DISPLAY_Y = SEED_PACKET_UI_START_Y + 15.f;
 const unsigned int SUN_DISPLAY_FONT_SIZE = 24;
 const std::string SUN_ICON_HUD_TEXTURE_KEY = "sun_icon_hud"; // HUD上阳光图标的键名
 
+const std::string SHOVEL_TEXTURE_KEY = "shovel_icon";
+const std::string SHOVEL_CURSOR_TEXTURE_KEY = "shovel_cursor";
+
 // --- Fonts ---
 const std::string FONT_PATH_ARIAL = "C:/Windows/Fonts/arial.ttf";     // Windows默认
 const std::string FONT_PATH_VERDANA = "C:/Windows/Fonts/verdana.ttf"; // 另一个Windows默认

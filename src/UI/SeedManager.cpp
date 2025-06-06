@@ -14,7 +14,6 @@ SeedManager::SeedManager(ResourceManager &resManager, SunManager &sunManager,
       m_sunManagerRef(sunManager),
       m_primaryFontRef(primaryFont),
       m_secondaryFontRef(secondaryFont),
-      // 从 Constants.h 读取种子包栏的布局常量
       m_uiPosition(SEED_PACKET_UI_START_X, SEED_PACKET_UI_START_Y),
       m_packetSize(SEED_PACKET_WIDTH, SEED_PACKET_HEIGHT),
       m_packetSpacing(SEED_PACKET_SPACING)
@@ -48,25 +47,43 @@ void SeedManager::addSeedPacket(PlantType type, const std::string &textureKey, i
                                packetPosition, m_packetSize);
 }
 
-void SeedManager::handleEvent(const sf::Event &event, const sf::Vector2f &mousePosInView)
+bool SeedManager::handleEvent(const sf::Event &event, const sf::Vector2f &mousePosInView)
 {
-    // (逻辑同之前的 PlantCardUI::handleEvent)
     if (event.type == sf::Event::MouseButtonPressed)
     {
         if (event.mouseButton.button == sf::Mouse::Left)
         {
-            bool clickedOnPacket = false;
             for (const auto &packet : m_seedPackets)
             {
+                // 假设 SeedPacket::handleClick(const sf::Vector2f&) const 只是检查是否点中，不改变状态
                 if (packet.handleClick(mousePosInView))
                 {
-                    selectSeedPacket(packet.getPlantType());
-                    clickedOnPacket = true;
-                    break;
+                    selectSeedPacket(packet.getPlantType()); // selectSeedPacket 会更新 SeedManager 的状态
+                    std::cout << "SeedManager: Clicked and selected packet type " << static_cast<int>(packet.getPlantType()) << std::endl;
+                    return true; // 事件被此种子包消耗
                 }
+            }
+            // 如果点击了种子包栏的空白区域，也可以考虑取消选择并消耗事件
+            // sf::FloatRect seedBarBounds = ... ;
+            // if (seedBarBounds.contains(mousePosInView)) {
+            //     deselectAllPackets();
+            //     return true;
+            // }
+        }
+        else if (event.mouseButton.button == sf::Mouse::Right)
+        {
+            // 如果希望右键点击种子包栏的任何地方都取消选择
+            sf::FloatRect seedBarBounds(m_uiPosition.x, m_uiPosition.y,
+                                        m_seedPackets.size() * (m_packetSize.x + m_packetSpacing) - (m_seedPackets.empty() ? 0 : m_packetSpacing),
+                                        m_packetSize.y);
+            if (seedBarBounds.contains(mousePosInView))
+            {
+                deselectAllPackets();
+                return true;
             }
         }
     }
+    return false;
 }
 
 void SeedManager::update(float dt)
