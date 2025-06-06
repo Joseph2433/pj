@@ -1,21 +1,21 @@
-#include "StateManager.h" // 假设在 Core/ 目录下
-#include "GameState.h"    // 假设在 Core/ 目录下
-#include "Game.h"         // 假设在 Core/ 目录下 (Game.h 需要定义 Game 类)
+#include "StateManager.h" 
+#include "GameState.h"    
+#include "Game.h"         
 #include <iostream>
+#include <stdexcept>
 
 StateManager::StateManager(Game *game) : m_game(game)
 {
     if (!m_game)
     {
-        // 严重错误，StateManager 需要一个有效的 Game 对象
         std::cerr << "FATAL ERROR: StateManager initialized with a null Game pointer!" << std::endl;
-        // 在实际项目中，这里可能需要抛出异常或退出程序
+        throw std::logic_error("with a null Game pointer!");
     }
 }
 
 StateManager::~StateManager()
 {
-    clearStates(); // 确保退出时清理所有状态
+    clearStates(); 
 }
 
 void StateManager::pushState(std::unique_ptr<GameState> state)

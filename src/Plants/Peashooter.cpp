@@ -101,7 +101,7 @@ void Peashooter::shoot()
     sf::FloatRect plantBounds = getGlobalBounds();
     projectileStartPosition.x += plantBounds.width * 0.35f;  // 假设嘴部在精灵宽度的35%偏右处 (如果原点在中心)
                                                              // 如果原点在左边，可能是 plantBounds.width * 0.8f
-    projectileStartPosition.y -= plantBounds.height * 0.85f; // 假设嘴部在精灵高度的5%偏上处 (如果原点在中心)
+    projectileStartPosition.y -= plantBounds.height * 0.55f; // 假设嘴部在精灵高度的5%偏上处 (如果原点在中心)
                                                              // 或者 projectileStartPosition.y += Y_OFFSET_FROM_CENTER_TO_MOUTH;
 
     // (可选) 如果在构造函数中设置了 m_shootOriginOffset:

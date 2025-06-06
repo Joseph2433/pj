@@ -1,16 +1,17 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
-#include "SeedManager.h" // Your SeedManager class
+#include "SeedManager.h"
+#include "ProgressBar.h"
 
-// Forward declarations
 class ResourceManager;
 class SunManager;
+class WaveManager;
 
 class HUD
 {
 public:
-    HUD(ResourceManager &resManager, SunManager &sunManager,
+    HUD(ResourceManager &resManager, SunManager &sunManager, WaveManager &waveManager,
         sf::Font &primaryFont, sf::Font &secondaryFont); // Pass fonts needed by SeedManager and HUD itself
 
     void handleEvent(const sf::Event &event, const sf::Vector2f &mousePosInView);
@@ -28,7 +29,8 @@ private:
     // HUD's own UI elements, like sun display
     sf::Text m_sunDisplayText;
     // sf::Sprite m_sunIcon; // Optional sun icon next to the display
-
+    ProgressBar m_waveProgressBar;
+    WaveManager &m_waveManagerRef;
     // References for its own elements if needed, or passed down
     SunManager &m_sunManagerRef;
     sf::Font &m_primaryFontRef; // Font for sun display, etc.

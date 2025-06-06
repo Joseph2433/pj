@@ -19,7 +19,7 @@ void ZombieManager::spawnZombie(int row, ZombieType type)
 {
     // 1. 确定生成位置
     // Y 坐标：基于行和网格单元格高度，使僵尸大致在行的中间
-    float spawnY = m_gridRef.getGridStartPosition().y + (static_cast<float>(row) + 0.5f) * m_gridRef.getCellSize().y;
+    float spawnY = m_gridRef.getGridStartPosition().y + (static_cast<float>(row) + 0.5f) * m_gridRef.getCellSize().y + 15;
     // X 坐标：在屏幕右侧之外一点
     float spawnX = static_cast<float>(WINDOW_WIDTH) + ZOMBIE_SPAWN_START_X_OFFSET;
 

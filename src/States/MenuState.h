@@ -27,8 +27,10 @@ private:
     sf::Font m_font;
     bool m_useCustomFont = false;
 
+    // 背景
+    sf::Sprite m_BackgroundSpite;
+
     // UI元素
-    sf::RectangleShape m_background;
     sf::Text m_titleText;
     std::vector<Button> m_buttons; // 使用按钮容器
     sf::Vector2f m_mousePosition;  // 鼠标位置

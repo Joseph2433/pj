@@ -43,8 +43,8 @@ void CollisionSystem::checkProjectileZombieCollisions(std::vector<Projectile *> 
             {
                 // 确保子弹和僵尸在同一行（或Y坐标足够接近）才算有效击中
                 float projYCenter = projectile->getPosition().y;
-                float zombieBodyTop = zombie->getPosition().y - zombie->getGlobalBounds().height; // 假设原点在底部
-                float zombieBodyBottom = zombie->getPosition().y;
+                float zombieBodyTop = zombie->getPosition().y - zombie->getGlobalBounds().height - 15; // 假设原点在底部
+                float zombieBodyBottom = zombie->getPosition().y + 15;
 
                 if (projYCenter > zombieBodyTop && projYCenter < zombieBodyBottom)
                 { // 子弹Y在僵尸身体范围内

@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.28)
 project(status7 LANGUAGES CXX)
 
-# 设置C++标准
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+add_compile_options(-finput-charset=UTF-8)  
 
 include(FetchContent)
 FetchContent_Declare(SFML
@@ -95,7 +95,7 @@ set(ZOMBIES_HEADERS
 set(SYSTEMS_SOURCES
     src/Systems/Grid.cpp
     src/Systems/CollisionSystem.cpp
-    # src/Systems/WaveManager.cpp
+    src/Systems/WaveManager.cpp
     src/Systems/PlantManager.cpp
     src/Systems/ZombieManager.cpp
     src/Systems/SunManager.cpp
@@ -105,7 +105,7 @@ set(SYSTEMS_SOURCES
 set(SYSTEMS_HEADERS
     src/Systems/Grid.h
     src/Systems/CollisionSystem.h
-    # src/Systems/WaveManager.h
+    src/Systems/WaveManager.h
     src/Systems/PlantManager.h
     src/Systems/ZombieManager.h
     src/Systems/SunManager.h
@@ -117,7 +117,7 @@ set(UI_SOURCES
     src/UI/Button.cpp
     src/UI/SeedManager.cpp
     src/UI/SeedPacket.cpp
-    # src/UI/ProgressBar.cpp
+    src/UI/ProgressBar.cpp
     src/UI/HUD.cpp
 )
 
@@ -125,7 +125,7 @@ set(UI_HEADERS
     src/UI/Button.h
     src/UI/SeedManager.h
     src/UI/SeedPacket.h
-    # src/UI/ProgressBar.h
+    src/UI/ProgressBar.h
     src/UI/HUD.h
 )
 

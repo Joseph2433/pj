@@ -31,5 +31,5 @@ public:
 
 private:
     std::stack<std::unique_ptr<GameState>> m_states;
-    Game *m_game; // <--- 持有 Game 对象的指针
+    Game *m_game;
 };

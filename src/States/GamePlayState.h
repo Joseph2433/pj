@@ -9,9 +9,10 @@
 #include "../Systems/SunManager.h"        // SunManager (之前是GameLogic/，根据你的结构改为Systems/)
 #include "../Entities/Sun.h"              //  包含阳光实体头文件
 #include "../Systems/CollisionSystem.h"   //碰撞系统
-#include <SFML/Graphics.hpp>              // SFML 图形库
-#include <vector>                         // <--- 新增: 用于 std::vector
-#include <memory>                         // <--- 新增: 用于 std::unique_ptr
+#include "../Systems/WaveManager.h"
+#include <SFML/Graphics.hpp> // SFML 图形库
+#include <vector>            // <--- 新增: 用于 std::vector
+#include <memory>            // <--- 新增: 用于 std::unique_ptr
 
 // class CollisionSystem;
 // 前向声明
@@ -51,9 +52,11 @@ private:
     sf::Font m_secondaryGameFont; // 次要游戏字体
     bool m_fontsLoaded;           // 标记字体是否已成功加载
 
+    // 背景
+    sf::Sprite m_BackgroundSpite;
+
     // --- 基础UI元素 ---
-    sf::RectangleShape m_backgroundShape; // 游戏背景
-    sf::Text m_debugInfoText;             // 显示调试信息
+    sf::Text m_debugInfoText; // 显示调试信息
 
     // --- 核心游戏系统与逻辑对象 ---
     Grid m_grid;                           // 游戏场地网格
@@ -62,6 +65,7 @@ private:
     SunManager m_sunManager;               // 阳光管理器实例 (管理总阳光数)
     ZombieManager m_zombieManager;         // 僵尸管理器实例
     HUD m_hud;                             // 游戏主界面 (包含种子包栏和阳光显示)
+    WaveManager m_waveManager;
 
     // --- 阳光实体管理 ---
     std::vector<std::unique_ptr<Sun>> m_activeSuns; // <--- 新增: 存储所有激活的阳光实体
@@ -71,12 +75,6 @@ private:
     float m_skySunSpawnIntervalMin;     // <--- 新增: 最小生成间隔 (秒)
     float m_skySunSpawnIntervalMax;     // <--- 新增: 最大生成间隔 (秒)
     float m_currentSkySunSpawnInterval; // <--- 新增: 当前的随机生成间隔
-
-    // 简单按时间生成僵尸的计时器
-    sf::Clock m_zombieSpawnTestTimer;
-    float m_zombieSpawnTestInterval = 8.0f; // 每8秒生成一个测试僵尸
-
-    // CollisionSystem m_collisionSystem;
 
     // --- 状态内部变量 ---
     float m_gameTime;             // 游戏进行时间
