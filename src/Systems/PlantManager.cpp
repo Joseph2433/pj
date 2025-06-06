@@ -2,6 +2,7 @@
 #include "../Entities/Plant.h"    // 需要 Plant.h 的完整定义 (因为 unique_ptr析构)
 #include "../Plants/Sunflower.h"  // 向日葵实现
 #include "../Plants/Peashooter.h" // 豌豆射手实现
+#include "../Plants/WallNut.h"
 #include "../Core/ResourceManager.h"
 #include "../Systems/Grid.h"
 #include "../States/GamePlayState.h"      // GamePlayState定义
@@ -12,7 +13,6 @@
 #include <algorithm>
 #include <iostream>
 
-// 修改构造函数以接收并存储 ProjectileManager 引用
 PlantManager::PlantManager(ResourceManager &resManager, Grid &gridSystem,
                            GamePlayState &gameState, ProjectileManager &projectileManager, ZombieManager &zombieManager)
     : m_resourceManagerRef(resManager),
@@ -25,17 +25,22 @@ PlantManager::PlantManager(ResourceManager &resManager, Grid &gridSystem,
 
 PlantManager::~PlantManager() = default;
 
-// 私有创建方法实现
+// sunflower
 std::unique_ptr<Plant> PlantManager::createSunflower(const sf::Vector2i &gridPosition)
 {
-    // 向日葵构造函数需要 PlantManager 引用 (this) 用于产阳光回调
     return std::make_unique<Sunflower>(m_resourceManagerRef, gridPosition, m_gridRef, *this);
 }
 
+// peashooter
 std::unique_ptr<Plant> PlantManager::createPeashooter(const sf::Vector2i &gridPosition)
 {
-    // 豌豆射手构造函数需要 ProjectileManager 引用
     return std::make_unique<Peashooter>(m_resourceManagerRef, gridPosition, m_gridRef, *this, m_projectileManagerRef_forPlants);
+}
+
+// wallnut
+std::unique_ptr<Plant> PlantManager::createWallNut(const sf::Vector2i &gridPosition)
+{
+    return std::make_unique<WallNut>(m_resourceManagerRef, gridPosition, m_gridRef);
 }
 
 std::vector<Zombie *> PlantManager::getZombiesInLane(int lane) const
@@ -72,14 +77,16 @@ bool PlantManager::tryAddPlant(PlantType type, const sf::Vector2i &gridPosition)
     switch (type)
     {
     case PlantType::SUNFLOWER:
-        newPlant = createSunflower(gridPosition); // 调用私有创建方法
+        newPlant = createSunflower(gridPosition);
         break;
     case PlantType::PEASHOOTER:
-        newPlant = createPeashooter(gridPosition); // 调用私有创建方法
+        newPlant = createPeashooter(gridPosition);
         break;
-    // ... 其他植物类型，每种都对应一个 createXYZ 方法 ...
+    case PlantType::WALLNUT:
+        newPlant = createWallNut(gridPosition);
+        break;
     default:
-        std::cerr << "PlantManager: 未知植物类型！ 类型ID: " << static_cast<int>(type) << std::endl;
+        std::cerr << "PlantManager: undefined error, plant is " << static_cast<int>(type) << std::endl;
         return false;
     }
 

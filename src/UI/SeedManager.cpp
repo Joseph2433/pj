@@ -29,7 +29,7 @@ void SeedManager::initializeSeedPackets()
     // 使用 Constants.h 中定义的纹理键、花费和冷却时间
     addSeedPacket(PlantType::SUNFLOWER, SUNFLOWER_ICON_TEXTURE_KEY, SUNFLOWER_COST, SUNFLOWER_COOLDOWN_TIME);
     addSeedPacket(PlantType::PEASHOOTER, PEASHOOTER_ICON_TEXTURE_KEY, PEASHOOTER_COST, PEASHOOTER_COOLDOWN_TIME);
-    // ... add other plants
+    addSeedPacket(PlantType::WALLNUT, WALLNUT_ICON_TEXTURE_KEY, WALLNUT_COST, WALLNUT_COOLDOWN_TIME);
 }
 
 // addSeedPacket, selectSeedPacket, deselectAllPackets, handleEvent, update, draw,
@@ -138,6 +138,7 @@ void SeedManager::notifyPlantPlaced(PlantType plantType)
             break;
         }
     }
+    deselectAllPackets();
 }
 // ... 实现 selectSeedPacket 和 deselectAllPackets ...
 void SeedManager::selectSeedPacket(PlantType type)
@@ -151,10 +152,6 @@ void SeedManager::selectSeedPacket(PlantType type)
                 m_selectedPlantType = type;
                 m_hasActiveSelection = true;
             }
-            else
-            {
-                // m_hasActiveSelection = false; // 可选
-            }
             return;
         }
     }
@@ -162,5 +159,9 @@ void SeedManager::selectSeedPacket(PlantType type)
 
 void SeedManager::deselectAllPackets()
 {
-    m_hasActiveSelection = false;
+    if (m_hasActiveSelection)
+    {
+        m_hasActiveSelection = false;
+        std::cout << "SeedManager: Deselected all packets." << std::endl;
+    }
 }

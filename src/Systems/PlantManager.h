@@ -20,7 +20,8 @@ class Zombie;
 enum class PlantType
 {
     SUNFLOWER,
-    PEASHOOTER
+    PEASHOOTER,
+    WALLNUT
     // ... 其他植物类型
 };
 
@@ -50,7 +51,7 @@ private:
     // 私有创建辅助方法，用于根据植物类型调用正确的构造函数
     std::unique_ptr<Plant> createSunflower(const sf::Vector2i &gridPosition);
     std::unique_ptr<Plant> createPeashooter(const sf::Vector2i &gridPosition);
-    // ... 其他植物的创建方法
+    std::unique_ptr<Plant> createWallNut(const sf::Vector2i &gridPosition);
 
     std::vector<std::unique_ptr<Plant>> m_plants; // 存储所有植物
     ResourceManager &m_resourceManagerRef;        // 资源管理器引用

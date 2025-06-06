@@ -148,6 +148,10 @@ void GamePlayState::loadAssets()
     {
         resMan.loadTexture(PEASHOOTER_ICON_TEXTURE_KEY, "assets/images/plants/peashooter_icon.png");
     }
+    if (!resMan.hasTexture(WALLNUT_ICON_TEXTURE_KEY))
+    {
+        resMan.loadTexture((WALLNUT_ICON_TEXTURE_KEY), "assets/images/plants/wallnut.png");
+    }
     if (!resMan.hasTexture(SUN_TEXTURE_KEY))
     {
         resMan.loadTexture(SUN_TEXTURE_KEY, "assets/images/ui/sun.png");

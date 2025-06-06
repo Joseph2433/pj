@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.28)
-project(status7 LANGUAGES CXX)
+project(status9 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -67,14 +67,14 @@ set(ENTITIES_HEADERS
 set(PLANTS_SOURCES
     src/Plants/Peashooter.cpp
     src/Plants/Sunflower.cpp
-    # src/Plants/WallNut.cpp
+    src/Plants/WallNut.cpp
     # src/Plants/CherryBomb.cpp
 )
 
 set(PLANTS_HEADERS
     src/Plants/Peashooter.h
     src/Plants/Sunflower.h
-    # src/Plants/WallNut.h
+    src/Plants/WallNut.h
     # src/Plants/CherryBomb.h
 )
 

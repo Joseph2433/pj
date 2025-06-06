@@ -52,7 +52,12 @@ const std::string PEASHOOTER_TEXTURE_KEY = "peashooter";
 const std::string PEASHOOTER_ICON_TEXTURE_KEY = "peashooter_icon";
 const float PEASHOOTER_SHOOT_INTERVAL = 1.4f; // 豌豆射手两次射击之间的间隔时间 (秒)
 
-// (Add other plants here)
+// Wall-nut
+const int WALLNUT_HEALTH = 4000;
+const int WALLNUT_COST = 50;
+const float WALLNUT_COOLDOWN_TIME = 20.0f;                 // 坚果墙冷却时间通常较长
+const std::string WALLNUT_TEXTURE_KEY = "wallnut_texture"; // 确保与加载时一致
+const std::string WALLNUT_ICON_TEXTURE_KEY = "wallnut_icon";
 
 // --- UI: SeedManager (Seed Packet Bar) & SeedPackets ---
 const float SEED_PACKET_UI_START_X = 20.f;
