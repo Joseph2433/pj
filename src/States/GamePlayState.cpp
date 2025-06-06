@@ -3,6 +3,7 @@
 #include "States/GameOverState.h"
 #include "States/VictoryState.h"
 #include "Core/StateManager.h"
+#include "States/PauseState.h"
 #include "Core/Game.h"
 #include "Core/ResourceManager.h"
 #include "../Utils/Constants.h"
@@ -276,7 +277,7 @@ void GamePlayState::handleEvent(const sf::Event &event)
             }
             else
             {
-                m_stateManager->changeState(std::make_unique<MenuState>(m_stateManager)); // 返回主菜单
+                m_stateManager->pushState(std::make_unique<PauseState>(m_stateManager)); // 返回主菜单
             }
             return; // ESC 事件已处理完毕，直接返回
         }
@@ -549,4 +550,26 @@ void GamePlayState::spawnSunFromPlant(Plant *plant)
     m_activeSuns.emplace_back(std::make_unique<Sun>(
         m_stateManager->getGame()->getResourceManager(), m_sunManager,
         sunSpawnPos, SunSpawnType::FROM_PLANT));
+}
+
+void GamePlayState::resetLevel()
+{
+    std::cout << "GamePlayState: Resetting level..." << std::endl;
+
+    m_isGameOver = false;
+    m_gameTime = 0.f;
+
+    m_sunManager.reset();
+    m_plantManager.clear(); // PlantManager::clear 应该处理 Grid 的 setCellOccupied(false)
+    m_projectileManager.clear();
+    m_zombieManager.clear();
+    m_waveManager.reset(); // 重置波数到初始状态
+    m_waveManager.start(); // 重新启动波数逻辑 (会进入初始和平期)
+
+    m_activeSuns.clear();
+
+    m_skySunSpawnTimer.restart();
+    m_currentSkySunSpawnInterval = randomFloat(m_skySunSpawnIntervalMin, m_skySunSpawnIntervalMax);
+
+    std::cout << "GamePlayState: Level reset complete." << std::endl;
 }

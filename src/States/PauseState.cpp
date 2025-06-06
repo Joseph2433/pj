@@ -1,0 +1,221 @@
+#include "PauseState.h"
+#include "Core/StateManager.h"
+#include "Core/Game.h" // 用于获取 ResourceManager 和窗口尺寸
+#include "Core/ResourceManager.h"
+#include "States/MenuState.h"     // 用于返回主菜单
+#include "States/GamePlayState.h" // 用于重新开始当前关卡
+#include "../Utils/Constants.h"   // 用于窗口尺寸等
+#include <iostream>
+
+PauseState::PauseState(StateManager *stateManager)
+    : GameState(stateManager), m_fontLoaded(false)
+{
+    std::cout << "PauseState constructing..." << std::endl;
+}
+
+void PauseState::enter()
+{
+    std::cout << "Entering Pause State" << std::endl;
+    if (!m_stateManager || !m_stateManager->getGame())
+    { /* ... error ... */
+        return;
+    }
+    Game *game = m_stateManager->getGame();
+    ResourceManager &resMan = game->getResourceManager();
+    sf::RenderWindow &window = game->getWindow(); // 需要窗口尺寸
+
+    // 1. 设置半透明背景遮罩
+    m_backgroundOverlay.setSize(sf::Vector2f(static_cast<float>(window.getSize().x), static_cast<float>(window.getSize().y)));
+    m_backgroundOverlay.setFillColor(sf::Color(0, 0, 0, 150)); // 半透明黑色 (alpha=150)
+    m_backgroundOverlay.setPosition(0, 0);
+
+    // 2. 加载字体 (推荐通过 ResourceManager)
+    if (resMan.hasFont(FONT_ID_PRIMARY))
+    {
+        m_font = resMan.getFont(FONT_ID_PRIMARY);
+        m_fontLoaded = true;
+    }
+    else if (m_font.loadFromFile(FONT_PATH_ARIAL))
+    { // Fallback
+        m_fontLoaded = true;
+        std::cerr << "PauseState: Primary font not found, loaded fallback Arial." << std::endl;
+    }
+    else
+    {
+        std::cerr << "PauseState: Failed to load any font for pause text." << std::endl;
+    }
+
+    // 3. 设置 "Paused" 文本
+    m_pauseText.setString("GAME PAUSED");
+    if (m_fontLoaded)
+        m_pauseText.setFont(m_font);
+    m_pauseText.setCharacterSize(60);
+    m_pauseText.setFillColor(sf::Color::White);
+    m_pauseText.setOutlineColor(sf::Color::Black);
+    m_pauseText.setOutlineThickness(2.f);
+    sf::FloatRect textBounds = m_pauseText.getLocalBounds();
+    m_pauseText.setOrigin(textBounds.left + textBounds.width / 2.f, textBounds.top + textBounds.height / 2.f);
+    m_pauseText.setPosition(window.getSize().x / 2.f, window.getSize().y / 3.f);
+
+    // 4. 设置按钮
+    setupUI();
+    std::cout << "PauseState entered." << std::endl;
+}
+
+void PauseState::setupUI()
+{
+    m_buttons.clear();
+    const sf::Vector2f buttonSize(280.f, 50.f);
+    const float initialButtonY = m_pauseText.getPosition().y + m_pauseText.getGlobalBounds().height + 70.f;
+    const float buttonSpacing = 70.f;
+    float currentButtonY = initialButtonY;
+
+    if (!m_fontLoaded && m_buttons.empty())
+    { // 避免在字体未加载时创建依赖字体的按钮
+        std::cerr << "PauseState::setupUI - Font not loaded, cannot create buttons with text." << std::endl;
+        // 可以考虑创建无文本按钮或显示错误信息
+    }
+
+    // Resume Button
+    m_buttons.emplace_back(Button(
+        sf::Vector2f((WINDOW_WIDTH - buttonSize.x) / 2.f, currentButtonY),
+        buttonSize, "Resume Game", m_font));
+    m_buttons.back().setCallback([this]()
+                                 { executeAction("resume"); });
+    currentButtonY += buttonSpacing;
+
+    // Restart Button
+    m_buttons.emplace_back(Button(
+        sf::Vector2f((WINDOW_WIDTH - buttonSize.x) / 2.f, currentButtonY),
+        buttonSize, "Restart Level", m_font));
+    m_buttons.back().setCallback([this]()
+                                 { executeAction("restart"); });
+    currentButtonY += buttonSpacing;
+
+    // Main Menu Button
+    m_buttons.emplace_back(Button(
+        sf::Vector2f((WINDOW_WIDTH - buttonSize.x) / 2.f, currentButtonY),
+        buttonSize, "Main Menu", m_font));
+    m_buttons.back().setCallback([this]()
+                                 { executeAction("menu"); });
+}
+
+void PauseState::executeAction(const std::string &action)
+{
+    if (action == "resume")
+    {
+        std::cout << "PauseState: Action 'resume'. Popping PauseState." << std::endl;
+        m_stateManager->popState();
+    }
+    else if (action == "restart")
+    {
+        std::cout << "PauseState: Action 'restart'. Popping PauseState first." << std::endl;
+        m_stateManager->popState(); // 1. Pop PauseState
+
+        std::cout << "PauseState: After popping PauseState, stack empty? "
+                  << (m_stateManager->isEmpty() ? "Yes" : "No") << std::endl;
+
+        if (!m_stateManager->isEmpty())
+        {
+            GameState *currentState = m_stateManager->getCurrentState();
+            if (currentState)
+            {
+                std::cout << "PauseState: Current top state pointer is valid." << std::endl;
+                // 尝试直接转换，如果确信类型，可以用 static_cast (但 dynamic_cast 更安全)
+                GamePlayState *gameplayState = dynamic_cast<GamePlayState *>(currentState);
+                std::cout << "PauseState: gameplayState pointer after dynamic_cast: " << gameplayState << std::endl;
+
+                if (gameplayState)
+                {
+                    std::cout << "PauseState: Successfully cast to GamePlayState. Requesting resetLevel." << std::endl;
+                    gameplayState->resetLevel();
+                }
+                else
+                {
+                    std::cerr << "PauseState Error: dynamic_cast to GamePlayState FAILED! Current state is not GamePlayState?" << std::endl;
+                    std::cerr << "PauseState: Fallback - changing to a new GamePlayState." << std::endl;
+                    // 如果 dynamic_cast 失败，这里的 changeState 会移除当前的栈顶并推入新的
+                    m_stateManager->changeState(std::make_unique<GamePlayState>(m_stateManager));
+                }
+            }
+            else
+            {
+                std::cerr << "PauseState Error: getCurrentState() returned nullptr after popping PauseState." << std::endl;
+                std::cerr << "PauseState: Fallback - pushing a new GamePlayState onto (presumably) empty stack." << std::endl;
+                // 如果栈顶是nullptr（不应该发生），直接push一个新的
+                m_stateManager->pushState(std::make_unique<GamePlayState>(m_stateManager));
+            }
+        }
+        else
+        {
+            // 如果 pop PauseState 后栈就空了，说明 GamePlayState 之前就被移除了，这是个更严重的问题
+            std::cerr << "PauseState Error: Stack became empty immediately after popping PauseState. This should not happen." << std::endl;
+            std::cerr << "PauseState: Starting a new GamePlayState as a recovery measure." << std::endl;
+            m_stateManager->pushState(std::make_unique<GamePlayState>(m_stateManager));
+        }
+    }
+    else if (action == "menu")
+    {
+        std::cout << "PauseState: Action 'menu'. Clearing all states and pushing MenuState." << std::endl;
+        m_stateManager->clearStates();
+        m_stateManager->pushState(std::make_unique<MenuState>(m_stateManager));
+    }
+}
+void PauseState::exit()
+{
+    std::cout << "Exiting Pause State" << std::endl;
+    m_buttons.clear();
+}
+
+void PauseState::handleEvent(const sf::Event &event)
+{
+    if (event.type == sf::Event::KeyPressed)
+    {
+        if (event.key.code == sf::Keyboard::Escape || event.key.code == sf::Keyboard::P)
+        { // ESC 或 P 都可以取消暂停
+            executeAction("resume");
+            return; // 事件已处理
+        }
+    }
+
+    if (event.type == sf::Event::MouseMoved)
+    {
+        sf::RenderWindow &window = m_stateManager->getGame()->getWindow();
+        m_mousePosition = window.mapPixelToCoords(sf::Vector2i(event.mouseMove.x, event.mouseMove.y), window.getView());
+        for (auto &btn : m_buttons)
+            btn.handleMouseMove(m_mousePosition);
+    }
+
+    if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left)
+    {
+        sf::RenderWindow &window = m_stateManager->getGame()->getWindow();
+        sf::Vector2f clickPos = window.mapPixelToCoords(sf::Vector2i(event.mouseButton.x, event.mouseButton.y), window.getView());
+        for (auto &btn : m_buttons)
+            btn.handleMouseClick(clickPos); // 使用转换后的坐标
+    }
+}
+
+void PauseState::update(float deltaTime)
+{
+    // 暂停状态通常不需要复杂的逻辑更新，UI动画除外
+    // (void)deltaTime; // 抑制未使用参数警告
+}
+
+void PauseState::render(sf::RenderWindow &window)
+{
+    // PauseState 的 render 方法会被 StateManager 调用
+    // StateManager 需要先渲染 PauseState 下面的状态 (GamePlayState)
+    // 然后 PauseState 再渲染自己的遮罩和UI
+
+    // 绘制半透明遮罩
+    window.draw(m_backgroundOverlay);
+
+    // 绘制 "Paused" 文本
+    window.draw(m_pauseText);
+
+    // 绘制按钮
+    for (const auto &btn : m_buttons)
+    {
+        btn.render(window);
+    }
+}

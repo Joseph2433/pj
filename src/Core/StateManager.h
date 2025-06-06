@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stack>
+#include <vector>
 #include <memory>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Window/Event.hpp>
@@ -30,6 +30,6 @@ public:
     Game *getGame() const; // <--- 公开的 getGame() 方法
 
 private:
-    std::stack<std::unique_ptr<GameState>> m_states;
+    std::vector<std::unique_ptr<GameState>> m_states;
     Game *m_game;
 };

@@ -35,7 +35,7 @@ set(CORE_HEADERS
 set(STATES_SOURCES
     src/States/MenuState.cpp
     src/States/GamePlayState.cpp
-    # src/States/PauseState.cpp
+    src/States/PauseState.cpp
     src/States/GameOverState.cpp
     src/States/VictoryState.cpp
 )
@@ -43,7 +43,7 @@ set(STATES_SOURCES
 set(STATES_HEADERS
     src/States/MenuState.h
     src/States/GamePlayState.h
-    # src/States/PauseState.h
+    src/States/PauseState.h
     src/States/GameOverState.h
     src/States/VictoryState.h
 )

@@ -38,6 +38,7 @@ public:
     // --- 公共方法，供 PlantManager 调用 ---
     // 当植物（如向日葵）请求产生阳光时，由 PlantManager 调用此方法
     void spawnSunFromPlant(Plant *plant);
+    void resetLevel();
 
 private:
     // 私有辅助方法，用于加载此状态所需的特定资源（主要是字体）
