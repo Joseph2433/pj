@@ -58,7 +58,7 @@ void IcePeashooter::shoot()
     sf::Vector2f shootPosition = getPosition();
     sf::FloatRect plantBounds = getGlobalBounds();
     shootPosition.x += plantBounds.width * 0.35f;
-    shootPosition.y -= plantBounds.height * 0.55f;
+    shootPosition.y -= plantBounds.height * 0.03f;
     sf::Vector2f shootDirection(1.0f, 0.0f);
 
     m_projectileManagerRef.addProjectile(

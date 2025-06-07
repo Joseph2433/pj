@@ -66,7 +66,7 @@ const int ICE_PEASHOOTER_COST = 175;
 const float ICE_PEASHOOTER_COOLDOWN_TIME = 7.5f;
 const std::string ICE_PEASHOOTER_TEXTURE_KEY = "ice_peashooter_texture";
 const std::string ICE_PEASHOOTER_ICON_TEXTURE_KEY = "ice_peashooter_icon";
-const float ICE_PEASHOOTER_SHOOT_INTERVAL = 1.5f;
+const float ICE_PEASHOOTER_SHOOT_INTERVAL = 2.0f;
 
 // --- UI: SeedManager (Seed Packet Bar) & SeedPackets ---
 const float SEED_PACKET_UI_START_X = 20.f;

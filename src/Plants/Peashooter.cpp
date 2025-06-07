@@ -69,7 +69,8 @@ void Peashooter::shoot()
     projectileStartPosition.x += plantBounds.width * 0.35f;
     projectileStartPosition.y -= plantBounds.height * 0.55f;
 
-    // 创建 Pea
+    // std::cout << this->getGlobalBounds().height << this->getLocalBounds().height << this->getScale().y;
+    //  创建 Pea
     auto pea = std::make_unique<Pea>(m_localResManagerRef, projectileStartPosition, sf::Vector2f(1.f, 0.f));
 
     // 发射

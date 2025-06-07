@@ -298,7 +298,7 @@ void GamePlayState::handleEvent(const sf::Event &event)
         if (event.key.code == sf::Keyboard::F1)
         {
             m_sunManager.addSun(100);
-            std::cout << "调试:阳光增加到 " << m_sunManager.getCurrentSun() << std::endl;
+            std::cout << "sun add to " << m_sunManager.getCurrentSun() << std::endl;
         }
     }
 
