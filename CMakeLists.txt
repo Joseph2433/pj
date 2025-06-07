@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.28)
-project(status11 LANGUAGES CXX)
+project(status12 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -139,7 +139,7 @@ set(UTILS_SOURCES
     # src/Utils/Timer.cpp
     # src/Utils/Math.cpp
     # src/Utils/Animation.cpp
-    # src/Utils/SoundManager.cpp
+    src/Utils/SoundManager.cpp
 )
 
 set(UTILS_HEADERS
@@ -147,7 +147,7 @@ set(UTILS_HEADERS
     # src/Utils/Timer.h
     # src/Utils/Math.h
     # src/Utils/Animation.h
-    # src/Utils/SoundManager.h
+    src/Utils/SoundManager.h
 )
 
 # 子弹类源文件

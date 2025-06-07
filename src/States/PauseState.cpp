@@ -1,10 +1,11 @@
 #include "PauseState.h"
 #include "Core/StateManager.h"
-#include "Core/Game.h" // 用于获取 ResourceManager 和窗口尺寸
+#include "../Utils/SoundManager.h"
+#include "Core/Game.h"
 #include "Core/ResourceManager.h"
-#include "States/MenuState.h"     // 用于返回主菜单
-#include "States/GamePlayState.h" // 用于重新开始当前关卡
-#include "../Utils/Constants.h"   // 用于窗口尺寸等
+#include "States/MenuState.h"
+#include "States/GamePlayState.h"
+#include "../Utils/Constants.h"
 #include <iostream>
 
 PauseState::PauseState(StateManager *stateManager)
@@ -60,6 +61,16 @@ void PauseState::enter()
     // 4. 设置按钮
     setupUI();
     std::cout << "PauseState entered." << std::endl;
+    if (!m_stateManager || !m_stateManager->getGame())
+    {
+        return;
+    }
+    SoundManager &soundMan = m_stateManager->getGame()->getSoundManager();
+    if (soundMan.getMusicStatus() == sf::SoundSource::Playing)
+    { // 只暂停正在播放的音乐
+        soundMan.pauseMusic();
+        std::cout << "PauseState: Music paused." << std::endl;
+    }
 }
 
 void PauseState::setupUI()
@@ -87,7 +98,7 @@ void PauseState::setupUI()
     // Restart Button
     m_buttons.emplace_back(Button(
         sf::Vector2f((WINDOW_WIDTH - buttonSize.x) / 2.f, currentButtonY),
-        buttonSize, "Restart Level", m_font));
+        buttonSize, "Restart", m_font));
     m_buttons.back().setCallback([this]()
                                  { executeAction("restart"); });
     currentButtonY += buttonSpacing;
@@ -110,7 +121,7 @@ void PauseState::executeAction(const std::string &action)
     else if (action == "restart")
     {
         std::cout << "PauseState: Action 'restart'. Popping PauseState first." << std::endl;
-        m_stateManager->popState(); // 1. Pop PauseState
+        m_stateManager->popState();
 
         std::cout << "PauseState: After popping PauseState, stack empty? "
                   << (m_stateManager->isEmpty() ? "Yes" : "No") << std::endl;
@@ -121,7 +132,6 @@ void PauseState::executeAction(const std::string &action)
             if (currentState)
             {
                 std::cout << "PauseState: Current top state pointer is valid." << std::endl;
-                // 尝试直接转换，如果确信类型，可以用 static_cast (但 dynamic_cast 更安全)
                 GamePlayState *gameplayState = dynamic_cast<GamePlayState *>(currentState);
                 std::cout << "PauseState: gameplayState pointer after dynamic_cast: " << gameplayState << std::endl;
 
@@ -165,6 +175,16 @@ void PauseState::exit()
 {
     std::cout << "Exiting Pause State" << std::endl;
     m_buttons.clear();
+    if (!m_stateManager || !m_stateManager->getGame())
+    {
+        return;
+    }
+    SoundManager &soundMan = m_stateManager->getGame()->getSoundManager();
+    if (soundMan.getMusicStatus() == sf::SoundSource::Paused)
+    {
+        soundMan.resumeMusic();
+        std::cout << "PauseState: Music resumed." << std::endl;
+    }
 }
 
 void PauseState::handleEvent(const sf::Event &event)
@@ -191,29 +211,21 @@ void PauseState::handleEvent(const sf::Event &event)
         sf::RenderWindow &window = m_stateManager->getGame()->getWindow();
         sf::Vector2f clickPos = window.mapPixelToCoords(sf::Vector2i(event.mouseButton.x, event.mouseButton.y), window.getView());
         for (auto &btn : m_buttons)
-            btn.handleMouseClick(clickPos); // 使用转换后的坐标
+            btn.handleMouseClick(clickPos);
     }
 }
 
 void PauseState::update(float deltaTime)
 {
-    // 暂停状态通常不需要复杂的逻辑更新，UI动画除外
-    // (void)deltaTime; // 抑制未使用参数警告
 }
 
 void PauseState::render(sf::RenderWindow &window)
 {
-    // PauseState 的 render 方法会被 StateManager 调用
-    // StateManager 需要先渲染 PauseState 下面的状态 (GamePlayState)
-    // 然后 PauseState 再渲染自己的遮罩和UI
 
-    // 绘制半透明遮罩
     window.draw(m_backgroundOverlay);
 
-    // 绘制 "Paused" 文本
     window.draw(m_pauseText);
 
-    // 绘制按钮
     for (const auto &btn : m_buttons)
     {
         btn.render(window);

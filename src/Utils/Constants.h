@@ -150,6 +150,9 @@ const float QUICK_ZOMBIE_ATTACK_INTERVAL = 1.0f;
 const std::string QUICK_ZOMBIE_TEXTURE_KEY = "quick_zombie";
 
 // 僵尸生成相关
-const float ZOMBIE_SPAWN_START_X_OFFSET = 50.f; // 僵尸在屏幕右侧外多少像素处生成
-const float ZOMBIE_REACHED_HOUSE_X = 180.f;     // 僵尸到达这个X坐标时，玩家失败 (需要根据你的游戏布局调整)
-                                                // 例如，在网格系统左侧或房子的位置
+const float ZOMBIE_SPAWN_START_X_OFFSET = 50.f;
+const float ZOMBIE_REACHED_HOUSE_X = 180.f;
+
+// 背景音乐
+const std::string BGM_GAMEPLAY = "bgm_gameplay_main";
+const std::string SFX_PEASHOOT = "sfx_peashoot";

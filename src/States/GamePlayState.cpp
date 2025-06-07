@@ -4,6 +4,7 @@
 #include "States/VictoryState.h"
 #include "Core/StateManager.h"
 #include "States/PauseState.h"
+#include "../Utils/SoundManager.h"
 #include "Core/Game.h"
 #include "Core/ResourceManager.h"
 #include "../Utils/Constants.h"
@@ -248,6 +249,20 @@ void GamePlayState::enter()
     m_waveManager.start();
 
     m_gameTime = 0.f;
+
+    if (m_stateManager && m_stateManager->getGame())
+    {
+        SoundManager &soundMan = m_stateManager->getGame()->getSoundManager();
+        if (soundMan.isMusicPlaying() && soundMan.getCurrentPlayingMusicId() != BGM_GAMEPLAY)
+        { // SoundManager需要暴露m_currentPlayingMusicId或提供getter
+            soundMan.stopMusic();
+        }
+        soundMan.playMusic(BGM_GAMEPLAY, true, 60.f);
+    }
+    else
+    {
+        std::cerr << "GamePlayState::enter - Cannot access SoundManager, Game or StateManager is null." << std::endl;
+    }
     std::cout << "GamePlayState enter finish。" << std::endl;
 }
 
@@ -259,6 +274,15 @@ void GamePlayState::exit()
     m_zombieManager.clear();
     m_activeSuns.clear();
     m_waveManager.reset();
+    if (m_stateManager && m_stateManager->getGame())
+    {
+        SoundManager &soundMan = m_stateManager->getGame()->getSoundManager();
+        if (soundMan.getCurrentPlayingMusicId() == BGM_GAMEPLAY)
+        {
+            soundMan.stopMusic();
+            std::cout << "GamePlayState: Stopped gameplay BGM." << std::endl;
+        }
+    }
 }
 
 void GamePlayState::handleEvent(const sf::Event &event)
