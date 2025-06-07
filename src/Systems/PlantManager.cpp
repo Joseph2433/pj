@@ -3,6 +3,7 @@
 #include "../Plants/Sunflower.h"
 #include "../Plants/Peashooter.h"
 #include "../Plants/WallNut.h"
+#include "../Plants/IcePeashooter.h"
 #include "../Core/ResourceManager.h"
 #include "../Systems/Grid.h"
 #include "../States/GamePlayState.h"
@@ -43,6 +44,13 @@ std::unique_ptr<Plant> PlantManager::createWallNut(const sf::Vector2i &gridPosit
     return std::make_unique<WallNut>(m_resourceManagerRef, gridPosition, m_gridRef);
 }
 
+// icepeashooter
+std::unique_ptr<Plant> PlantManager::createIcePeashooter(const sf::Vector2i &gridPosition)
+{
+
+    return std::make_unique<IcePeashooter>(m_resourceManagerRef, gridPosition, m_gridRef, *this, m_projectileManagerRef_forPlants);
+}
+
 std::vector<Zombie *> PlantManager::getZombiesInLane(int lane) const
 {
 
@@ -79,6 +87,9 @@ bool PlantManager::tryAddPlant(PlantType type, const sf::Vector2i &gridPosition)
         break;
     case PlantType::WALLNUT:
         newPlant = createWallNut(gridPosition);
+        break;
+    case PlantType::ICEPEASHOOTER:
+        newPlant = createIcePeashooter(gridPosition);
         break;
     default:
         std::cerr << "PlantManager: undefined error, plant is " << static_cast<int>(type) << std::endl;

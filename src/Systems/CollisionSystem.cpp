@@ -1,12 +1,12 @@
 #include "CollisionSystem.h"
-#include "../Entities/Projectile.h" // 包含完整的 Projectile 定义
-#include "../Entities/Zombie.h"     // 包含完整的 Zombie 定义
-#include "../Entities/Plant.h"      // 包含完整的 Plant 定义
-#include "ProjectileManager.h"      // 包含 ProjectileManager 以使用其接口
-#include "ZombieManager.h"          // 包含 ZombieManager
-#include "PlantManager.h"           // 包含 PlantManager
-#include "../Utils/Constants.h"     // 可能需要攻击范围等常量
-#include <iostream>                 // 用于调试
+#include "../Entities/Projectile.h"
+#include "../Entities/Zombie.h"
+#include "../Entities/Plant.h"
+#include "ProjectileManager.h"
+#include "ZombieManager.h"
+#include "PlantManager.h"
+#include "../Utils/Constants.h"
+#include <iostream>
 
 CollisionSystem::CollisionSystem()
 {
@@ -18,9 +18,10 @@ void CollisionSystem::update(ProjectileManager &projectileManager,
 {
     std::vector<Projectile *> activeProjectiles = projectileManager.getAllActiveProjectiles();
     std::vector<Zombie *> activeZombies = zombieManager.getActiveZombies();
-    // std::vector<Plant*> activePlants = plantManager.getAllActivePlants(); // 如果需要植物间碰撞
+    std::vector<Plant *> activePlants = plantManager.getAllActivePlants();
 
     checkProjectileZombieCollisions(activeProjectiles, activeZombies);
+    checkZombiePlantCollisions(activeZombies, activePlants, 0.f);
 }
 
 void CollisionSystem::checkProjectileZombieCollisions(std::vector<Projectile *> &projectiles,
@@ -28,38 +29,48 @@ void CollisionSystem::checkProjectileZombieCollisions(std::vector<Projectile *> 
 {
     for (Projectile *projectile : projectiles)
     {
-        // if (!projectile || projectile->hasHit()) continue; // getAllActiveProjectiles 应该已经过滤了hasHit的
-        if (!projectile)
-            continue; // 安全检查
-
+        if (!projectile || projectile->hasHit())
+        {
+            continue;
+        }
         for (Zombie *zombie : zombies)
         {
-            // if (!zombie || !zombie->isAlive()) continue; // getActiveZombies 应该已经过滤了
-            if (!zombie)
+            if (!zombie || !zombie->isAlive())
+            {
                 continue;
+            }
 
-            // 简单的矩形碰撞检测
             if (projectile->getGlobalBounds().intersects(zombie->getGlobalBounds()))
             {
-                // 确保子弹和僵尸在同一行（或Y坐标足够接近）才算有效击中
+
                 float projYCenter = projectile->getPosition().y;
-                float zombieBodyTop = zombie->getPosition().y - zombie->getGlobalBounds().height - 15; // 假设原点在底部
-                float zombieBodyBottom = zombie->getPosition().y + 15;
 
-                if (projYCenter > zombieBodyTop && projYCenter < zombieBodyBottom)
-                { // 子弹Y在僵尸身体范围内
-                    std::cout << "[CollisionSystem] DEBUG: 子弹 (Addr: " << projectile
-                              << ") 击中僵尸 (Addr: " << zombie << ")" << std::endl;
+                float zombieSpriteHeight = zombie->getGlobalBounds().height;
+                float zombieFeetY = zombie->getPosition().y;
+                float zombieHeadY = zombieFeetY - zombieSpriteHeight;
 
-                    zombie->takeDamage(projectile->getDamage()); // 僵尸受到伤害
-                    projectile->onHit();                         // 标记子弹已击中 (它将在 ProjectileManager::update 中被移除)
+                // 允许一点容差，例如子弹高度的一半
+                float yTolerance = projectile->getGlobalBounds().height / 2.f; // 或一个固定值
 
-                    break; // 一个子弹只击中一个僵尸
+                //
+                if (projYCenter >= zombieHeadY - yTolerance && projYCenter <= zombieFeetY + yTolerance)
+                {
+                    std::cout << "[CollisionSystem] Projectile (Addr: " << projectile
+                              << ") potentially hit Zombie (Addr: " << zombie << ") on the same visual plane." << std::endl;
+
+                    // --- 碰撞发生 ---
+                    zombie->takeDamage(projectile->getDamage());
+                    std::cout << "[CollisionSystem] Zombie (Addr: " << zombie << ") took "
+                              << projectile->getDamage() << " damage. HP left: " << zombie->getHealth() << std::endl;
+                    projectile->applyPrimaryEffect(zombie);
+                    projectile->onHit();
+                    break;
+                }
+                else
+                {
+                    std::cout << "[CollisionSystem] Projectile and Zombie intersect on X but not on Y plane." << std::endl;
                 }
             }
-        }
-        if (projectile->hasHit())
-        {
         }
     }
 }

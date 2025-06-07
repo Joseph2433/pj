@@ -12,11 +12,16 @@ Zombie::Zombie(ResourceManager &resManager, const std::string &textureKey,
                int health, float speed, int damage, float attackInterval,
                Grid &grid)
     : Entity(resManager.getTexture(textureKey)),
-      m_health(health), m_speed(speed), m_damagePerAttack(damage),
+      m_health(health),
+      m_originalSpeed(speed),
+      m_currentSpeed(speed),
+      m_damagePerAttack(damage),
       m_attackInterval(attackInterval),
       m_currentState(ZombieState::WALKING), m_stateTimer(0.0f),
       m_currentTargetPlant(nullptr),
-      m_gridRef(grid)
+      m_gridRef(grid),
+      m_isSlowed(false),
+      m_slowDurationRemaining(0.0f)
 {
     setPosition(spawnPosition);
     sf::FloatRect bounds = getLocalBounds();
@@ -26,6 +31,19 @@ Zombie::Zombie(ResourceManager &resManager, const std::string &textureKey,
 void Zombie::update(float dt, const std::vector<Plant *> &plantsInLane)
 {
     m_stateTimer += dt;
+
+    if (m_isSlowed)
+    {
+        m_slowDurationRemaining -= dt;
+        if (m_slowDurationRemaining <= 0.f)
+        {
+            m_isSlowed = false;
+            m_currentSpeed = m_originalSpeed;
+            m_slowDurationRemaining = 0.f;
+            m_sprite.setColor(sf::Color::White);
+            std::cout << "Zombie Addr: " << this << " slow effect wore off." << std::endl;
+        }
+    }
 
     switch (m_currentState)
     {
@@ -131,7 +149,7 @@ void Zombie::attack(Plant *targetPlant)
 
 void Zombie::moveLeft(float dt)
 {
-    move(-m_speed * dt, 0.f);
+    move(-m_currentSpeed * dt, 0.f);
 }
 
 void Zombie::takeDamage(int amount)
@@ -179,4 +197,24 @@ int Zombie::getLane() const
         return lane;
     }
     return -1;
+}
+
+void Zombie::applySlow(float duration, float slowFactor)
+{
+    if (!isAlive())
+        return;
+
+    m_isSlowed = true;
+
+    m_slowDurationRemaining = std::max(m_slowDurationRemaining, duration);
+    m_currentSpeed = m_originalSpeed * slowFactor;
+    m_sprite.setColor(sf::Color(100, 100, 255, 200));
+
+    std::cout << "Zombie Addr: " << this << " slowed. New speed: " << m_currentSpeed
+              << ", Duration: " << m_slowDurationRemaining << "s" << std::endl;
+}
+
+bool Zombie::isSlowed() const
+{
+    return m_isSlowed;
 }

@@ -1,43 +1,33 @@
 #pragma once
 
-#include "Entity.h" // 继承自实体基类
+#include "Entity.h"
 #include <string>
-#include <vector> // 确保包含 <vector>
+#include <vector>
+#include <SFML/System/Clock.hpp>
 
-// 前向声明
 class ResourceManager;
-class Plant; // 用于 update 和 findTargetPlant 的参数类型
-class Grid;  // <--- 新增前向声明，如果 getLane 需要 Grid&
+class Plant;
+class Grid;
 
-// 僵尸可能有的状态
 enum class ZombieState
 {
-    WALKING,   // 行走
-    ATTACKING, // 攻击
-    DYING,     // 死亡中 (播放死亡动画)
-    DEAD       // 已死亡 (等待移除)
+    WALKING,
+    ATTACKING,
+    DYING,
+    DEAD
 };
 
-// 僵尸基类，定义所有僵尸的共同行为和属性
 class Zombie : public Entity
 {
 public:
-    // 构造函数
     Zombie(ResourceManager &resManager, const std::string &textureKey,
            const sf::Vector2f &spawnPosition,
            int health, float speed, int damage,
            float attackInterval,
-           Grid &grid); // <--- 新增 Grid 引用，用于准确计算行号
+           Grid &grid);
 
-    // 虚析构函数由 Entity 继承而来
     ~Zombie() override = default;
-
-    // 更新僵尸状态
-    // dt: 帧间隔时间
-    // plantsInLane: 当前僵尸所在行的植物列表
     virtual void update(float dt, const std::vector<Plant *> &plantsInLane);
-
-    // 僵尸受到伤害
     virtual void takeDamage(int amount);
 
     // --- 状态查询 ---
@@ -48,13 +38,17 @@ public:
     // --- 状态管理 ---
     virtual void changeState(ZombieState newState);
 
-    // --- 位置/逻辑相关 ---
-    // 获取僵尸当前所在的行号 (现在使用内部的 m_gridRef)
+    // --- 位置---
     int getLane() const;
+    int getHealth() const { return m_health; }
+
+    void applySlow(float duration, float slowFactor);
+    bool isSlowed() const;
 
 protected:
     int m_health;
-    float m_speed;
+    float m_originalSpeed;
+    float m_currentSpeed;
     int m_damagePerAttack;
     float m_attackInterval;
 
@@ -65,8 +59,8 @@ protected:
 
     // --- 行为辅助方法 ---
     virtual void moveLeft(float dt);
-    // 在已筛选的、同一行的植物中寻找攻击目标
     Plant *findTargetPlant(const std::vector<Plant *> &plantsInLane);
-    // 执行一次攻击动作
     virtual void attack(Plant *targetPlant);
+    bool m_isSlowed;
+    float m_slowDurationRemaining;
 };

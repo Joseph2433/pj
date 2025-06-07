@@ -70,14 +70,14 @@ set(PLANTS_SOURCES
     src/Plants/Peashooter.cpp
     src/Plants/Sunflower.cpp
     src/Plants/WallNut.cpp
-    # src/Plants/CherryBomb.cpp
+    src/Plants/IcePeashooter.cpp
 )
 
 set(PLANTS_HEADERS
     src/Plants/Peashooter.h
     src/Plants/Sunflower.h
     src/Plants/WallNut.h
-    # src/Plants/CherryBomb.h
+    src/Plants/IcePeashooter.h
 )
 
 # 僵尸类源文件
@@ -153,10 +153,12 @@ set(UTILS_HEADERS
 # 子弹类源文件
 set(PROJECTILES_SOURCES
     src/Projectiles/Pea.cpp
+    src/Projectiles/IcePea.cpp
 )
 
 set(PROJECTILES_HEADERS
     src/Projectiles/Pea.h
+    src/Projectiles/IcePea.h
 )
 
 # 合并所有源文件

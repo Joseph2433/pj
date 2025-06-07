@@ -21,8 +21,8 @@ enum class PlantType
 {
     SUNFLOWER,
     PEASHOOTER,
-    WALLNUT
-    // ... 其他植物类型
+    WALLNUT,
+    ICEPEASHOOTER
 };
 
 class PlantManager
@@ -56,6 +56,7 @@ private:
     std::unique_ptr<Plant> createSunflower(const sf::Vector2i &gridPosition);
     std::unique_ptr<Plant> createPeashooter(const sf::Vector2i &gridPosition);
     std::unique_ptr<Plant> createWallNut(const sf::Vector2i &gridPosition);
+    std::unique_ptr<Plant> createIcePeashooter(const sf::Vector2i &gridPosition);
 
     std::vector<std::unique_ptr<Plant>> m_plants; // 存储所有植物
     ResourceManager &m_resourceManagerRef;        // 资源管理器引用

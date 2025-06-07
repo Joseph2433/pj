@@ -5,6 +5,7 @@
 #include "../Systems/PlantManager.h"
 #include "../Utils/Constants.h"
 #include "../Entities/Zombie.h"
+#include "../Projectiles/Pea.h"
 #include <iostream>
 #include <cstdlib>
 
@@ -21,6 +22,7 @@ Peashooter::Peashooter(ResourceManager &resManager,
             PEASHOOTER_COST),
       m_projectileManagerRef(projectileManager),
       m_plantManagerRef(plantManager),
+      m_localResManagerRef(resManager),
       m_shootTimer(0.0f),
       m_shootInterval(PEASHOOTER_SHOOT_INTERVAL)
 {
@@ -62,20 +64,16 @@ bool Peashooter::checkForZombiesInLane() const
 
 void Peashooter::shoot()
 {
-    // 1. 计算子弹的起始位置
     sf::Vector2f projectileStartPosition = getPosition();
-
-    // 2. 调整子弹的精确发射点 (例如，“嘴部”)
     sf::FloatRect plantBounds = getGlobalBounds();
     projectileStartPosition.x += plantBounds.width * 0.35f;
     projectileStartPosition.y -= plantBounds.height * 0.55f;
 
-    // 3. 发射子弹
-    m_projectileManagerRef.firePea(projectileStartPosition, sf::Vector2f(1.f, 0.f));
+    // 创建 Pea
+    auto pea = std::make_unique<Pea>(m_localResManagerRef, projectileStartPosition, sf::Vector2f(1.f, 0.f));
 
-    // 可选：播放射击音效
-    // m_soundManagerRef.playSound(SoundID::PEASHOOTER_SHOOT);
+    // 发射
+    m_projectileManagerRef.addProjectile(std::move(pea));
 
-    // 可选：触发射击动画 (如果豌豆射手有射击动画)
-    // startShootingAnimation();
+    std::cout << "Peashooter at (" << getGridPosition().x << "," << getGridPosition().y << ") fired a Pea." << std::endl;
 }

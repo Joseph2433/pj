@@ -2,7 +2,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <string>
-#include "../Systems/PlantManager.h" // For PlantType enum
+#include "../Systems/PlantManager.h"
 
 class ResourceManager;
 

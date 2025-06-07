@@ -1,7 +1,8 @@
 #include "Projectile.h"
-#include "../Core/ResourceManager.h"      // 包含资源管理器
-#include <SFML/Graphics/RenderWindow.hpp> // 为了 isOutOfValidArea
-#include <iostream>                       // 用于调试
+#include "../Core/ResourceManager.h"
+#include <SFML/Graphics/RenderWindow.hpp>
+#include <iostream>
+#include "Zombie.h"
 
 Projectile::Projectile(ResourceManager &resManager, const std::string &textureKey,
                        const sf::Vector2f &startPosition,
@@ -89,12 +90,6 @@ bool Projectile::isOutOfValidArea(const sf::RenderWindow &window) const
         // std::cout << "[Projectile] DEBUG: Addr: " << this << " - OutOfValidArea: YES (Top boundary). BoundsTop+Height: " << bounds.top + bounds.height << std::endl;
     }
 
-    // 如果出界了，也应该标记为 m_hasHit，以便统一处理移除逻辑
-    // 但是 isOutOfValidArea 是 const 方法，不能修改 m_hasHit。
-    // 所以，如果出界，ProjectileManager 应该负责调用 onHit() 或者直接移除。
-    // 或者，让 isOutOfValidArea 非 const，并在内部设置 m_hasHit，但这不常见。
-    // 目前的设计是 ProjectileManager 依赖 isOutOfValidArea() 返回 true 来移除。
-
     return isOut;
 }
 
@@ -119,7 +114,9 @@ const sf::Vector2f &Projectile::getDirection() const
 
 void Projectile::setDirection(const sf::Vector2f &dir)
 {
-    // 可能需要归一化方向向量
-    // m_direction = normalized(dir);
     m_direction = dir;
+}
+
+void Projectile::applyPrimaryEffect(Zombie *targetZombie)
+{
 }

@@ -151,6 +151,14 @@ void GamePlayState::loadAssets()
     {
         resMan.loadTexture(PEASHOOTER_TEXTURE_KEY, "assets/images/plants/peashooter.png");
     }
+    if (!resMan.hasTexture(WALLNUT_TEXTURE_KEY))
+    {
+        resMan.loadTexture(WALLNUT_TEXTURE_KEY, "assets/images/plants/wallnut.png");
+    }
+    if (!resMan.hasTexture(ICE_PEASHOOTER_TEXTURE_KEY))
+    {
+        resMan.loadTexture(ICE_PEASHOOTER_TEXTURE_KEY, "assets/images/plants/ice_peashooter.png");
+    }
     if (!resMan.hasTexture(SUNFLOWER_ICON_TEXTURE_KEY))
     {
         resMan.loadTexture(SUNFLOWER_ICON_TEXTURE_KEY, "assets/images/plants/sunflower_icon.png");
@@ -161,7 +169,11 @@ void GamePlayState::loadAssets()
     }
     if (!resMan.hasTexture(WALLNUT_ICON_TEXTURE_KEY))
     {
-        resMan.loadTexture((WALLNUT_ICON_TEXTURE_KEY), "assets/images/plants/wallnut.png");
+        resMan.loadTexture(WALLNUT_ICON_TEXTURE_KEY, "assets/images/plants/wallnut_icon.png");
+    }
+    if (!resMan.hasTexture(ICE_PEASHOOTER_ICON_TEXTURE_KEY))
+    {
+        resMan.loadTexture(ICE_PEASHOOTER_ICON_TEXTURE_KEY, "assets/images/plants/ice_peashooter_icon.png");
     }
     if (!resMan.hasTexture(SUN_TEXTURE_KEY))
     {
@@ -170,6 +182,10 @@ void GamePlayState::loadAssets()
     if (!resMan.hasTexture(PEA_TEXTURE_KEY))
     {
         resMan.loadTexture(PEA_TEXTURE_KEY, "assets/images/projectiles/pea.png");
+    }
+    if (!resMan.hasTexture(ICE_PEA_TEXTURE_KEY))
+    {
+        resMan.loadTexture(ICE_PEA_TEXTURE_KEY, "assets/images/projectiles/ice_pea.png");
     }
     if (!resMan.hasTexture(SHOVEL_TEXTURE_KEY))
     {
