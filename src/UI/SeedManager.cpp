@@ -89,7 +89,6 @@ void SeedManager::update(float dt)
 
 void SeedManager::draw(sf::RenderWindow &window) const
 {
-
     for (const auto &packet : m_seedPackets)
     {
         packet.draw(window);

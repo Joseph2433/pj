@@ -66,7 +66,7 @@ void GamePlayState::loadAssets()
     ResourceManager &resMan = m_stateManager->getGame()->getResourceManager();
 
     std::string gameplayBgTextureId = "GamePlayBackgroundTexture";
-    std::string gameplayBgTexturePath = "../../assets/images/gameplay_background.jpg"; // 或 .png
+    std::string gameplayBgTexturePath = "../../assets/images/gameplay_background.png";
 
     if (!resMan.hasTexture(gameplayBgTextureId))
     {
@@ -127,74 +127,74 @@ void GamePlayState::loadAssets()
     }
     if (!resMan.hasTexture(BASIC_ZOMBIE_TEXTURE_KEY))
     {
-        resMan.loadTexture(BASIC_ZOMBIE_TEXTURE_KEY, "assets/images/zombies/basic_zombie.png");
+        resMan.loadTexture(BASIC_ZOMBIE_TEXTURE_KEY, "../../assets/images/basic_zombie.png");
     }
 
     if (!resMan.hasTexture(BIG_ZOMBIE_TEXTURE_KEY))
     {
-        resMan.loadTexture(BIG_ZOMBIE_TEXTURE_KEY, "assets/images/zombies/big_zombie.png");
+        resMan.loadTexture(BIG_ZOMBIE_TEXTURE_KEY, "../../assets/images/big_zombie.png");
     }
 
     if (!resMan.hasTexture(BOSS_ZOMBIE_TEXTURE_KEY))
     {
-        resMan.loadTexture(BOSS_ZOMBIE_TEXTURE_KEY, "assets/images/zombies/boss_zombie.png");
+        resMan.loadTexture(BOSS_ZOMBIE_TEXTURE_KEY, "../../assets/images/boss_zombie.png");
     }
 
     if (!resMan.hasTexture(QUICK_ZOMBIE_TEXTURE_KEY))
     {
-        resMan.loadTexture(QUICK_ZOMBIE_TEXTURE_KEY, "assets/images/zombies/quick_zombie.png");
+        resMan.loadTexture(QUICK_ZOMBIE_TEXTURE_KEY, "../../assets/images/quick_zombie.png");
     }
     if (!resMan.hasTexture(SUNFLOWER_TEXTURE_KEY))
     {
-        resMan.loadTexture(SUNFLOWER_TEXTURE_KEY, "assets/images/plants/sunflower.png");
+        resMan.loadTexture(SUNFLOWER_TEXTURE_KEY, "../../assets/images/sunflower.png");
     }
     if (!resMan.hasTexture(PEASHOOTER_TEXTURE_KEY))
     {
-        resMan.loadTexture(PEASHOOTER_TEXTURE_KEY, "assets/images/plants/peashooter.png");
+        resMan.loadTexture(PEASHOOTER_TEXTURE_KEY, "../../assets/images/peashooter.png");
     }
     if (!resMan.hasTexture(WALLNUT_TEXTURE_KEY))
     {
-        resMan.loadTexture(WALLNUT_TEXTURE_KEY, "assets/images/plants/wallnut.png");
+        resMan.loadTexture(WALLNUT_TEXTURE_KEY, "../../assets/images/wallnut.png");
     }
     if (!resMan.hasTexture(ICE_PEASHOOTER_TEXTURE_KEY))
     {
-        resMan.loadTexture(ICE_PEASHOOTER_TEXTURE_KEY, "assets/images/plants/ice_peashooter.png");
+        resMan.loadTexture(ICE_PEASHOOTER_TEXTURE_KEY, "../../assets/images/ice_peashooter.png");
     }
     if (!resMan.hasTexture(SUNFLOWER_ICON_TEXTURE_KEY))
     {
-        resMan.loadTexture(SUNFLOWER_ICON_TEXTURE_KEY, "assets/images/plants/sunflower_icon.png");
+        resMan.loadTexture(SUNFLOWER_ICON_TEXTURE_KEY, "../../assets/images/sunflower.png");
     }
     if (!resMan.hasTexture(PEASHOOTER_ICON_TEXTURE_KEY))
     {
-        resMan.loadTexture(PEASHOOTER_ICON_TEXTURE_KEY, "assets/images/plants/peashooter_icon.png");
+        resMan.loadTexture(PEASHOOTER_ICON_TEXTURE_KEY, "../../assets/images/peashooter.png");
     }
     if (!resMan.hasTexture(WALLNUT_ICON_TEXTURE_KEY))
     {
-        resMan.loadTexture(WALLNUT_ICON_TEXTURE_KEY, "assets/images/plants/wallnut_icon.png");
+        resMan.loadTexture(WALLNUT_ICON_TEXTURE_KEY, "../../assets/images/wallnut.png");
     }
     if (!resMan.hasTexture(ICE_PEASHOOTER_ICON_TEXTURE_KEY))
     {
-        resMan.loadTexture(ICE_PEASHOOTER_ICON_TEXTURE_KEY, "assets/images/plants/ice_peashooter_icon.png");
+        resMan.loadTexture(ICE_PEASHOOTER_ICON_TEXTURE_KEY, "../../assets/images/ice_peashooter.png");
     }
     if (!resMan.hasTexture(SUN_TEXTURE_KEY))
     {
-        resMan.loadTexture(SUN_TEXTURE_KEY, "assets/images/ui/sun.png");
+        resMan.loadTexture(SUN_TEXTURE_KEY, "../../assets/images/sun.png");
     }
     if (!resMan.hasTexture(PEA_TEXTURE_KEY))
     {
-        resMan.loadTexture(PEA_TEXTURE_KEY, "assets/images/projectiles/pea.png");
+        resMan.loadTexture(PEA_TEXTURE_KEY, "../../assets/images/pea.png");
     }
     if (!resMan.hasTexture(ICE_PEA_TEXTURE_KEY))
     {
-        resMan.loadTexture(ICE_PEA_TEXTURE_KEY, "assets/images/projectiles/ice_pea.png");
+        resMan.loadTexture(ICE_PEA_TEXTURE_KEY, "../../assets/images/ice_pea.png");
     }
     if (!resMan.hasTexture(SHOVEL_TEXTURE_KEY))
     {
-        resMan.loadTexture(SHOVEL_TEXTURE_KEY, "assets/images/ui/shovel.png");
+        resMan.loadTexture(SHOVEL_TEXTURE_KEY, "../../assets/images/shovel.png");
     }
     if (!resMan.hasTexture(SHOVEL_CURSOR_TEXTURE_KEY))
     {
-        resMan.loadTexture(SHOVEL_CURSOR_TEXTURE_KEY, "assets/images/ui/shovel_cursor.png");
+        resMan.loadTexture(SHOVEL_CURSOR_TEXTURE_KEY, "../../assets/images/shovel.png");
     }
     std::cout << "GamePlayState:source load trying finish。" << std::endl;
 }
@@ -531,6 +531,7 @@ void GamePlayState::update(float deltaTime)
 
 void GamePlayState::render(sf::RenderWindow &window)
 {
+
     window.draw(m_BackgroundSpite);
     m_grid.render(window);
     m_plantManager.draw(window);
@@ -542,7 +543,6 @@ void GamePlayState::render(sf::RenderWindow &window)
     m_zombieManager.draw(window);
     m_hud.draw(window);
     window.draw(m_debugInfoText);
-    m_hud.draw(window);
 }
 
 void GamePlayState::spawnSunFromSky()

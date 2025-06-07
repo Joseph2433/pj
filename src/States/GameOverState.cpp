@@ -23,8 +23,8 @@ void GameOverState::enter()
     ResourceManager &resMan = game->getResourceManager();
 
     // 加载背景 (可以和MenuState背景一样，或者用新的)
-    std::string bgTextureId = "GameOverBackground";                             // 或者 "MenuBackgroundTexture"
-    std::string bgTexturePath = "../../assets/images/game_over_background.png"; // 你的失败背景图
+    std::string bgTextureId = "GameOverBackground";
+    std::string bgTexturePath = "../../assets/images/gameover_background.png";
     if (!resMan.hasTexture(bgTextureId))
     {
         if (!resMan.loadTexture(bgTextureId, bgTexturePath))

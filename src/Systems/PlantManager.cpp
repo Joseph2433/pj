@@ -98,14 +98,6 @@ bool PlantManager::tryAddPlant(PlantType type, const sf::Vector2i &gridPosition)
 
     if (newPlant)
     {
-        // (在这里加入阳光花费检查，例如：)
-        // if (m_gameStateRef.getSunManager().trySpendSun(newPlant->getCost())) {
-        //     m_plants.push_back(std::move(newPlant));
-        //     return true;
-        // } else {
-        //     std::cout << "阳光不足以种植此植物！" << std::endl;
-        //     return false;
-        // }
         m_plants.push_back(std::move(newPlant));
         std::cout << "PlantManager: planted " << static_cast<int>(type) << " in  (" << gridPosition.x << ", " << gridPosition.y << ")" << std::endl;
 

@@ -44,7 +44,7 @@ void MenuState::enter()
     // --- 设置背景纹理 ---
     std::string backgroundTextureId = "MenuBackgroundTexture"; // ID可以自定义
     // !!! 确保此图片路径相对于你的可执行文件是正确的 !!!
-    std::string backgroundTexturePath = "assets/images/menu_background.png"; // 假设这是你的菜单背景图片路径
+    std::string backgroundTexturePath = "../../assets/images/menu_background.png"; // 假设这是你的菜单背景图片路径
 
     if (!resManager.hasTexture(backgroundTextureId))
     {
@@ -69,17 +69,17 @@ void MenuState::enter()
     // --- 背景纹理设置完毕 ---
 
     // --- 设置标题 ---
-    m_titleText.setString("GAME MENU");
+    m_titleText.setString("Defend Mixue");
     if (m_useCustomFont)
     {
         m_titleText.setFont(m_font);
     }
-    m_titleText.setCharacterSize(48);
-    m_titleText.setFillColor(sf::Color::White);
+    m_titleText.setCharacterSize(60);
+    m_titleText.setFillColor(sf::Color(0, 0, 0));
     sf::FloatRect titleBounds = m_titleText.getLocalBounds();
     m_titleText.setPosition(
         (WINDOW_WIDTH - titleBounds.width) / 2.f,
-        100.f);
+        150.f);
 
     setupButtons(); // 初始化按钮
 }

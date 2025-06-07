@@ -98,17 +98,17 @@ void HUD::setupShovelUI()
     m_shovelButtonArea.setSize(sf::Vector2f(shovelBounds.width, shovelBounds.height));
     // m_shovelButtonArea.setFillColor(sf::Color(0,0,255,100)); // 调试时可见
 
-    // (可选) 加载铲子鼠标光标纹理
+    //(可选) 加载铲子鼠标光标纹理
     if (!m_resourceManagerRef_forHUD.hasTexture(SHOVEL_CURSOR_TEXTURE_KEY))
     {
-        if (!m_resourceManagerRef_forHUD.loadTexture(SHOVEL_CURSOR_TEXTURE_KEY, "assets/images/ui/shovel_cursor.png"))
+        if (!m_resourceManagerRef_forHUD.loadTexture(SHOVEL_CURSOR_TEXTURE_KEY, "assets/images/ui/shovel.png"))
         {
             // std::cerr << "HUD Warning: Failed to load shovel cursor texture." << std::endl; // 这个不是关键错误
         }
     }
-    // m_mouseCursorShovel.setTexture(m_resourceManagerRef_forHUD.getTexture(SHOVEL_CURSOR_TEXTURE_KEY));
+    m_mouseCursorShovel.setTexture(m_resourceManagerRef_forHUD.getTexture(SHOVEL_CURSOR_TEXTURE_KEY));
     // 通常将光标原点设为其“尖端”，例如左上角或特定偏移
-    // m_mouseCursorShovel.setOrigin(0, 0);
+    m_mouseCursorShovel.setOrigin(0, 0);
     std::cout << "HUD: Shovel UI setup complete. Position: (" << shovelX << "," << shovelY << ")" << std::endl;
 }
 

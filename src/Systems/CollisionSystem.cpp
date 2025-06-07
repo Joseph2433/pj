@@ -55,20 +55,12 @@ void CollisionSystem::checkProjectileZombieCollisions(std::vector<Projectile *> 
                 //
                 if (projYCenter >= zombieHeadY - yTolerance && projYCenter <= zombieFeetY + yTolerance)
                 {
-                    std::cout << "[CollisionSystem] Projectile (Addr: " << projectile
-                              << ") potentially hit Zombie (Addr: " << zombie << ") on the same visual plane." << std::endl;
 
                     // --- 碰撞发生 ---
                     zombie->takeDamage(projectile->getDamage());
-                    std::cout << "[CollisionSystem] Zombie (Addr: " << zombie << ") took "
-                              << projectile->getDamage() << " damage. HP left: " << zombie->getHealth() << std::endl;
                     projectile->applyPrimaryEffect(zombie);
                     projectile->onHit();
                     break;
-                }
-                else
-                {
-                    std::cout << "[CollisionSystem] Projectile and Zombie intersect on X but not on Y plane." << std::endl;
                 }
             }
         }

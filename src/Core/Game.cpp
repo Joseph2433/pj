@@ -44,14 +44,6 @@ void Game::loadGlobalResources()
             std::cerr << "Game:全局次要字体加载失败。某些UI可能会使用主要字体作为备用。" << std::endl;
         }
     }
-    // 纹理
-    if (!m_resourceManager.hasTexture(PEA_TEXTURE_KEY))
-    {
-        if (!m_resourceManager.loadTexture(PEA_TEXTURE_KEY, "assets/images/projectiles/pea.png"))
-        {
-            std::cerr << "Game: 豌豆子弹纹理 (" << PEA_TEXTURE_KEY << ") 加载失败！" << std::endl;
-        }
-    }
     // 背景音乐
     if (!m_soundManager.loadMusic(BGM_GAMEPLAY, "../../assets/audio/gameplay_music.ogg"))
     { // <--- 确保路径正确

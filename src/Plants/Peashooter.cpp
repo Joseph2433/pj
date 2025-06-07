@@ -67,7 +67,7 @@ void Peashooter::shoot()
     sf::Vector2f projectileStartPosition = getPosition();
     sf::FloatRect plantBounds = getGlobalBounds();
     projectileStartPosition.x += plantBounds.width * 0.35f;
-    projectileStartPosition.y -= plantBounds.height * 0.55f;
+    projectileStartPosition.y -= plantBounds.height * 0.35f;
 
     // std::cout << this->getGlobalBounds().height << this->getLocalBounds().height << this->getScale().y;
     //  创建 Pea
