@@ -136,17 +136,12 @@ set(UI_HEADERS
 
 # 工具类源文件
 set(UTILS_SOURCES
-    # src/Utils/Timer.cpp
-    # src/Utils/Math.cpp
-    # src/Utils/Animation.cpp
     src/Utils/SoundManager.cpp
 )
 
 set(UTILS_HEADERS
     src/Utils/Constants.h
-    # src/Utils/Timer.h
-    # src/Utils/Math.h
-    # src/Utils/Animation.h
+
     src/Utils/SoundManager.h
 )
 
