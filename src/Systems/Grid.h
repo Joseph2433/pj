@@ -23,7 +23,7 @@ public:
     bool isValidGridPosition(int row, int col) const;
     bool isValidGridPosition(const sf::Vector2i &gridPos) const;
 
-    // 网格状态（用于检查是否可以放置物体）
+    // 网格状态
     bool isCellOccupied(int row, int col) const;
     void setCellOccupied(int row, int col, bool occupied);
 

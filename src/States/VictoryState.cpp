@@ -16,15 +16,15 @@ void VictoryState::enter()
 {
     std::cout << "Entering Victory State" << std::endl;
     if (!m_stateManager || !m_stateManager->getGame())
-    { /* ... error ... */
+    {
         return;
     }
     Game *game = m_stateManager->getGame();
     ResourceManager &resMan = game->getResourceManager();
 
-    // 加载背景 (可以和MenuState背景一样，或者用新的胜利背景)
-    std::string bgTextureId = "VictoryBackground";                            // 或者 "MenuBackgroundTexture"
-    std::string bgTexturePath = "../../assets/images/victory_background.png"; // 你的胜利背景图
+    // 加载背景
+    std::string bgTextureId = "VictoryBackground";
+    std::string bgTexturePath = "../../assets/images/victory_background.png";
     if (!resMan.hasTexture(bgTextureId))
     {
         if (!resMan.loadTexture(bgTextureId, bgTexturePath))
@@ -61,7 +61,7 @@ void VictoryState::enter()
         m_victoryText.setFont(m_font);
     m_victoryText.setCharacterSize(80);
     m_victoryText.setFillColor(sf::Color::Yellow);
-    m_victoryText.setOutlineColor(sf::Color(150, 100, 0)); // Dark Gold
+    m_victoryText.setOutlineColor(sf::Color(150, 100, 0));
     m_victoryText.setOutlineThickness(3.f);
     sf::FloatRect textBounds = m_victoryText.getLocalBounds();
     m_victoryText.setOrigin(textBounds.left + textBounds.width / 2.f, textBounds.top + textBounds.height / 2.f);
@@ -82,22 +82,18 @@ void VictoryState::enter()
 void VictoryState::setupUI()
 {
     m_buttons.clear();
-    const sf::Vector2f buttonSize(280.f, 60.f); // 按钮可以大一点
+    const sf::Vector2f buttonSize(280.f, 60.f);
     const float buttonYStart = WINDOW_HEIGHT / 2.f + 80.f;
     const float buttonSpacing = 80.f;
 
-    if (!m_fontLoaded)
-    { /* ... error ... */
-    }
-
-    // 玩下一关/重新开始 (如果有关卡系统，否则就是重玩)
+    // 重新开始
     m_buttons.emplace_back(Button(
         sf::Vector2f((WINDOW_WIDTH - buttonSize.x) / 2.f, buttonYStart),
         buttonSize, "Play Again", m_font));
     m_buttons.back().setCallback([this]()
                                  { executeAction("play_again"); });
 
-    // 返回主菜单按钮
+    // 返回主菜单
     m_buttons.emplace_back(Button(
         sf::Vector2f((WINDOW_WIDTH - buttonSize.x) / 2.f, buttonYStart + buttonSpacing),
         buttonSize, "Main Menu", m_font));

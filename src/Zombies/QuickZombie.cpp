@@ -2,7 +2,7 @@
 #include "../Utils/Constants.h"
 #include "../Core/ResourceManager.h"
 
-QuickZombie::QuickZombie(ResourceManager &resManager, const sf::Vector2f &spawnPosition, Grid &grid) // <--- 接收 Grid& grid
+QuickZombie::QuickZombie(ResourceManager &resManager, const sf::Vector2f &spawnPosition, Grid &grid)
     : Zombie(resManager,
              QUICK_ZOMBIE_TEXTURE_KEY,
              spawnPosition,

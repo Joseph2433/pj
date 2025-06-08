@@ -44,6 +44,41 @@ void Game::loadGlobalResources()
             std::cerr << "Game:全局次要字体加载失败。某些UI可能会使用主要字体作为备用。" << std::endl;
         }
     }
+
+    // 预加载种子包
+    std::cout << "Game: Pre-loading seed packet icons and shovel..." << std::endl;
+    if (!m_resourceManager.hasTexture(SUNFLOWER_ICON_TEXTURE_KEY))
+    {
+        if (!m_resourceManager.loadTexture(SUNFLOWER_ICON_TEXTURE_KEY, "../../assets/images/sunflower.png"))
+            std::cerr << "Game: Failed to load " << SUNFLOWER_ICON_TEXTURE_KEY << std::endl;
+    }
+    if (!m_resourceManager.hasTexture(PEASHOOTER_ICON_TEXTURE_KEY))
+    {
+        if (!m_resourceManager.loadTexture(PEASHOOTER_ICON_TEXTURE_KEY, "../../assets/images/peashooter.png"))
+            std::cerr << "Game: Failed to load " << PEASHOOTER_ICON_TEXTURE_KEY << std::endl;
+    }
+    if (!m_resourceManager.hasTexture(WALLNUT_ICON_TEXTURE_KEY))
+    {
+        if (!m_resourceManager.loadTexture(WALLNUT_ICON_TEXTURE_KEY, "../../assets/images/wallnut.png"))
+            std::cerr << "Game: Failed to load " << WALLNUT_ICON_TEXTURE_KEY << std::endl;
+    }
+    if (!m_resourceManager.hasTexture(ICE_PEASHOOTER_ICON_TEXTURE_KEY))
+    {
+        if (!m_resourceManager.loadTexture(ICE_PEASHOOTER_ICON_TEXTURE_KEY, "../../assets/images/ice_peashooter.png"))
+            std::cerr << "Game: Failed to load " << ICE_PEASHOOTER_ICON_TEXTURE_KEY << std::endl;
+    }
+    if (!m_resourceManager.hasTexture(SHOVEL_TEXTURE_KEY))
+    {
+        if (!m_resourceManager.loadTexture(SHOVEL_TEXTURE_KEY, "../../assets/images/shovel.png"))
+            std::cerr << "Game: Failed to load " << SHOVEL_TEXTURE_KEY << std::endl;
+    }
+    if (!m_resourceManager.hasTexture(SHOVEL_CURSOR_TEXTURE_KEY))
+    {
+        // Assuming same image for cursor for now, adjust path if different
+        if (!m_resourceManager.loadTexture(SHOVEL_CURSOR_TEXTURE_KEY, "../../assets/images/shovel.png"))
+            std::cerr << "Game: Failed to load " << SHOVEL_CURSOR_TEXTURE_KEY << std::endl;
+    }
+
     // 背景音乐
     if (!m_soundManager.loadMusic(BGM_GAMEPLAY, "../../assets/audio/gameplay_music.mp3"))
     {

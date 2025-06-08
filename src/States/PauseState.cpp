@@ -18,26 +18,26 @@ void PauseState::enter()
 {
     std::cout << "Entering Pause State" << std::endl;
     if (!m_stateManager || !m_stateManager->getGame())
-    { /* ... error ... */
+    {
         return;
     }
     Game *game = m_stateManager->getGame();
     ResourceManager &resMan = game->getResourceManager();
-    sf::RenderWindow &window = game->getWindow(); // 需要窗口尺寸
+    sf::RenderWindow &window = game->getWindow();
 
     // 1. 设置半透明背景遮罩
     m_backgroundOverlay.setSize(sf::Vector2f(static_cast<float>(window.getSize().x), static_cast<float>(window.getSize().y)));
-    m_backgroundOverlay.setFillColor(sf::Color(0, 0, 0, 150)); // 半透明黑色 (alpha=150)
+    m_backgroundOverlay.setFillColor(sf::Color(0, 0, 0, 150));
     m_backgroundOverlay.setPosition(0, 0);
 
-    // 2. 加载字体 (推荐通过 ResourceManager)
+    // 2. 加载字体
     if (resMan.hasFont(FONT_ID_PRIMARY))
     {
         m_font = resMan.getFont(FONT_ID_PRIMARY);
         m_fontLoaded = true;
     }
     else if (m_font.loadFromFile(FONT_PATH_ARIAL))
-    { // Fallback
+    {
         m_fontLoaded = true;
         std::cerr << "PauseState: Primary font not found, loaded fallback Arial." << std::endl;
     }
@@ -67,7 +67,8 @@ void PauseState::enter()
     }
     SoundManager &soundMan = m_stateManager->getGame()->getSoundManager();
     if (soundMan.getMusicStatus() == sf::SoundSource::Playing)
-    { // 只暂停正在播放的音乐
+    {
+        // 只暂停正在播放的音乐
         soundMan.pauseMusic();
         std::cout << "PauseState: Music paused." << std::endl;
     }
@@ -82,9 +83,8 @@ void PauseState::setupUI()
     float currentButtonY = initialButtonY;
 
     if (!m_fontLoaded && m_buttons.empty())
-    { // 避免在字体未加载时创建依赖字体的按钮
+    {
         std::cerr << "PauseState::setupUI - Font not loaded, cannot create buttons with text." << std::endl;
-        // 可以考虑创建无文本按钮或显示错误信息
     }
 
     // Resume Button
@@ -144,7 +144,6 @@ void PauseState::executeAction(const std::string &action)
                 {
                     std::cerr << "PauseState Error: dynamic_cast to GamePlayState FAILED! Current state is not GamePlayState?" << std::endl;
                     std::cerr << "PauseState: Fallback - changing to a new GamePlayState." << std::endl;
-                    // 如果 dynamic_cast 失败，这里的 changeState 会移除当前的栈顶并推入新的
                     m_stateManager->changeState(std::make_unique<GamePlayState>(m_stateManager));
                 }
             }
@@ -152,13 +151,11 @@ void PauseState::executeAction(const std::string &action)
             {
                 std::cerr << "PauseState Error: getCurrentState() returned nullptr after popping PauseState." << std::endl;
                 std::cerr << "PauseState: Fallback - pushing a new GamePlayState onto (presumably) empty stack." << std::endl;
-                // 如果栈顶是nullptr（不应该发生），直接push一个新的
                 m_stateManager->pushState(std::make_unique<GamePlayState>(m_stateManager));
             }
         }
         else
         {
-            // 如果 pop PauseState 后栈就空了，说明 GamePlayState 之前就被移除了，这是个更严重的问题
             std::cerr << "PauseState Error: Stack became empty immediately after popping PauseState. This should not happen." << std::endl;
             std::cerr << "PauseState: Starting a new GamePlayState as a recovery measure." << std::endl;
             m_stateManager->pushState(std::make_unique<GamePlayState>(m_stateManager));
@@ -192,9 +189,10 @@ void PauseState::handleEvent(const sf::Event &event)
     if (event.type == sf::Event::KeyPressed)
     {
         if (event.key.code == sf::Keyboard::Escape || event.key.code == sf::Keyboard::P)
-        { // ESC 或 P 都可以取消暂停
+        {
+            // ESC 或 P 都可以取消暂停
             executeAction("resume");
-            return; // 事件已处理
+            return;
         }
     }
 

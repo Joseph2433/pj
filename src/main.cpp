@@ -1,4 +1,3 @@
-// src/main.cpp
 #include "Core/Game.h"
 #include <iostream>
 

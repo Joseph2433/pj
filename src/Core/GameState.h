@@ -1,8 +1,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 
-class StateManager; // 前向声明
-
+class StateManager;
 class GameState
 {
 public:

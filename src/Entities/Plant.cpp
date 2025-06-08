@@ -1,17 +1,14 @@
 #include "Plant.h"
-#include "../Core/ResourceManager.h" // 调整路径（如果需要）
-#include "../Systems/Grid.h"         // 调整路径（如果需要）
-// #include "../Utils/Constants.h" // Plant.cpp 本身不直接使用 Constants.h 中的特定植物属性
-// 但派生类会使用 Constants.h 并将值传递给此构造函数
-
-#include <iostream> // 用于调试 (可选)
+#include "../Core/ResourceManager.h"
+#include "../Systems/Grid.h"
+#include <iostream>
 
 Plant::Plant(ResourceManager &resManager,
              const std::string &textureKey,
-             const sf::Vector2i &gridPos, // gridPos.x 是行, gridPos.y 是列
+             const sf::Vector2i &gridPos,
              Grid &gridSystem,
-             int health, // 从派生类接收的具体植物生命值
-             int cost)   // 从派生类接收的具体植物花费
+             int health,
+             int cost)
     : Entity(resManager.getTexture(textureKey)),
       m_health(health),
       m_cost(cost),
@@ -19,26 +16,21 @@ Plant::Plant(ResourceManager &resManager,
 {
 
     sf::Vector2f cellCenterPixelPosition = gridSystem.getWorldPosition(gridPos.x, gridPos.y);
-    centerOrigin(); // Entity 基类的方法
+    centerOrigin();
     setPosition(cellCenterPixelPosition);
-
-    // 例如: std::cout << "Plant with health " << m_health << " and cost " << m_cost << " created." << std::endl;
 }
 
 void Plant::update(float dt)
 {
     Entity::update(dt);
-    // 植物基类通用的更新逻辑
 }
 
 void Plant::takeDamage(int damage)
 {
     if (!isAlive())
-        return; // 如果已经死了，不再受伤
+        return;
 
     m_health -= damage;
-    // std::cout << "植物类型(未知) 在 (" << m_gridPosition.x << "r, " << m_gridPosition.y << "c) 受到 "
-    //           << damage << " 点伤害, 剩余生命: " << m_health << std::endl;
     if (m_health <= 0)
     {
         m_health = 0;

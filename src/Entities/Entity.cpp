@@ -1,20 +1,14 @@
 #include "Entity.h"
 
-// 构造函数
 Entity::Entity(const sf::Texture &texture)
 {
     m_sprite.setTexture(texture);
-    // 默认情况下，精灵图的原点(origin)是其左上角 (0,0)。
-    // 你可能希望将其设置为纹理的中心，以便旋转和定位更直观。
-    // 例如: centerOrigin(); // 可以在构造后由派生类决定是否调用
 }
 
-// 虚更新函数 (默认实现为空)
 void Entity::update(float dt)
 {
-    // 基类实体没有特定的更新逻辑
-    // 派生类将重写此方法
-    (void)dt; // 如果函数体为空，用于抑制未使用参数的警告
+
+    (void)dt;
 }
 
 // 绘制实体的精灵图
@@ -108,12 +102,3 @@ void Entity::move(const sf::Vector2f &offset)
 {
     m_sprite.move(offset);
 }
-
-// 可选：直接访问精灵图
-// sf::Sprite& Entity::getSprite() {
-//     return m_sprite;
-// }
-//
-// const sf::Sprite& Entity::getSprite() const {
-//     return m_sprite;
-// }

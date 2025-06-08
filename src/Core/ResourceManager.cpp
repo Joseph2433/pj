@@ -9,7 +9,7 @@ ResourceManager::ResourceManager()
 
 void ResourceManager::createDefaultResources()
 {
-    // Default Texture
+
     sf::Image image;
     image.create(32, 32, sf::Color::Magenta);
     if (!m_defaultTexture.loadFromImage(image))
@@ -17,13 +17,9 @@ void ResourceManager::createDefaultResources()
         std::cerr << "Failed to create default texture." << std::endl;
     }
 
-    // Default Font - Try to load a common system font or one from assets
     if (!m_defaultFont.loadFromFile(FONT_PATH_ARIAL))
-    {   // Using constant
-        // Attempt to load a font from assets as a fallback
-        // if (!m_defaultFont.loadFromFile("assets/fonts/some_fallback_font.ttf")) {
+    {
         std::cerr << "ResourceManager: Failed to load default font. Text may not render." << std::endl;
-        // }
     }
 }
 
@@ -47,7 +43,7 @@ const sf::Texture &ResourceManager::getTexture(const std::string &id) const
     {
         return *(it->second);
     }
-    // std::cout << "ResourceManager: Texture ID '" << id << "' not found. Returning default." << std::endl;
+
     return m_defaultTexture;
 }
 
@@ -77,8 +73,8 @@ const sf::Font &ResourceManager::getFont(const std::string &id) const
     {
         return *(it->second);
     }
-    // std::cout << "ResourceManager: Font ID '" << id << "' not found. Returning default." << std::endl;
-    return m_defaultFont; // Ensure m_defaultFont is valid
+
+    return m_defaultFont;
 }
 
 bool ResourceManager::hasFont(const std::string &id) const

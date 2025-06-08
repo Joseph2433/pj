@@ -27,7 +27,7 @@ private:
     bool m_fontLoaded;
 
     sf::Text m_victoryText;
-    sf::Text m_congratsText; // 额外祝贺文本
+    sf::Text m_congratsText;
     std::vector<Button> m_buttons;
     sf::Vector2f m_mousePosition;
 

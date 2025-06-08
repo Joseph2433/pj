@@ -48,15 +48,11 @@ void CollisionSystem::checkProjectileZombieCollisions(std::vector<Projectile *> 
                 float zombieSpriteHeight = zombie->getGlobalBounds().height;
                 float zombieFeetY = zombie->getPosition().y;
                 float zombieHeadY = zombieFeetY - zombieSpriteHeight;
-
-                // 允许一点容差，例如子弹高度的一半
-                float yTolerance = projectile->getGlobalBounds().height / 2.f; // 或一个固定值
-
-                //
+                float yTolerance = projectile->getGlobalBounds().height / 2.f;
                 if (projYCenter >= zombieHeadY - yTolerance && projYCenter <= zombieFeetY + yTolerance)
                 {
 
-                    // --- 碰撞发生 ---
+                    // 碰撞发生
                     zombie->takeDamage(projectile->getDamage());
                     projectile->applyPrimaryEffect(zombie);
                     projectile->onHit();
@@ -76,7 +72,6 @@ void CollisionSystem::checkZombiePlantCollisions(std::vector<Zombie *> &zombies,
     {
         if (!zombie || !zombie->isAlive() || zombie->getCurrentState() == ZombieState::ATTACKING)
         {
-            // 如果僵尸无效、死亡或已经在攻击状态，则跳过
             continue;
         }
     }

@@ -1,16 +1,12 @@
 #pragma once
 #include <SFML/Graphics.hpp>
-#include <functional> // 用于回调函数
+#include <functional>
 
 class Button
 {
 public:
-    // 构造函数：初始化按钮位置、尺寸、文本和字体
     Button(const sf::Vector2f &position, const sf::Vector2f &size,
            const std::string &text, const sf::Font &font);
-
-    // 渲染按钮（调用时会自动更新外观）
-
     void render(sf::RenderWindow &window) const;
 
     // 处理鼠标移动事件（更新悬停状态）
@@ -43,10 +39,10 @@ private:
     bool m_hovered = false;
 
     // 颜色定义
-    static const sf::Color NORMAL_COLOR;        // 正常状态颜色
-    static const sf::Color HOVER_COLOR;         // 悬停状态颜色
-    static const sf::Color DISABLED_COLOR;      // 禁用状态颜色
-    static const sf::Color TEXT_COLOR;          // 正常文本颜色
-    static const sf::Color HOVER_TEXT_COLOR;    // 悬停文本颜色
-    static const sf::Color DISABLED_TEXT_COLOR; // 禁用文本颜色
+    static const sf::Color NORMAL_COLOR;
+    static const sf::Color HOVER_COLOR;
+    static const sf::Color DISABLED_COLOR;
+    static const sf::Color TEXT_COLOR;
+    static const sf::Color HOVER_TEXT_COLOR;
+    static const sf::Color DISABLED_TEXT_COLOR;
 };

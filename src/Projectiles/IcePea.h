@@ -12,6 +12,5 @@ public:
            const sf::Vector2f &direction);
     ~IcePea() override = default;
 
-    void applyPrimaryEffect(Zombie *targetZombie) override; // <--- 重写以应用减速
-    // onHit() 可以继承基类的，如果只是标记 m_hasHit
+    void applyPrimaryEffect(Zombie *targetZombie) override;
 };

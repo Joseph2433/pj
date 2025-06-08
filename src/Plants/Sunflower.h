@@ -2,7 +2,7 @@
 #include "../Entities/Plant.h"
 #include "../Utils/Constants.h"
 
-class PlantManager; // 前向声明
+class PlantManager;
 
 class Sunflower : public Plant
 {

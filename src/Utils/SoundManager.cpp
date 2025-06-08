@@ -1,23 +1,23 @@
 #include "SoundManager.h"
 #include <iostream>
-#include <algorithm> // For std::remove_if
+#include <algorithm>
 
 SoundManager::SoundManager() : m_globalVolume(70.f), m_currentPlayingMusicId("")
-{ // 默认全局音量70%
+{
     std::cout << "SoundManager constructed." << std::endl;
 }
 
 SoundManager::~SoundManager()
 {
-    stopMusic(); // 确保音乐停止
+    stopMusic();
     stopAllSounds();
-    m_musicTracks.clear(); // unique_ptr 会自动删除 sf::Music 对象
+    m_musicTracks.clear();
     m_soundBuffers.clear();
     m_playingSounds.clear();
     std::cout << "SoundManager destructed." << std::endl;
 }
 
-// --- 背景音乐 ---
+// 背景音乐
 bool SoundManager::loadMusic(const std::string &id, const std::string &filename)
 {
     auto music = std::make_unique<sf::Music>();
@@ -69,7 +69,7 @@ void SoundManager::stopMusic()
             it->second->stop();
             std::cout << "SoundManager: Stopped music ID '" << m_currentPlayingMusicId << "'" << std::endl;
         }
-        m_currentPlayingMusicId = ""; // 清除当前播放ID
+        m_currentPlayingMusicId = "";
     }
 }
 
@@ -93,7 +93,7 @@ void SoundManager::resumeMusic()
         auto it = m_musicTracks.find(m_currentPlayingMusicId);
         if (it != m_musicTracks.end() && it->second && it->second->getStatus() == sf::SoundSource::Paused)
         {
-            it->second->play(); // play() 会从暂停处继续
+            it->second->play();
             std::cout << "SoundManager: Resumed music ID '" << m_currentPlayingMusicId << "'" << std::endl;
         }
     }
@@ -139,7 +139,7 @@ sf::SoundSource::Status SoundManager::getMusicStatus() const
     return sf::SoundSource::Stopped;
 }
 
-// --- 音效 ---
+// 音效
 bool SoundManager::loadSoundBuffer(const std::string &id, const std::string &filename)
 {
     sf::SoundBuffer buffer;
@@ -155,7 +155,7 @@ bool SoundManager::loadSoundBuffer(const std::string &id, const std::string &fil
 
 void SoundManager::playSound(const std::string &id, float volume, float pitch, bool loop)
 {
-    // 清理已停止播放的音效，以避免 m_playingSounds 无限增长
+    // 清理已停止播放的音效
     m_playingSounds.erase(
         std::remove_if(m_playingSounds.begin(), m_playingSounds.end(),
                        [](const sf::Sound &s)
@@ -165,15 +165,12 @@ void SoundManager::playSound(const std::string &id, float volume, float pitch, b
     auto it = m_soundBuffers.find(id);
     if (it != m_soundBuffers.end())
     {
-        // 创建一个新的 sf::Sound 实例来播放
-        // sf::Sound 是轻量级的，可以按需创建
-        m_playingSounds.emplace_back(it->second); // 使用已加载的 buffer
+        m_playingSounds.emplace_back(it->second);
         sf::Sound &sound = m_playingSounds.back();
         sound.setVolume(volume * (m_globalVolume / 100.f));
         sound.setPitch(pitch);
         sound.setLoop(loop);
         sound.play();
-        // std::cout << "SoundManager: Playing sound ID '" << id << "'" << std::endl;
     }
     else
     {
@@ -187,13 +184,13 @@ void SoundManager::stopAllSounds()
     {
         sound.stop();
     }
-    m_playingSounds.clear(); // 清空列表
+    m_playingSounds.clear();
     std::cout << "SoundManager: All sounds stopped." << std::endl;
 }
 
 void SoundManager::setGlobalVolume(float volume)
 {
-    m_globalVolume = std::max(0.f, std::min(100.f, volume)); // Clamp 0-100
+    m_globalVolume = std::max(0.f, std::min(100.f, volume));
     std::cout << "SoundManager: Global volume set to " << m_globalVolume << "%" << std::endl;
 
     // 更新当前正在播放的音乐的实际音量

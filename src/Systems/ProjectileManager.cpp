@@ -22,13 +22,8 @@ void ProjectileManager::addProjectile(std::unique_ptr<Projectile> projectile)
         std::cout << "ProjectileManager: Added a projectile. Total: " << m_projectiles.size() << std::endl;
     }
 }
-// void ProjectileManager::firePea(const sf::Vector2f &startPosition, const sf::Vector2f &direction)
-// {
-//     m_projectiles.emplace_back(std::make_unique<Pea>(m_resourceManagerRef, startPosition, direction));
-//     std::cout << "ProjectileManager: fire." << std::endl;
-// }
 
-void ProjectileManager::update(float dt, const sf::RenderWindow &window /*, zombies */)
+void ProjectileManager::update(float dt, const sf::RenderWindow &window)
 {
 
     for (size_t i = 0; i < m_projectiles.size(); ++i)
@@ -79,7 +74,7 @@ std::vector<Projectile *> ProjectileManager::getAllActiveProjectiles()
     for (const auto &proj_ptr : m_projectiles)
     {
         if (proj_ptr && !proj_ptr->hasHit())
-        { // 只返回未击中且有效的子弹
+        {
             activeProjectiles.push_back(proj_ptr.get());
         }
     }

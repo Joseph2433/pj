@@ -2,7 +2,7 @@
 #include "../Utils/Constants.h"
 #include "../Core/ResourceManager.h"
 
-BossZombie::BossZombie(ResourceManager &resManager, const sf::Vector2f &spawnPosition, Grid &grid) // <--- 接收 Grid& grid
+BossZombie::BossZombie(ResourceManager &resManager, const sf::Vector2f &spawnPosition, Grid &grid)
     : Zombie(resManager,
              BOSS_ZOMBIE_TEXTURE_KEY,
              spawnPosition,

@@ -8,10 +8,10 @@ public:
 
     int getCurrentSun() const;
     void addSun(int amount);
-    bool trySpendSun(int amount); // Returns true if sun was spent, false otherwise
-    void reset();                 // Resets sun to initial value
+    bool trySpendSun(int amount);
+    void reset();
 
 private:
     int m_currentSun;
-    const int m_initialSunValue; // Store initial value for reset
+    const int m_initialSunValue;
 };

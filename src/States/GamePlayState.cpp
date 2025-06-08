@@ -39,7 +39,7 @@ GamePlayState::GamePlayState(StateManager *stateManager)
       m_zombieManager(stateManager->getGame()->getResourceManager(), m_grid),
       m_waveManager(m_zombieManager, *stateManager->getGame()),
       m_plantManager(stateManager->getGame()->getResourceManager(), m_grid, *this, m_projectileManager, m_zombieManager),
-      m_hud(stateManager->getGame()->getResourceManager(), m_sunManager, m_waveManager, m_primaryGameFont, m_secondaryGameFont), // <--- 将 m_waveManager 传递给 HUD
+      m_hud(stateManager->getGame()->getResourceManager(), m_sunManager, m_waveManager, m_primaryGameFont, m_secondaryGameFont),
       m_gameTime(0.0f),
       m_skySunSpawnIntervalMin(5.0f),
       m_skySunSpawnIntervalMax(12.0f),
@@ -160,22 +160,6 @@ void GamePlayState::loadAssets()
     {
         resMan.loadTexture(ICE_PEASHOOTER_TEXTURE_KEY, "../../assets/images/ice_peashooter.png");
     }
-    if (!resMan.hasTexture(SUNFLOWER_ICON_TEXTURE_KEY))
-    {
-        resMan.loadTexture(SUNFLOWER_ICON_TEXTURE_KEY, "../../assets/images/sunflower.png");
-    }
-    if (!resMan.hasTexture(PEASHOOTER_ICON_TEXTURE_KEY))
-    {
-        resMan.loadTexture(PEASHOOTER_ICON_TEXTURE_KEY, "../../assets/images/peashooter.png");
-    }
-    if (!resMan.hasTexture(WALLNUT_ICON_TEXTURE_KEY))
-    {
-        resMan.loadTexture(WALLNUT_ICON_TEXTURE_KEY, "../../assets/images/wallnut.png");
-    }
-    if (!resMan.hasTexture(ICE_PEASHOOTER_ICON_TEXTURE_KEY))
-    {
-        resMan.loadTexture(ICE_PEASHOOTER_ICON_TEXTURE_KEY, "../../assets/images/ice_peashooter.png");
-    }
     if (!resMan.hasTexture(SUN_TEXTURE_KEY))
     {
         resMan.loadTexture(SUN_TEXTURE_KEY, "../../assets/images/sun.png");
@@ -187,14 +171,6 @@ void GamePlayState::loadAssets()
     if (!resMan.hasTexture(ICE_PEA_TEXTURE_KEY))
     {
         resMan.loadTexture(ICE_PEA_TEXTURE_KEY, "../../assets/images/ice_pea.png");
-    }
-    if (!resMan.hasTexture(SHOVEL_TEXTURE_KEY))
-    {
-        resMan.loadTexture(SHOVEL_TEXTURE_KEY, "../../assets/images/shovel.png");
-    }
-    if (!resMan.hasTexture(SHOVEL_CURSOR_TEXTURE_KEY))
-    {
-        resMan.loadTexture(SHOVEL_CURSOR_TEXTURE_KEY, "../../assets/images/shovel.png");
     }
     std::cout << "GamePlayState:source load trying finish。" << std::endl;
 }
@@ -550,8 +526,8 @@ void GamePlayState::spawnSunFromSky()
     sf::RenderWindow &window = m_stateManager->getGame()->getWindow();
     float spawnX = randomFloat(window.getSize().x * 0.05f, window.getSize().x * 0.95f);
     float spawnY = -30.f;
-    float groundMinY = GRID_START_Y + (GRID_ROWS / 2.0f) * GRID_CELL_HEIGHT;                  // Example logic
-    float groundMaxY = GRID_START_Y + GRID_ROWS * GRID_CELL_HEIGHT - GRID_CELL_HEIGHT * 0.5f; // Example logic
+    float groundMinY = GRID_START_Y + (GRID_ROWS / 2.0f) * GRID_CELL_HEIGHT;
+    float groundMaxY = GRID_START_Y + GRID_ROWS * GRID_CELL_HEIGHT - GRID_CELL_HEIGHT * 0.5f;
     groundMaxY = std::min(groundMaxY, static_cast<float>(window.getSize().y - 50.f));
     if (groundMinY >= groundMaxY)
         groundMinY = groundMaxY - 50.f;

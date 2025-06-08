@@ -4,7 +4,6 @@
 #include <vector>
 #include <SFML/System.hpp>
 
-// 前向声明
 class ResourceManager;
 class SunManager;
 namespace sf
@@ -15,7 +14,7 @@ namespace sf
 }
 
 class SeedManager
-{ // <--- 类名已更改
+{
 public:
     SeedManager(ResourceManager &resManager, SunManager &sunManager,
                 sf::Font &primaryFont, sf::Font &secondaryFont);
@@ -30,7 +29,7 @@ public:
     void deselectAllPackets();
 
 private:
-    void initializeSeedPackets(); // 方法名也可以调整以匹配
+    void initializeSeedPackets();
     void addSeedPacket(PlantType type, const std::string &textureKey, int cost, float cooldownTime);
     void selectSeedPacket(PlantType type);
 

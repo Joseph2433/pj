@@ -55,9 +55,8 @@ protected:
     ZombieState m_currentState;
     float m_stateTimer;
     Plant *m_currentTargetPlant;
-    Grid &m_gridRef; // <--- 新增: 对 Grid 的引用，用于 getLane
+    Grid &m_gridRef;
 
-    // --- 行为辅助方法 ---
     virtual void moveLeft(float dt);
     Plant *findTargetPlant(const std::vector<Plant *> &plantsInLane);
     virtual void attack(Plant *targetPlant);

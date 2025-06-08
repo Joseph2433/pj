@@ -8,6 +8,6 @@ class ResourceManager;
 class BasicZombie : public Zombie
 {
 public:
-    BasicZombie(ResourceManager &resManager, const sf::Vector2f &spawnPosition, Grid &grid); // <--- 添加 Grid& grid 参数
+    BasicZombie(ResourceManager &resManager, const sf::Vector2f &spawnPosition, Grid &grid);
     ~BasicZombie() override = default;
 };

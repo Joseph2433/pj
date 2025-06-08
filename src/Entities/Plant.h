@@ -1,10 +1,9 @@
 #pragma once
 
 #include "Entity.h"
-#include <SFML/System.hpp> // 用于 sf::Vector2i (网格位置)
+#include <SFML/System.hpp>
 #include <string>
 
-// 前向声明
 class ResourceManager;
 class Grid;
 

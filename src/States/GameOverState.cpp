@@ -1,9 +1,9 @@
 #include "GameOverState.h"
 #include "Core/StateManager.h"
-#include "Core/Game.h" // 用于获取 ResourceManager 和窗口
+#include "Core/Game.h"
 #include "Core/ResourceManager.h"
-#include "States/MenuState.h"     // 用于返回主菜单
-#include "States/GamePlayState.h" // 用于重新开始
+#include "States/MenuState.h"
+#include "States/GamePlayState.h"
 #include "../Utils/Constants.h"
 #include <iostream>
 
@@ -16,13 +16,13 @@ void GameOverState::enter()
 {
     std::cout << "Entering GameOver State" << std::endl;
     if (!m_stateManager || !m_stateManager->getGame())
-    { /* ... error ... */
+    {
         return;
     }
     Game *game = m_stateManager->getGame();
     ResourceManager &resMan = game->getResourceManager();
 
-    // 加载背景 (可以和MenuState背景一样，或者用新的)
+    // 加载背景
     std::string bgTextureId = "GameOverBackground";
     std::string bgTexturePath = "../../assets/images/gameover_background.png";
     if (!resMan.hasTexture(bgTextureId))
@@ -42,7 +42,7 @@ void GameOverState::enter()
     }
     m_backgroundSprite.setPosition(0, 0);
 
-    // 加载字体 (推荐通过 ResourceManager)
+    // 加载字体
     if (resMan.hasFont(FONT_ID_PRIMARY))
     {
         m_font = resMan.getFont(FONT_ID_PRIMARY);
@@ -79,19 +79,18 @@ void GameOverState::setupUI()
     const float buttonSpacing = 80.f;
 
     if (!m_fontLoaded)
-    { // 如果字体未加载，按钮可能无法正确显示文本
+    {
         std::cerr << "GameOverState::setupUI - Font not loaded, buttons might not have text." << std::endl;
     }
 
-    // 重试按钮
+    // 重新开始
     m_buttons.emplace_back(Button(
         sf::Vector2f((WINDOW_WIDTH - buttonSize.x) / 2.f, buttonYStart),
-        buttonSize, "Try Again", m_font // 确保 Button 构造能处理空字体
-        ));
+        buttonSize, "Try Again", m_font));
     m_buttons.back().setCallback([this]()
                                  { executeAction("retry"); });
 
-    // 返回主菜单按钮
+    // 返回主菜单
     m_buttons.emplace_back(Button(
         sf::Vector2f((WINDOW_WIDTH - buttonSize.x) / 2.f, buttonYStart + buttonSpacing),
         buttonSize, "Main Menu", m_font));
@@ -132,13 +131,12 @@ void GameOverState::handleEvent(const sf::Event &event)
     }
     if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)
     {
-        executeAction("menu"); // ESC 返回主菜单
+        executeAction("menu");
     }
 }
 
 void GameOverState::update(float deltaTime)
 {
-    // 通常 Game Over 界面没有太多动态更新逻辑
 }
 
 void GameOverState::render(sf::RenderWindow &window)
