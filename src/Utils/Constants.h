@@ -54,8 +54,8 @@ const std::string PEASHOOTER_ICON_TEXTURE_KEY = "peashooter_icon";
 const float PEASHOOTER_SHOOT_INTERVAL = 1.4f; // 豌豆射手两次射击之间的间隔时间 (秒)
 
 // Wall-nut
-const int WALLNUT_HEALTH = 4000;
-const int WALLNUT_COST = 50;
+const int WALLNUT_HEALTH = 2000;
+const int WALLNUT_COST = 75;
 const float WALLNUT_COOLDOWN_TIME = 20.0f;                 // 坚果墙冷却时间通常较长
 const std::string WALLNUT_TEXTURE_KEY = "wallnut_texture"; // 确保与加载时一致
 const std::string WALLNUT_ICON_TEXTURE_KEY = "wallnut_icon";
@@ -104,14 +104,14 @@ const std::string FONT_ID_SECONDARY = "font_secondary";
 // --- 子弹 (Projectiles) ---
 // **豌豆 (Pea)**
 const float PEA_SPEED = 350.f;
-const int PEA_DAMAGE = 20;
+const int PEA_DAMAGE = 25;
 const std::string PEA_TEXTURE_KEY = "pea_projectile";
 const float PEA_VISUAL_WIDTH = 13.f;
 const float PEA_VISUAL_HEIGHT = 13.f;
 const float PEA_LIFESPAN_SECONDS = 3.0f;
 // **寒冰豌豆 (Ice Pea)** - 新增
-const float ICE_PEA_SPEED = 330.f;
-const int ICE_PEA_DAMAGE = 20;
+const float ICE_PEA_SPEED = 300.f;
+const int ICE_PEA_DAMAGE = 25;
 const std::string ICE_PEA_TEXTURE_KEY = "ice_pea_projectile";
 const float ICE_PEA_VISUAL_WIDTH = 15.f;
 const float ICE_PEA_VISUAL_HEIGHT = 15.f;
@@ -122,31 +122,31 @@ const float ZOMBIE_SLOW_FACTOR = 0.5f;
 // --- 僵尸 (Zombies) ---
 const float ZOMBIE_ATTACK_RANGE = 5.f;
 // 普通僵尸 (Basic Zombie)
-const int BASIC_ZOMBIE_HEALTH = 100;
+const int BASIC_ZOMBIE_HEALTH = 150;
 const float BASIC_ZOMBIE_SPEED = 30.f;
-const int BASIC_ZOMBIE_DAMAGE_PER_ATTACK = 10;
+const int BASIC_ZOMBIE_DAMAGE_PER_ATTACK = 30;
 const float BASIC_ZOMBIE_ATTACK_INTERVAL = 1.0f;
 const std::string BASIC_ZOMBIE_TEXTURE_KEY = "basic_zombie";
 
 // 大僵尸 (Big Zombie)
-const int BIG_ZOMBIE_HEALTH = 100;
-const float BIG_ZOMBIE_SPEED = 30.f;
-const int BIG_ZOMBIE_DAMAGE_PER_ATTACK = 10;
+const int BIG_ZOMBIE_HEALTH = 300;
+const float BIG_ZOMBIE_SPEED = 20.f;
+const int BIG_ZOMBIE_DAMAGE_PER_ATTACK = 20;
 const float BIG_ZOMBIE_ATTACK_INTERVAL = 1.0f;
 const std::string BIG_ZOMBIE_TEXTURE_KEY = "big_zombie";
 
 // 巨人僵尸 (Boss Zombie)
-const int BOSS_ZOMBIE_HEALTH = 100;
+const int BOSS_ZOMBIE_HEALTH = 400;
 const float BOSS_ZOMBIE_SPEED = 30.f;
-const int BOSS_ZOMBIE_DAMAGE_PER_ATTACK = 10;
+const int BOSS_ZOMBIE_DAMAGE_PER_ATTACK = 100;
 const float BOSS_ZOMBIE_ATTACK_INTERVAL = 1.0f;
 const std::string BOSS_ZOMBIE_TEXTURE_KEY = "boss_zombie";
 
 // 小僵尸 (quick Zombie)
 const int QUICK_ZOMBIE_HEALTH = 100;
-const float QUICK_ZOMBIE_SPEED = 30.f;
-const int QUICK_ZOMBIE_DAMAGE_PER_ATTACK = 10;
-const float QUICK_ZOMBIE_ATTACK_INTERVAL = 1.0f;
+const float QUICK_ZOMBIE_SPEED = 50.f;
+const int QUICK_ZOMBIE_DAMAGE_PER_ATTACK = 15;
+const float QUICK_ZOMBIE_ATTACK_INTERVAL = 0.9f;
 const std::string QUICK_ZOMBIE_TEXTURE_KEY = "quick_zombie";
 
 // 僵尸生成相关
