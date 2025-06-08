@@ -45,8 +45,8 @@ void Game::loadGlobalResources()
         }
     }
     // 背景音乐
-    if (!m_soundManager.loadMusic(BGM_GAMEPLAY, "../../assets/audio/gameplay_music.ogg"))
-    { // <--- 确保路径正确
+    if (!m_soundManager.loadMusic(BGM_GAMEPLAY, "../../assets/audio/gameplay_music.mp3"))
+    {
         std::cerr << "Game: Failed to load gameplay background music!" << std::endl;
     }
     std::cout << "Game:全局资源加载尝试完毕。" << std::endl;

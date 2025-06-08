@@ -95,8 +95,8 @@ const std::string FONT_PATH_ARIAL = "C:/Windows/Fonts/arial.ttf";     // Windows
 const std::string FONT_PATH_VERDANA = "C:/Windows/Fonts/verdana.ttf"; // 另一个Windows默认
 // 推荐：将字体文件放在 assets/fonts/ 目录下，并使用相对路径
 const std::string FONT_PATH_MAIN = "";
-const std::string FONT_PATH_PRIMARY_ASSET = "assets/fonts/your_primary_font.ttf";
-const std::string FONT_PATH_SECONDARY_ASSET = "assets/fonts/your_secondary_font.ttf";
+const std::string FONT_PATH_PRIMARY_ASSET = "../../assets/fonts/BAUHS93.ttf";
+const std::string FONT_PATH_SECONDARY_ASSET = "../../assets/fonts/testtype.ttf";
 
 const std::string FONT_ID_PRIMARY = "font_primary";
 const std::string FONT_ID_SECONDARY = "font_secondary";
